@@ -1,0 +1,13 @@
+{
+    "name": "MobileBank",
+    "alias": "mobilebank",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\MobileBank\\Providers\\MobileBankServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

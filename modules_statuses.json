@@ -1,0 +1,12 @@
+{
+    "Setting": true,
+    "Account": true,
+    "Supplier": true,
+    "Customer": true,
+    "Bank": true,
+    "MobileBank": true,
+    "Material": true,
+    "ViaVendor": true,
+    "Purchase": true,
+    "Production": true
+}
