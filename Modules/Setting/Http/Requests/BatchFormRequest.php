@@ -2,7 +2,7 @@
 
 namespace Modules\Setting\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\FormRequest;
 
 class BatchFormRequest extends FormRequest
 {
@@ -13,9 +13,13 @@ class BatchFormRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
-        ];
+        $rules = [];
+        $rules['batch_no'] = ['required','string','unique:batches,batch_no'];
+        if(request()->update_id)
+        {
+            $rules['batch_no'][2] = 'unique:batches,batch_no,'.request()->update_id;
+        }
+        return $rules;
     }
 
     /**
