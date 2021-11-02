@@ -15,7 +15,10 @@ class CreateJobTypesTable extends Migration
     {
         Schema::create('job_types', function (Blueprint $table) {
             $table->id();
-
+            $table->string('job_type')->unique();
+            $table->enum('status',['1','2'])->default('1')->comment = "1=Active, 2=Inactive";
+            $table->string('created_by')->nullable();
+            $table->string('modified_by')->nullable();
             $table->timestamps();
         });
     }
