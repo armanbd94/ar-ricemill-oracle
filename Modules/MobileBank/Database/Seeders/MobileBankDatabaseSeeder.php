@@ -1,0 +1,21 @@
+<?php
+
+namespace Modules\MobileBank\Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Model;
+
+class MobileBankDatabaseSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        Model::unguard();
+
+        // $this->call("OthersTableSeeder");
+    }
+}
