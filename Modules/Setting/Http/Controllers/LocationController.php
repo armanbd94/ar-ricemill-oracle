@@ -3,6 +3,7 @@
 namespace Modules\Setting\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Location;
 use App\Http\Controllers\BaseController;
 use Modules\Setting\Http\Requests\LocationFormRequest;
@@ -18,7 +19,8 @@ class LocationController extends BaseController
     {
         if(permission('location-access')){
             $this->setPageData('Manage Location','Manage Location','fas fa-map-marker-alt',[['name' => 'Manage Location']]);
-            return view('setting::location.index');
+            $sites = Site::allSites();
+            return view('setting::location.index',compact('sites'));
         }else{
             return $this->access_blocked();
         }

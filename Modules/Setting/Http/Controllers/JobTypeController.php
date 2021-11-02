@@ -78,6 +78,7 @@ class JobTypeController extends BaseController
                 $collection   = $this->track_data($collection,$request->update_id);
                 $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());
                 $output       = $this->store_message($result, $request->update_id);
+                $this->model->flushCache();
             }else{
                 $output       = $this->unauthorized();
             }
@@ -108,6 +109,7 @@ class JobTypeController extends BaseController
             if(permission('job-type-delete')){
                 $result   = $this->model->find($request->id)->delete();
                 $output   = $this->delete_message($result);
+                $this->model->flushCache();
             }else{
                 $output   = $this->unauthorized();
 
@@ -124,6 +126,7 @@ class JobTypeController extends BaseController
             if(permission('job-type-bulk-delete')){
                 $result   = $this->model->destroy($request->ids);
                 $output   = $this->bulk_delete_message($result);
+                $this->model->flushCache();
             }else{
                 $output   = $this->unauthorized();
             }
@@ -140,6 +143,7 @@ class JobTypeController extends BaseController
                 $result   = $this->model->find($request->id)->update(['status' => $request->status]);
                 $output   = $result ? ['status' => 'success','message' => 'Status Has Been Changed Successfully']
                 : ['status' => 'error','message' => 'Failed To Change Status'];
+                $this->model->flushCache();
             }else{
                 $output       = $this->unauthorized();
             }

@@ -76,7 +76,7 @@ class Site extends BaseModel
     **************************************/
     protected const ALL_SITES    = '_sites';
 
-    public static function allBatches(){
+    public static function allSites(){
         return Cache::rememberForever(self::ALL_SITES, function () {
             return DB::table('sites')->where('status',1)->get();
         });
