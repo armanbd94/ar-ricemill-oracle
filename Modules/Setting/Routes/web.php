@@ -16,18 +16,18 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['auth']], function () {
 
     //Site Routes
-    Route::get('site', 'JobTypeController@index')->name('site');
+    Route::get('site', 'SiteController@index')->name('site');
     Route::group(['prefix' => 'site', 'as'=>'site.'], function () {
-        Route::post('datatable-data', 'JobTypeController@get_datatable_data')->name('datatable.data');
-        Route::post('store-or-update', 'JobTypeController@store_or_update_data')->name('store.or.update');
-        Route::post('edit', 'JobTypeController@edit')->name('edit');
-        Route::post('delete', 'JobTypeController@delete')->name('delete');
-        Route::post('bulk-delete', 'JobTypeController@bulk_delete')->name('bulk.delete');
+        Route::post('datatable-data', 'SiteController@get_datatable_data')->name('datatable.data');
+        Route::post('store-or-update', 'SiteController@store_or_update_data')->name('store.or.update');
+        Route::post('edit', 'SiteController@edit')->name('edit');
+        Route::post('delete', 'SiteController@delete')->name('delete');
+        Route::post('bulk-delete', 'SiteController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'SiteController@change_status')->name('change.status');
     });
 
     //Location Routes
-    Route::get('location', 'JobTypeController@index')->name('location');
+    Route::get('location', 'LocationController@index')->name('location');
     Route::group(['prefix' => 'location', 'as'=>'location.'], function () {
         Route::post('datatable-data', 'LocationController@get_datatable_data')->name('datatable.data');
         Route::post('store-or-update', 'LocationController@store_or_update_data')->name('store.or.update');
