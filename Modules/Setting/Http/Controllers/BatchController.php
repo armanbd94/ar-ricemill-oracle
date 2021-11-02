@@ -45,7 +45,7 @@ class BatchController extends BaseController
                     }
 
                     if(permission('wip-batch-delete')){
-                        $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->name . '">'.self::ACTION_BUTTON['Delete'].'</a>';
+                        $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->batch_no . '">'.self::ACTION_BUTTON['Delete'].'</a>';
                     }
 
                     $row = [];
@@ -54,7 +54,7 @@ class BatchController extends BaseController
                     }
                     $row[] = $no;
                     $row[] = $value->batch_no;
-                    $row[] = permission('wip-batch-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
+                    $row[] = permission('wip-batch-edit') ? change_status($value->id,$value->status, $value->batch_no) : STATUS_LABEL[$value->status];
                     $row[] = $value->created_by;
                     $row[] = $value->modified_by ?? '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">Not Modified Yet</span>';
                     $row[] = $value->created_at ? date(config('settings.date_format'),strtotime($value->created_at)) : '';
