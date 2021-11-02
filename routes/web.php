@@ -92,8 +92,8 @@ Route::group(['middleware' => ['auth']], function () {
 
      //Category Routes
       //Category Routes
-      Route::get('{type}/category', 'CategoryController@index')->name('category');
-      Route::group(['prefix' => 'category', 'as'=>'category.'], function () {
+      Route::get('{type}/class', 'CategoryController@index')->name('class');
+      Route::group(['prefix' => 'class', 'as'=>'class.'], function () {
           Route::post('datatable-data', 'CategoryController@get_datatable_data')->name('datatable.data');
           Route::post('store-or-update', 'CategoryController@store_or_update_data')->name('store.or.update');
           Route::post('edit', 'CategoryController@edit')->name('edit');

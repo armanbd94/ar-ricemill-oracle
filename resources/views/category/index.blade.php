@@ -10,18 +10,13 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
-                    <!--begin::Button-->
-                    @if (permission('material-category-add') || permission('product-category-add') )
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Category','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
+                    @if (permission('material-class-add') || permission('product-class-add') )
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Class','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                     @endif
-                    <!--end::Button-->
                 </div>
             </div>
         </div>
@@ -38,16 +33,14 @@
                             @endforeach
                         </x-form.selectbox>
                         <div class="col-md-4">
-                            <div style="margin-top:28px;">    
-                                <div style="margin-top:28px;">    
-                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
-                                    data-toggle="tooltip" data-theme="dark" title="Reset">
-                                    <i class="fas fa-undo-alt"></i></button>
-    
-                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
-                                    data-toggle="tooltip" data-theme="dark" title="Search">
-                                    <i class="fas fa-search"></i></button>
-                                </div>
+                            <div style="margin-top:28px;">     
+                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                data-toggle="tooltip" data-theme="dark" title="Reset">
+                                <i class="fas fa-undo-alt"></i></button>
+
+                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                data-toggle="tooltip" data-theme="dark" title="Search">
+                                <i class="fas fa-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -61,7 +54,7 @@
                             <table id="dataTable" class="table table-bordered table-hover">
                                 <thead class="bg-primary">
                                     <tr>
-                                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                                         <th>
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" class="custom-control-input" id="select_all" onchange="select_all()">
@@ -118,7 +111,7 @@
                 zeroRecords: '<strong class="text-danger">No Data Found</strong>'
             },
             "ajax": {
-                "url": "{{route('category.datatable.data')}}",
+                "url": "{{route('class.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
                     data.name   = $("#form-filter #name").val();
@@ -129,13 +122,13 @@
             },
             "columnDefs": [{
                     @if($type == 1)
-                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                         "targets": [0,8],
                         @else 
                         "targets": [7],
                         @endif
                     @else 
-                        @if (permission('product-category-bulk-delete') || permission('product-category-bulk-delete'))
+                        @if (permission('product-class-bulk-delete') || permission('product-class-bulk-delete'))
                         "targets": [0,8],
                         @else 
                         "targets": [7],
@@ -147,13 +140,13 @@
                 },
                 {
                 @if($type == 1)
-                    @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                    @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                     "targets": [1,3,4,5,6,7],
                     @else 
                     "targets": [0,2,3,4,5,6],
                     @endif
                 @else 
-                    @if (permission('product-category-bulk-delete') || permission('product-category-bulk-delete'))
+                    @if (permission('product-class-bulk-delete') || permission('product-class-bulk-delete'))
                     "targets": [1,3,4,5,6,7],
                     @else 
                     "targets": [0,2,3,4,5,6],
@@ -167,7 +160,6 @@
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'<'float-right'p>>>",
     
             "buttons": [
-                @if (permission('material-category-report') || permission('product-category-report'))
                 {
                     'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
                 },
@@ -180,7 +172,7 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     'columns': ':gt(0)',
                     "exportOptions": {
-                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -203,7 +195,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -217,7 +209,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -233,7 +225,7 @@
                     "orientation": "portrait", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -241,8 +233,7 @@
                     },
                    
                 },
-                @endif 
-                @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
+                @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
                 {
                     'className':'btn btn-danger btn-sm delete_btn d-none text-white',
                     'text':'Delete',
@@ -267,7 +258,7 @@
         $(document).on('click', '#save-btn', function () {
             let form = document.getElementById('store_or_update_form');
             let formData = new FormData(form);
-            let url = "{{route('category.store.or.update')}}";
+            let url = "{{route('class.store.or.update')}}";
             let id = $('#update_id').val();
             let method;
             if (id) {
@@ -285,7 +276,7 @@
             $('#store_or_update_form').find('.error').remove();
             if (id) {
                 $.ajax({
-                    url: "{{route('category.edit')}}",
+                    url: "{{route('class.edit')}}",
                     type: "POST",
                     data: { id: id,_token: _token},
                     dataType: "JSON",
@@ -317,7 +308,7 @@
             let id    = $(this).data('id');
             let name  = $(this).data('name');
             let row   = table.row($(this).parent('tr'));
-            let url   = "{{ route('category.delete') }}";
+            let url   = "{{ route('class.delete') }}";
             delete_data(id, url, table, row, name);
         });
     
@@ -336,7 +327,7 @@
                     icon: 'warning',
                 });
             }else{
-                let url = "{{route('category.bulk.delete')}}";
+                let url = "{{route('class.bulk.delete')}}";
                 bulk_delete(ids,url,table,rows);
             }
         }
@@ -346,7 +337,7 @@
             let name   = $(this).data('name');
             let status = $(this).data('status');
             let row    = table.row($(this).parent('tr'));
-            let url    = "{{ route('category.change.status') }}";
+            let url    = "{{ route('class.change.status') }}";
             change_status(id, url, table, row, name, status);
         });
     

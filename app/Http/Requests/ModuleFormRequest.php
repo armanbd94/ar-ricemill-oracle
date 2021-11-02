@@ -31,7 +31,7 @@ class ModuleFormRequest extends FormRequest
         }else{
             $rules['module_name']     = ['required','string'];
             if(request()->update_id){
-                $rules['url']         = ['nullable','string',Rule::unique('modules','url')->where('menu_id',request()->menu_id)->where('id','<>',request()->update_id)];
+                $rules['url']         = ['nullable','string',Rule::unique('modules','url')->where('menu_id',request()->menu_id)->whereNot('id',request()->update_id)];
             }else{
                 $rules['url']         = ['nullable','string',Rule::unique('modules','url')->where('menu_id',request()->menu_id)];
             }
