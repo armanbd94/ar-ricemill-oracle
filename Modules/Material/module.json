@@ -1,0 +1,13 @@
+{
+    "name": "Material",
+    "alias": "material",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Material\\Providers\\MaterialServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
