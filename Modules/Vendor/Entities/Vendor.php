@@ -22,10 +22,12 @@ class Vendor extends BaseModel
         ->where('voucher_type','PR Balance')->withDefault(['debit' => '']);
     }
 
-    public function supplier_balance(int $id)
+    public function vendor_balance(int $id)
     {
         $data = DB::table('vendors as v')
-            ->selectRaw('v.id,b.id as coaid,b.code,((select ifnull(sum(debit),0) from transactions where chart_of_account_id= b.id AND approve = 1)-(select ifnull(sum(credit),0) from transactions where chart_of_account_id= b.id AND approve = 1)) as balance')
+            ->selectRaw('v.id,b.id as coaid,b.code,
+            ((select sum(debit) from transactions where chart_of_account_id= b.id AND approve = 1)-(select sum(credit)
+            from transactions where chart_of_account_id= b.id AND approve = 1)) as balance')
             ->leftjoin('chart_of_accounts as b', 'v.id', '=', 'b.vendor_id')
             ->where('v.id',$id)->first();
         $balance = 0;
@@ -170,4 +172,55 @@ class Vendor extends BaseModel
     /***********************************
     * * *  Begin :: Cache Data * * *
     ************************************/
+
+    public function coa_data(string $code,string $head_name,int $vendor_id)
+    {
+        return [
+            'code'              => $code,
+            'name'              => $head_name,
+            'parent_name'       => 'Account Payable',
+            'level'             => 3,
+            'type'              => 'L',
+            'is_transaction'    => 1,
+            'general_ledger'    => 2,
+            'vendor_id'         => $vendor_id,
+            'budget'            => 2,
+            'depreciation'      => 2,
+            'depreciation_rate' => '0',
+            'status'            => 1,
+            'created_by'        => auth()->user()->name
+        ];
+    }
+
+    public function previous_balance_data($balance, int $coa_id, string $name) {
+        $transaction_id = generator(10);
+        $cosdr = array(
+            'chart_of_account_id' => $coa_id,
+            'voucher_no'          => $transaction_id,
+            'voucher_type'        => 'PR Balance',
+            'voucher_date'        => date("Y-m-d"),
+            'description'         => 'Supplier credit for previous balance '.$name,
+            'debit'               => 0,
+            'credit'              => $balance,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        );
+        $inventory = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
+            'voucher_no'          => $transaction_id,
+            'voucher_type'        => 'PR Balance',
+            'voucher_date'        => date("Y-m-d"),
+            'description'         => 'Inventory debit for old purchase from '.$name,
+            'debit'               => $balance,
+            'credit'              => 0,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        ); 
+
+        return [$cosdr,$inventory];
+    }
 }

@@ -3,26 +3,27 @@
 namespace Modules\Account\Entities;
 
 use App\Models\BaseModel;
+use Modules\Bank\Entities\Bank;
+use Modules\Vendor\Entities\Vendor;
 use Modules\Customer\Entities\Customer;
-use Modules\Supplier\Entities\Supplier;
 use Modules\Account\Entities\Transaction;
-use Modules\SalesMen\Entities\Salesmen;
+use Modules\MobileBank\Entities\MobileBank;
 
 class ChartOfAccount extends BaseModel
 {
-    protected $fillable = [ 'code', 'name', 'parent_name', 'level', 'type', 'transaction', 'general_ledger', 
-    'customer_id', 'supplier_id', 'salesmen_id', 'bank_id','mobile_bank_id','budget', 'depreciation', 'depreciation_rate', 'status', 'created_by', 'modified_by'];
+    protected $fillable = [ 'code', 'name', 'parent_name', 'level', 'type', 'is_transaction', 'general_ledger', 
+    'customer_id', 'vendor_id', 'bank_id','mobile_bank_id','budget', 'depreciation', 'depreciation_rate', 'status', 'created_by', 'modified_by'];
 
     public function transactions()
     {
         return $this->hasMany(Transaction::class,'chart_of_account_id','id');
     }
-
     
     public static function bankHeadCode()
     {
         return self::where('level',4)->where('code','like', '1020102%')->max('code');
     }
+
     public static function mobileBankHeadCode()
     {
         return self::where('level',4)->where('code','like', '1020103%')->max('code');
@@ -34,19 +35,25 @@ class ChartOfAccount extends BaseModel
         return $query->id;
     }
 
-    public function supplier()
+    public function vendor()
     {
-        return $this->belongsTo(Supplier::class,'supplier_id','id');
+        return $this->belongsTo(Vendor::class,'vendor_id','id');
     }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class,'customer_id','id');
     }
-    public function salesmen()
+
+    public function bank()
     {
-        return $this->belongsTo(Salesmen::class,'salesmen_id','id');
+        return $this->belongsTo(Bank::class,'bank_id','id');
     }
 
+    public function mobile_bank()
+    {
+        return $this->belongsTo(MobileBank::class,'mobile_bank_id','id');
+    }
 
     /******************************************
      * * * Begin :: Custom Datatable Code * * *

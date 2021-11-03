@@ -41,7 +41,7 @@ class COAController extends BaseController
                 $output['code']           = $code ? ($code+1) : $coa->code.'01';
                 $output['level']          = $coa->level + 1;
                 $output['type']           = $coa->type;
-                $output['transaction']    = $coa->transaction;
+                $output['is_transaction']    = $coa->transaction;
                 $output['general_ledger'] = $coa->general_ledger;
                 return response()->json($output);
             }
@@ -57,8 +57,8 @@ class COAController extends BaseController
                     $collection   = collect($request->validated())->except('parent_name');
                     $parent_name  = DB::table('chart_of_accounts')->where('id',$request->parent_name)->value('name');
                     $collection   = $collection->merge([
-                        'parent_name'       => $parent_name,
-                        'transaction'       => $request->transaction ? $request->transaction : 2,
+                        'parent_name'       => $parent_name ? $parent_name : 'COA',
+                        'is_transaction'    => $request->transaction ? $request->transaction : 2,
                         'general_ledger'    => $request->general_ledger ? $request->general_ledger : 2,
                         'budget'            => 2,
                         'depreciation'      => 2,

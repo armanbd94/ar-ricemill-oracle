@@ -37,8 +37,8 @@
                     </x-form.selectbox>
                     <div class="form-group col-md-12 d-flex justify-content-between">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" name="transaction" id="transaction" value="2" onchange="set_checkbox_value('transaction')">
-                            <label class="custom-control-label" for="transaction">Is Transaction</label>
+                            <input type="checkbox" class="custom-control-input" name="is_transaction" id="is_transaction" value="2" onchange="set_checkbox_value('is_transaction')">
+                            <label class="custom-control-label" for="is_transaction">Is Transaction</label>
                         </div>
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" name="general_ledger" id="general_ledger" value="2" onchange="set_checkbox_value('general_ledger')">

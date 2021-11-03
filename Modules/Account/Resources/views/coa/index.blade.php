@@ -253,13 +253,13 @@ $(document).ready(function(){
                         $('#store_or_update_form #level').val(data.level);
                         $('#store_or_update_form #type').val(data.type);
                         $('#store_or_update_form .selectpicker').selectpicker('refresh');
-                        if(data.transaction == 1)
+                        if(data.is_transaction == 1)
                         {
-                            $('#transaction').prop('checked',true);
-                            $('#transaction').val(1);
+                            $('#is_transaction').prop('checked',true);
+                            $('#is_transaction').val(1);
                         }else{
-                            $('#transaction').prop('checked',false);
-                            $('#transaction').val(2);
+                            $('#is_transaction').prop('checked',false);
+                            $('#is_transaction').val(2);
                         }
                         if(data.general_ledger == 1)
                         {
@@ -317,13 +317,13 @@ function fetch_parent_data(coa_id)
                 $('#level').val(data.level);
                 $('#type').val(data.type);
                 $('#type.selectpicker').selectpicker('refresh');
-                if(data.transaction == 1)
+                if(data.is_transaction == 1)
                 {
-                    $('#transaction').prop('checked',true);
-                    $('#transaction').val(1);
+                    $('#is_transaction').prop('checked',true);
+                    $('#is_transaction').val(1);
                 }else{
-                    $('#transaction').prop('checked',false);
-                    $('#transaction').val(2);
+                    $('#is_transaction').prop('checked',false);
+                    $('#is_transaction').val(2);
                 }
                 if(data.general_ledger == 1)
                 {

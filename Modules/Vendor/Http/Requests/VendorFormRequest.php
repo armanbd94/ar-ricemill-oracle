@@ -2,7 +2,7 @@
 
 namespace Modules\Vendor\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\FormRequest;
 
 class VendorFormRequest extends FormRequest
 {
@@ -13,9 +13,17 @@ class VendorFormRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
-        ];
+        $rulse['name']             = ['required','string','max:100'];
+        $rulse['mobile']           = ['required','string','max:15','unique:vendors,mobile'];
+        $rulse['email']            = ['nullable','email','string','max:100','unique:vendors,email'];
+        $rulse['address']          = ['nullable','string'];
+        $rulse['previous_balance'] = ['nullable','numeric'];
+
+        if(request()->update_id){
+            $rulse['mobile'][3]           = 'unique:vendors,mobile,'.request()->update_id;
+            $rulse['email'][4]            = 'unique:vendors,email,'.request()->update_id;
+        }
+        return $rulse;
     }
 
     /**

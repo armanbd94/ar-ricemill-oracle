@@ -10,12 +10,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('vendor-add'))
                     <a href="javascript:void(0);" onclick="showNewFormModal('Add New Vendor','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
@@ -72,11 +69,9 @@
                                         @endif
                                         <th>Sl</th>
                                         <th>Name</th>
-                                        <th>Address</th>
                                         <th>Mobile</th>
                                         <th>Email</th>
-                                        <th>City</th>
-                                        <th>Zipcode</th>
+                                        <th>Address</th>
                                         <th>Status</th>
                                         <th>Balance</th>
                                         <th>Action</th>
@@ -93,7 +88,7 @@
         <!--end::Card-->
     </div>
 </div>
-@include('supplier::modal')
+@include('vendor::modal')
 @endsection
 
 @push('scripts')
@@ -134,26 +129,26 @@
             "columnDefs": [{
 
                     @if (permission('vendor-bulk-delete'))
-                    "targets": [0,10],
+                    "targets": [0,8],
                     @else
-                    "targets": [9],
+                    "targets": [7],
                     @endif
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
                     @if (permission('vendor-bulk-delete'))
-                    "targets": [1,4,6,7,8],
+                    "targets": [1,2,3,6],
                     @else
-                    "targets": [0,3,5,6,7],
+                    "targets": [0,1,2,5],
                     @endif
                     "className": "text-center"
                 },
                 {
                     @if (permission('vendor-bulk-delete'))
-                    "targets": [9],
+                    "targets": [7],
                     @else
-                    "targets": [8],
+                    "targets": [6],
                     @endif
                     "className": "text-right",
                     "orderable": false,
@@ -176,9 +171,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     },
                     customize: function (win) {
@@ -197,10 +192,10 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                       @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        @if (permission('vendor-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     }
                 },
@@ -211,10 +206,10 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                       @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        @if (permission('vendor-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     }
                 },
@@ -227,10 +222,10 @@
                     "orientation": "landscape", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                       @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        @if (permission('vendor-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -292,15 +287,10 @@
                         }else{
                             $('#store_or_update_form #update_id').val(data.id);
                             $('#store_or_update_form #name,#store_or_update_form #old_name').val(data.name);
-                            $('#store_or_update_form #company_name').val(data.company_name);
                             $('#store_or_update_form #mobile').val(data.mobile);
                             $('#store_or_update_form #email').val(data.email);
-                            $('#store_or_update_form #city').val(data.city);
-                            $('#store_or_update_form #zipcode').val(data.zipcode);
                             $('#store_or_update_form #address').val(data.address);
-                            $('#store_or_update_form #details').val(data.details);
                             $('#store_or_update_form .pbalance').addClass('d-none');
-                            // $('#store_or_update_form #previous_balance, #store_or_update_form #old_previous_balance').val(data.previous_balance.debit);
                             $('#store_or_update_form #type.selectpicker').selectpicker('refresh');
                             $('#store_or_update_modal').modal({
                                 keyboard: false,

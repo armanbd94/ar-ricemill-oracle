@@ -12,10 +12,10 @@ class COAFormRequest extends FormRequest
     {
         $this->rules['name']           = ['required','string','unique:chart_of_accounts,name'];
         $this->rules['code']           = ['required','string','unique:chart_of_accounts,code'];
-        $this->rules['parent_name']    = ['required'];
+        // $this->rules['parent_name']    = ['required'];
         $this->rules['level']          = ['required'];
         $this->rules['type']           = ['required','string'];
-        $this->rules['transaction']    = ['nullable'];
+        $this->rules['is_transaction']    = ['nullable'];
         $this->rules['general_ledger'] = ['nullable'];
         $this->rules['status']         = ['nullable'];
 
