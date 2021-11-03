@@ -118,6 +118,7 @@ class VendorController extends BaseController
                             $vendor_coa->update(['name'=>$new_head_name]);
                         }
                     }
+                    $this->model->flushCache();
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollBack();
@@ -156,6 +157,7 @@ class VendorController extends BaseController
             if(permission('vendor-delete')){
                 $result   = $this->model->find($request->id)->delete();
                 $output   = $this->delete_message($result);
+                $this->model->flushCache();
             }else{
                 $output       = $this->unauthorized();
             }
@@ -171,6 +173,7 @@ class VendorController extends BaseController
             if(permission('vendor-bulk-delete')){
                 $result   = $this->model->destroy($request->ids);
                 $output   = $this->bulk_delete_message($result);
+                $this->model->flushCache();
             }else{
                 $output       = $this->unauthorized();
             }
@@ -187,6 +190,7 @@ class VendorController extends BaseController
                 $result   = $this->model->find($request->id)->update(['status' => $request->status]);
                 $output   = $result ? ['status' => 'success','message' => 'Status Has Been Changed Successfully']
                 : ['status' => 'error','message' => 'Failed To Change Status'];
+                $this->model->flushCache();
             }else{
                 $output   = $this->unauthorized();
             }

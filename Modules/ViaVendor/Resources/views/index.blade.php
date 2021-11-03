@@ -10,12 +10,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('via-vendor-add'))
                     <a href="javascript:void(0);" onclick="showNewFormModal('Add New Via Vendor','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
@@ -31,16 +28,17 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
-                        <x-form.selectbox labelName="Vendor" name="supplier_id" col="col-md-3" class="selectpicker">
-                            @if (!$suppliers->isEmpty())
-                                @foreach ($suppliers as $value)
-                                    <option value="{{ $value->id }}">{{ $value->company_name ? $value->name.'('.$value->company_name.')' : $value->name }}</option>
+                        
+                        <x-form.textbox labelName="Via Vendor Name" name="name" col="col-md-3" />
+                        <x-form.textbox labelName="Mobile" name="mobile" col="col-md-3" />
+                        <x-form.textbox labelName="Email" name="email" col="col-md-3" />
+                        <x-form.selectbox labelName="Vendor" name="vendor_id" col="col-md-3" class="selectpicker">
+                            @if (!$vendors->isEmpty())
+                                @foreach ($vendors as $value)
+                                    <option value="{{ $value->id }}">{{ $value->name.' - '.$value->mobile.')' }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
-                        <x-form.textbox labelName="Name" name="name" col="col-md-3" />
-                        <x-form.textbox labelName="Mobile" name="mobile" col="col-md-3" />
-                        <x-form.textbox labelName="Email" name="email" col="col-md-3" />
                         <x-form.selectbox labelName="Status" name="status" col="col-md-3" class="selectpicker">
                             @foreach (STATUS as $key => $value)
                                 <option value="{{ $key }}">{{ $value }}</option>
@@ -79,12 +77,9 @@
                                         @endif
                                         <th>Sl</th>
                                         <th>Name</th>
-                                        <th>Company Name</th>
-                                        <th>Address</th>
                                         <th>Mobile</th>
                                         <th>Email</th>
-                                        <th>City</th>
-                                        <th>Zipcode</th>
+                                        <th>Address</th>
                                         <th>Vendor</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -132,7 +127,7 @@
                 "url": "{{route('via.vendor.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
-                    data.supplier_id = $("#form-filter #supplier_id").val();
+                    data.vendor_id = $("#form-filter #vendor_id").val();
                     data.name        = $("#form-filter #name").val();
                     data.mobile      = $("#form-filter #mobile").val();
                     data.email       = $("#form-filter #email").val();
@@ -143,18 +138,18 @@
             "columnDefs": [{
 
                     @if (permission('via-vendor-bulk-delete'))
-                    "targets": [0,11],
+                    "targets": [0,8],
                     @else
-                    "targets": [10],
+                    "targets": [7],
                     @endif
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
                     @if (permission('via-vendor-bulk-delete'))
-                    "targets": [1,2,3,5,6,7,8,9,10],
+                    "targets": [1,2,3,6,7],
                     @else
-                    "targets": [0,1,2,4,5,6,7,8,9],
+                    "targets": [0,1,2,5,6],
                     @endif
                     "className": "text-center"
                 },
@@ -177,9 +172,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('via-vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     },
                     customize: function (win) {
@@ -199,9 +194,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                        @if (permission('via-vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     }
                 },
@@ -213,9 +208,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                        @if (permission('via-vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     }
                 },
@@ -229,9 +224,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                        @if (permission('via-vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                        columns: ':visible:not(:eq(0),:eq(8))' 
                         @else
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(7))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -292,15 +287,12 @@
                             notification(data.status,data.message)
                         }else{
                             $('#store_or_update_form #update_id').val(data.id);
-                            $('#store_or_update_form #supplier_id').val(data.supplier_id);
+                            $('#store_or_update_form #vendor_id').val(data.vendor_id);
                             $('#store_or_update_form #name').val(data.name);
-                            $('#store_or_update_form #company_name').val(data.company_name);
                             $('#store_or_update_form #mobile').val(data.mobile);
                             $('#store_or_update_form #email').val(data.email);
-                            $('#store_or_update_form #city').val(data.city);
-                            $('#store_or_update_form #zipcode').val(data.zipcode);
                             $('#store_or_update_form #address').val(data.address);
-                            $('#store_or_update_form #type.selectpicker').selectpicker('refresh');
+                            $('#store_or_update_form .selectpicker').selectpicker('refresh');
                             $('#store_or_update_modal').modal({
                                 keyboard: false,
                                 backdrop: 'static',

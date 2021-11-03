@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\BaseController;
 use Modules\Supplier\Entities\Supplier;
+use Modules\Vendor\Entities\Vendor;
 use Modules\ViaVendor\Entities\ViaVendor;
 use Modules\ViaVendor\Http\Requests\VendorFormRequest;
 
@@ -22,8 +23,8 @@ class ViaVendorController extends BaseController
     {
         if(permission('via-vendor-access')){
             $this->setPageData('Via Vendor','Via Vendor','fas fa-th-list',[['name'=>'Via Vendor']]);
-            $suppliers = Supplier::allSuppliers();
-            return view('viavendor::index',compact('suppliers'));
+            $vendors = Vendor::allVendors();
+            return view('viavendor::index',compact('vendors'));
         }else{
             return $this->access_blocked();
         }
@@ -34,8 +35,8 @@ class ViaVendorController extends BaseController
         if($request->ajax()){
             if(permission('via-vendor-access')){
 
-                if (!empty($request->supplier_id)) {
-                    $this->model->setSupplierID($request->supplier_id);
+                if (!empty($request->vendor_id)) {
+                    $this->model->setVendorID($request->vendor_id);
                 }
                 if (!empty($request->name)) {
                     $this->model->setName($request->name);
@@ -72,13 +73,10 @@ class ViaVendorController extends BaseController
                     }
                     $row[] = $no;
                     $row[] = $value->name;
-                    $row[] = $value->company_name ? $value->company_name : 'N/A';
-                    $row[] = $value->address;
                     $row[] = $value->mobile;
                     $row[] = $value->email;
-                    $row[] = $value->city;
-                    $row[] = $value->zipcode;
-                    $row[] = $value->supplier_name;
+                    $row[] = $value->address;
+                    $row[] = $value->vendor_name;
                     $row[] = permission('via-vendor-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
@@ -101,8 +99,8 @@ class ViaVendorController extends BaseController
                 try {
                     $collection = collect($request->validated());
                     $collection = $this->track_data($collection,$request->update_id);
-                    $supplier   = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());
-                    $output     = $this->store_message($supplier, $request->update_id);
+                    $via_vendor = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());
+                    $output     = $this->store_message($via_vendor, $request->update_id);
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollBack();

@@ -1,5 +1,5 @@
 <div class="modal fade" id="store_or_update_modal" tabindex="-1" role="dialog" aria-labelledby="model-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-md" role="document">
 
       <!-- Modal Content -->
       <div class="modal-content">
@@ -18,20 +18,17 @@
             <div class="modal-body">
                 <div class="row">
                     <input type="hidden" name="update_id" id="update_id"/>
-                    <x-form.selectbox labelName="Vendor" name="supplier_id"  required="required" col="col-md-6" class="selectpicker">
-                        @if (!$suppliers->isEmpty())
-                            @foreach ($suppliers as $value)
-                                <option value="{{ $value->id }}">{{ $value->company_name ? $value->name.'('.$value->company_name.')' : $value->name }}</option>
-                            @endforeach
-                        @endif
+                    <x-form.selectbox labelName="Vendor" name="vendor_id"  required="required" col="col-md-12" class="selectpicker">
+                      @if (!$vendors->isEmpty())
+                          @foreach ($vendors as $value)
+                              <option value="{{ $value->id }}">{{ $value->name.' - '.$value->mobile.')' }}</option>
+                          @endforeach
+                      @endif
                     </x-form.selectbox>
-                    <x-form.textbox labelName="Via Vendor Name" name="name" required="required" col="col-md-6" placeholder="Enter via vendor name"/>
-                    <x-form.textbox labelName="Compnay Name" name="company_name" col="col-md-6" placeholder="Enter company name"/>
-                    <x-form.textbox labelName="Mobile" name="mobile" required="required" col="col-md-6" placeholder="Enter mobile number"/>
-                    <x-form.textbox labelName="Email" name="email" type="email" col="col-md-6" placeholder="Enter email address"/>
-                    <x-form.textbox labelName="City" name="city" col="col-md-6" placeholder="Enter city name"/>
-                    <x-form.textbox labelName="Zip Code" name="zipcode" col="col-md-6" placeholder="Enter zip code"/>
-                    <x-form.textarea labelName="Address" name="address" col="col-md-6" placeholder="Enter address"/>
+                    <x-form.textbox labelName="Via Vendor Name" name="name" required="required" col="col-md-12" placeholder="Enter via vendor name"/>
+                    <x-form.textbox labelName="Mobile" name="mobile" required="required" col="col-md-12" placeholder="Enter mobile number"/>
+                    <x-form.textbox labelName="Email" name="email" type="email" col="col-md-12" placeholder="Enter email address"/>
+                    <x-form.textarea labelName="Address" name="address" col="col-md-12" placeholder="Enter address"/>
                     
                 </div>
             </div>

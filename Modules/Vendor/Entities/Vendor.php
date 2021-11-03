@@ -141,16 +141,16 @@ class Vendor extends BaseModel
     /*************************************
     * * *  Begin :: Cache Data * * *
     **************************************/
-    protected const ALL_SUPPLIERS    = '_suppliers';
+    protected const ALL_VENDORS    = '_vendors';
 
-    public static function allSuppliers(){
-        return Cache::rememberForever(self::ALL_SUPPLIERS, function () {
+    public static function allVendors(){
+        return Cache::rememberForever(self::ALL_VENDORS, function () {
             return self::toBase()->where('status',1)->get();
         });
     }
 
     public static function flushCache(){
-        Cache::forget(self::ALL_SUPPLIERS);
+        Cache::forget(self::ALL_VENDORS);
     }
 
 

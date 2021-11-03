@@ -5,30 +5,30 @@ namespace Modules\ViaVendor\Entities;
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-use Modules\Supplier\Entities\Supplier;
+use Modules\Vendor\Entities\Vendor;
 
 class ViaVendor extends BaseModel
 {
-    protected $fillable = [ 'supplier_id', 'name', 'company_name', 'mobile', 'email', 'phone', 'city', 'zipcode', 'address', 'status', 'created_by', 'modified_by'];
+    protected $fillable = [ 'vendor_id', 'name', 'mobile', 'email',  'address', 'status', 'created_by', 'modified_by'];
 
-    public function supplier(){
-        return $this->belongsTo(Supplier::class,'supplier_id','id');
+    public function vendor(){
+        return $this->belongsTo(Vendor::class,'vendor_id','id');
     }
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     protected $order = ['vv.id' => 'desc'];
     //custom search column property
-    protected $_supplier_id; 
+    protected $_vendor_id; 
     protected $_name; 
     protected $_mobile; 
     protected $_email; 
     protected $_status; 
 
     //methods to set custom search property value
-    public function setSupplierID($supplier_id)
+    public function setSupplierID($vendor_id)
     {
-        $this->_supplier_id = $supplier_id;
+        $this->_vendor_id = $vendor_id;
     }
     public function setName($name)
     {
@@ -51,18 +51,18 @@ class ViaVendor extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('vendor-bulk-delete')){
-            $this->column_order = [null,'id','name','company_name', 'address','mobile', 'email', 'city', 'zipcode','supplier_id','status', null];
+            $this->column_order = [null,'id','name','mobile', 'email','address', 'vendor_id','status', null];
         }else{
-            $this->column_order = ['id','name','company_name', 'address','mobile', 'email', 'city', 'zipcode','supplier_id','status', null];
+            $this->column_order = ['id','name','mobile', 'email','address', 'vendor_id','status', null];
         }
         
         $query = DB::table('via_vendors as vv')
-        ->join('suppliers as s','vv.supplier_id','=','s.id')
-        ->select('vv.*','s.name as supplier_name');
+        ->join('vendors as s','vv.vendor_id','=','s.id')
+        ->select('vv.*','s.name as vendor_name');
 
         //search query
-        if (!empty($this->_supplier_id)) {
-            $query->where('vv.supplier_id', $this->_supplier_id);
+        if (!empty($this->_vendor_id)) {
+            $query->where('vv.vendor_id', $this->_vendor_id);
         }
         if (!empty($this->_name)) {
             $query->where('vv.name', 'like', '%' . $this->_name . '%');
@@ -125,38 +125,5 @@ class ViaVendor extends BaseModel
      * * * Begin :: Model Local Scope * * *
     ****************************************/
 
-    /*************************************
-    * * *  Begin :: Cache Data * * *
-    **************************************/
-    protected const ALL_VIA_VENDORS    = '_via_vendors';
 
-    public static function allViaVendors(){
-        return Cache::rememberForever(self::ALL_VIA_VENDORS, function () {
-            return self::toBase()->where('status',1)->get();
-        });
-    }
-
-    public static function flushCache(){
-        Cache::forget(self::ALL_VIA_VENDORS);
-    }
-
-
-    public static function boot(){
-        parent::boot();
-
-        static::updated(function () {
-            self::flushCache();
-        });
-
-        static::created(function() {
-            self::flushCache();
-        });
-
-        static::deleted(function() {
-            self::flushCache();
-        });
-    }
-    /***********************************
-    * * *  Begin :: Cache Data * * *
-    ************************************/
 }

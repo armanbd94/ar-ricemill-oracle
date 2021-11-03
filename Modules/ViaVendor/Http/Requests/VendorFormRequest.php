@@ -13,13 +13,10 @@ class VendorFormRequest extends FormRequest
      */
     public function rules()
     {
-        $rulse['supplier_id']      = ['required'];
+        $rulse['vendor_id']      = ['required'];
         $rulse['name']             = ['required','string','max:100'];
-        $rulse['company_name']     = ['nullable','string','max:100'];
         $rulse['mobile']           = ['required','string','max:15','unique:via_vendors,mobile'];
         $rulse['email']            = ['nullable','email','string','max:100','unique:via_vendors,email'];
-        $rulse['city']             = ['nullable','string'];
-        $rulse['zipcode']          = ['nullable','string'];
         $rulse['address']          = ['nullable','string'];
 
         if(request()->update_id){
@@ -32,7 +29,7 @@ class VendorFormRequest extends FormRequest
     public function messages()
     {
         return [
-            'supplier_id.required' => 'The vendor field is required'
+            'vendor_id.required' => 'The vendor field is required'
         ];
     }
 

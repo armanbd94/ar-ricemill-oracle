@@ -1,7 +1,6 @@
 {
     "Setting": true,
     "Account": true,
-    "Supplier": true,
     "Customer": true,
     "Bank": true,
     "MobileBank": true,
