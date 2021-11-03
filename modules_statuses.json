@@ -8,5 +8,7 @@
     "Material": true,
     "ViaVendor": true,
     "Purchase": true,
-    "Production": true
+    "Production": true,
+    "Vendor": true,
+    "ViaCustomer": true
 }

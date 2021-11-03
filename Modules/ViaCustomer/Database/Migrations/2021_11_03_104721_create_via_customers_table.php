@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateViaVendorsTable extends Migration
+class CreateViaCustomersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,13 @@ class CreateViaVendorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('via_vendors', function (Blueprint $table) {
+        Schema::create('via_customers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('vendor_id');
-            $table->foreign('vendor_id')->references('id')->on('vendors');
+            $table->unsignedBigInteger('customer_id');
+            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->string('code')->unique();
             $table->string('name');
+            $table->string('trade_name')->nullable();
             $table->string('mobile');
             $table->string('email')->nullable();
             $table->text('address')->nullable();
@@ -35,6 +37,6 @@ class CreateViaVendorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('via_vendors');
+        Schema::dropIfExists('via_customers');
     }
 }

@@ -15,11 +15,11 @@ class CreateDailyClosingsTable extends Migration
     {
         Schema::create('daily_closings', function (Blueprint $table) {
             $table->id();
-            $table->double('last_day_closing')->nullable();
-            $table->double('cash_in')->nullable();
-            $table->double('cash_out')->nullable();
-            $table->double('amount')->nullable();
-            $table->double('adjustment')->nullable();
+            $table->double('last_day_closing',8,2)->nullable();
+            $table->double('cash_in',8,2)->nullable();
+            $table->double('cash_out',8,2)->nullable();
+            $table->double('amount',8,2)->nullable();
+            $table->double('adjustment',8,2)->nullable();
             $table->date('date');
             $table->string('thousands')->default('0');
             $table->string('five_hundred')->default('0');

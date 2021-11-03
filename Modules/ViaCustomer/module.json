@@ -1,0 +1,13 @@
+{
+    "name": "ViaCustomer",
+    "alias": "viacustomer",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ViaCustomer\\Providers\\ViaCustomerServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

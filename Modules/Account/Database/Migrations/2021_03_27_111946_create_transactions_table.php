@@ -21,11 +21,11 @@ class CreateTransactionsTable extends Migration
             $table->string('voucher_type');
             $table->string('voucher_date');
             $table->text('description')->nullable();
-            $table->double('debit')->nullable();
-            $table->double('credit')->nullable();
-            $table->enum('is_opening',['1','2'])->default('2')->comment = "1=Yes, 2=No";
-            $table->enum('posted',['1','2'])->default('1')->comment = "1=Yes, 2=No";
-            $table->enum('approve',['1','2'])->default('1')->comment = "1=Yes, 2=No";
+            $table->double('debit',8,2)->nullable();
+            $table->double('credit',8,2)->nullable();
+            $table->enum('is_opening',['1','2'])->default('2')->comment("1=Yes, 2=No");
+            $table->enum('posted',['1','2'])->default('1')->comment("1=Yes, 2=No");
+            $table->enum('approve',['1','2'])->default('1')->comment("1=Yes, 2=No");
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();
             $table->timestamps();

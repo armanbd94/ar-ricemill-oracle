@@ -15,15 +15,11 @@ class CreateCustomersTable extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique();
             $table->string('name');
-            $table->string('shop_name');
+            $table->string('trade_name')->nullable();
             $table->string('mobile');
             $table->string('email')->nullable();
-            $table->string('image')->nullable();
-            $table->unsignedBigInteger('customer_group_id');
-            $table->foreign('customer_group_id')->references('id')->on('customer_groups');
-            $table->string('city')->nullable();
-            $table->string('zipcode')->nullable();
             $table->text('address')->nullable();
             $table->enum('status',['1','2'])->default('1')->comment = "1=Active, 2=Inactive";
             $table->string('created_by')->nullable();
