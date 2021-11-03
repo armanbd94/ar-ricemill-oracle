@@ -11,12 +11,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('vendor-access'))
                     <a href="{{ route('vendor') }}" class="btn btn-primary btn-sm font-weight-bolder mr-3"> 
@@ -36,14 +33,14 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row justify-content-center">
-                        <x-form.selectbox labelName="Vendor" name="supplier_id" col="col-md-3" class="selectpicker">
-                            @if (!$suppliers->isEmpty())
-                            @foreach ($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}" data-coaid="{{ $supplier->coa->id }}" data-name="{{ $supplier->name }}">{{ $supplier->name.' - '.$supplier->mobile }}</option>
+                        <x-form.selectbox labelName="Vendor" name="vendor_id" col="col-md-4" class="selectpicker">
+                            @if (!$vendors->isEmpty())
+                            @foreach ($vendors as $vendor)
+                                <option value="{{ $vendor->id }}" data-coaid="{{ $vendor->coa->id }}" data-name="{{ $vendor->name }}">{{ $vendor->name.' - '.$vendor->mobile }}</option>
                             @endforeach
                             @endif
                         </x-form.selectbox>
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-4">
                             <label for="name">Choose Your Date</label>
                             <div class="input-group">
                                 <input type="text" class="form-control daterangepicker-filed">
@@ -52,17 +49,15 @@
                             </div>
                         </div>
                         
-                        <div class="col-md-1">
-                            <div style="margin-top:28px;">    
-                                <div style="margin-top:28px;">    
-                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
-                                    data-toggle="tooltip" data-theme="dark" title="Reset">
-                                    <i class="fas fa-undo-alt"></i></button>
-    
-                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
-                                    data-toggle="tooltip" data-theme="dark" title="Search">
-                                    <i class="fas fa-search"></i></button>
-                                </div>
+                        <div class="col-md-4">
+                            <div style="margin-top:28px;">       
+                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                data-toggle="tooltip" data-theme="dark" title="Reset">
+                                <i class="fas fa-undo-alt"></i></button>
+
+                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                data-toggle="tooltip" data-theme="dark" title="Search">
+                                <i class="fas fa-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -148,7 +143,7 @@
                 "url": "{{route('vendor.ledger.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
-                    data.supplier_id = $("#form-filter #supplier_id option:selected").val();
+                    data.vendor_id = $("#form-filter #vendor_id option:selected").val();
                     data.from_date   = $("#form-filter #from_date").val();
                     data.to_date     = $("#form-filter #to_date").val();
                     data._token      = _token;

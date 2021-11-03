@@ -18,10 +18,10 @@
             <div class="modal-body">
                 <div class="row">
                     <input type="hidden" name="update_id" id="update_id"/>
-                    <x-form.selectbox labelName="Vendor Name" name="supplier" required="required"  col="col-md-12" class="selectpicker">
-                        @if (!$suppliers->isEmpty())
-                        @foreach ($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}" data-coaid="{{ $supplier->coa->id }}" data-name="{{ $supplier->name }}">{{ $supplier->name.' - '.$supplier->mobile }}</option>
+                    <x-form.selectbox labelName="Vendor Name" name="vendor" required="required"  col="col-md-12" class="selectpicker">
+                        @if (!$vendors->isEmpty())
+                        @foreach ($vendors as $vendor)
+                            <option value="{{ $vendor->id }}" data-coaid="{{ $vendor->coa->id }}" data-name="{{ $vendor->name }}">{{ $vendor->name.' - '.$vendor->mobile }}</option>
                         @endforeach
                         @endif
                     </x-form.selectbox>

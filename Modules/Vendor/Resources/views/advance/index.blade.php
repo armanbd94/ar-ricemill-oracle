@@ -10,12 +10,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('vendor-advance-add'))
                     <a href="javascript:void(0);" onclick="showAdvanceFormModal('Add New Vendor Advance','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
@@ -31,10 +28,10 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
-                        <x-form.selectbox labelName="Vendor Name" name="supplier_id" col="col-md-3" class="selectpicker">
-                            @if (!$suppliers->isEmpty())
-                            @foreach ($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}" data-coaid="{{ $supplier->coa->id }}" data-name="{{ $supplier->name }}">{{ $supplier->name.' - '.$supplier->mobile }}</option>
+                        <x-form.selectbox labelName="Vendor Name" name="vendor_id" col="col-md-3" class="selectpicker">
+                            @if (!$vendors->isEmpty())
+                            @foreach ($vendors as $vendor)
+                                <option value="{{ $vendor->id }}" data-coaid="{{ $vendor->coa->id }}" data-name="{{ $vendor->name }}">{{ $vendor->name.' - '.$vendor->mobile }}</option>
                             @endforeach
                             @endif
                         </x-form.selectbox>
@@ -94,8 +91,8 @@
         <!--end::Card-->
     </div>
 </div>
-@include('supplier::advance.modal')
-@include('supplier::advance.status-modal')
+@include('vendor::advance.modal')
+@include('vendor::advance.status-modal')
 @endsection
 
 @push('scripts')
@@ -126,7 +123,7 @@
                 "url": "{{route('vendor.advance.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
-                    data.supplier_id = $("#form-filter #supplier_id option:selected").val();
+                    data.vendor_id = $("#form-filter #vendor_id option:selected").val();
                     data.type        = $("#form-filter #type").val();
                     data._token      = _token;
                 }
@@ -256,9 +253,9 @@
         });
     
         $(document).on('click', '#save-btn', function () {
-            var supplier       = $('#store_or_update_form #supplier option:selected').val();
-            var supplier_coaid = $('#store_or_update_form #supplier option:selected').data('coaid');
-            var supplier_name  = $('#store_or_update_form #supplier option:selected').data('name');
+            var vendor       = $('#store_or_update_form #vendor option:selected').val();
+            var vendor_coaid = $('#store_or_update_form #vendor option:selected').data('coaid');
+            var vendor_name  = $('#store_or_update_form #vendor option:selected').data('name');
             var type           = $('#store_or_update_form #type option:selected').val();
             var amount         = $('#store_or_update_form #amount').val();
             var payment_method = $('#store_or_update_form #payment_method option:selected').val();
@@ -280,7 +277,7 @@
             $.ajax({
                 url: url,
                 type: "POST",
-                data: {id:id,supplier:supplier,supplier_coaid:supplier_coaid,supplier_name:supplier_name,type:type,amount:amount,
+                data: {id:id,vendor:vendor,vendor_coaid:vendor_coaid,vendor_name:vendor_name,type:type,amount:amount,
                     payment_method:payment_method,account_id:account_id,cheque_number:cheque_number,_token:_token},
                 dataType: "JSON",
                 beforeSend: function(){
@@ -336,7 +333,7 @@
                             notification(data.status,data.message)
                         }else{
                             $('#store_or_update_form #update_id').val(data.id);
-                            $('#store_or_update_form #supplier').val(data.supplier_id);
+                            $('#store_or_update_form #vendor').val(data.vendor_id);
                             $('#store_or_update_form #type').val(data.type);
                             $('#store_or_update_form #amount').val(data.amount);
                             $('#store_or_update_form #payment_method').val(data.payment_method);
@@ -351,8 +348,8 @@
                             
                             account_list(data.payment_method,data.account_id)
                            
-                            $('#store_or_update_form select#supplier').each(function(){
-                                $('#store_or_update_form select#supplier option').each(function() {
+                            $('#store_or_update_form select#vendor').each(function(){
+                                $('#store_or_update_form select#vendor option').each(function() {
                                     if(!this.selected) {
                                         $(this).attr('disabled', true);
                                     }
@@ -484,13 +481,13 @@
         $('#store_or_update_form #update_id').val('');
         $('#store_or_update_form').find('.is-invalid').removeClass('is-invalid');
         $('#store_or_update_form').find('.error').remove();
-        $('#store_or_update_form select#supplier').each(function(){
-            $('#store_or_update_form select#supplier option').each(function() {
+        $('#store_or_update_form select#vendor').each(function(){
+            $('#store_or_update_form select#vendor option').each(function() {
                 $(this).attr('disabled', false);
             });
         });
         $('#store_or_update_form #account_id').html('');
-        $('#store_or_update_form select#supplier').val('');
+        $('#store_or_update_form select#vendor').val('');
         $('#store_or_update_form .selectpicker').selectpicker('refresh');
         $('#store_or_update_modal').modal({
             keyboard: false,

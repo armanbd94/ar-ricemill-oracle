@@ -2,78 +2,67 @@
 
 namespace Modules\Vendor\Http\Controllers;
 
-use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use Modules\Vendor\Entities\Vendor;
+use App\Http\Controllers\BaseController;
+use Modules\Vendor\Entities\VendorLedger;
 
-class VendorLedgerController extends Controller
+class VendorLedgerController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     * @return Renderable
-     */
+    public function __construct(VendorLedger $model)
+    {
+        $this->model = $model;
+    }
+
+
     public function index()
     {
-        return view('vendor::index');
+        if(permission('vendor-ledger-access')){
+            $this->setPageData('Vendor Ledger','Vendor Ledger','fas fa-file-invoice-dollar',[['name'=>'Vendor','link'=>route('vendor')],['name'=>'Vendor Ledger']]);
+            $vendors = Vendor::with('coa')->where(['status'=>1])->orderBy('name','asc')->get();
+            return view('vendor::ledger.index',compact('vendors'));
+        }else{
+            return $this->access_blocked();
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
-    public function create()
+    public function get_datatable_data(Request $request)
     {
-        return view('vendor::create');
-    }
+        if($request->ajax()){
+            if(permission('vendor-ledger-access')){
 
-    /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+                if (!empty($request->vendor_id)) {
+                    $this->model->setVendorID($request->vendor_id);
+                }
+                if (!empty($request->from_date)) {
+                    $this->model->setFromDate($request->from_date);
+                }
+                if (!empty($request->to_date)) {
+                    $this->model->setToDate($request->to_date);
+                }
 
-    /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    public function show($id)
-    {
-        return view('vendor::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    public function edit($id)
-    {
-        return view('vendor::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function destroy($id)
-    {
-        //
+                $this->set_datatable_default_properties($request);//set datatable default properties
+                $list = $this->model->getDatatableList();//get table data
+                $data = [];
+                $debit = $credit = $balance = 0;
+                foreach ($list as $value) {
+                    $debit += $value->debit;
+                    $credit += $value->credit;
+                    $balance = $debit - $credit;
+                    $row = [];
+                    $row[] = $value->voucher_date;
+                    $row[] = $value->description;
+                    $row[] = $value->voucher_no;
+                    $row[] = $value->debit ? number_format($value->debit,2, '.', ',') :  number_format(0,2, '.', ',');
+                    $row[] = $value->credit ? number_format($value->credit,2, '.', ',') :  number_format(0,2, '.', ',');
+                    $row[] = number_format(($balance),2, '.', ',');
+                    $data[] = $row;
+                }
+                return $this->datatable_draw($request->input('draw'),$this->model->count_all(),
+                $this->model->count_filtered(), $data);
+            }
+        }else{
+            return response()->json($this->unauthorized());
+        }
     }
 }
