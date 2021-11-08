@@ -31,7 +31,7 @@
                         <x-form.selectbox labelName="Vendor Name" name="vendor_id" col="col-md-3" class="selectpicker">
                             @if (!$vendors->isEmpty())
                             @foreach ($vendors as $vendor)
-                                <option value="{{ $vendor->id }}" data-coaid="{{ $vendor->coa->id }}" data-name="{{ $vendor->name }}">{{ $vendor->name.' - '.$vendor->mobile }}</option>
+                                <option value="{{ $vendor->id }}" data-coaid="{{ $vendor->coa->id }}" data-name="{{ $vendor->trade_name }}">{{ $vendor->trade_name.' - '.$vendor->mobile }}</option>
                             @endforeach
                             @endif
                         </x-form.selectbox>

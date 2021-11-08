@@ -51,9 +51,9 @@ class ViaVendor extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('vendor-bulk-delete')){
-            $this->column_order = [null,'id','name','mobile', 'email','address', 'vendor_id','status', null];
+            $this->column_order = [null,'vv.id','vv.name','vv.mobile', 'vv.email','vv.address', 'vv.vendor_id','vv.status', null];
         }else{
-            $this->column_order = ['id','name','mobile', 'email','address', 'vendor_id','status', null];
+            $this->column_order = ['vv.id','vv.name','vv.mobile', 'vv.email','vv.address', 'vv.vendor_id','vv.status', null];
         }
         
         $query = DB::table('via_vendors as vv')
