@@ -258,31 +258,6 @@ class CustomerController extends BaseController
     }
 
 
-    public function customer_list(Request $request)
-    {
-        if($request->ajax()){
-            $district_id = $request->district_id;
-            $upazila_id  = $request->upazila_id;
-            $route_id    = $request->route_id;
-            $area_id     = $request->area_id;
-            $data = DB::table('customers')
-                    ->select('id','name','shop_name','mobile')
-                    ->when($district_id, function($q) use ($district_id){
-                        $q->where('district_id',$district_id);
-                    })
-                    ->when($upazila_id, function($q) use ($upazila_id){
-                        $q->where('upazila_id',$upazila_id);
-                    })
-                    ->when($route_id, function($q) use ($route_id){
-                        $q->where('route_id',$route_id);
-                    })
-                    ->when($area_id, function($q) use ($area_id){
-                        $q->where('area_id',$area_id);
-                    })
-                    ->get();
-            return response()->json($data);
-        }
-    }
 
     public function previous_balance(int $id)
     {

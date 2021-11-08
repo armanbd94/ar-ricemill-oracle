@@ -22,7 +22,7 @@ class ViaVendorController extends BaseController
     public function index()
     {
         if(permission('via-vendor-access')){
-            $this->setPageData('Via Vendor','Via Vendor','fas fa-th-list',[['name'=>'Via Vendor']]);
+            $this->setPageData('Via Vendor','Via Vendor','fas fa-user-tie',[['name'=>'Via Vendor']]);
             $vendors = Vendor::allVendors();
             return view('viavendor::index',compact('vendors'));
         }else{

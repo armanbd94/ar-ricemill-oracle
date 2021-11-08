@@ -19,7 +19,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('datatable-data', 'ViaVendorController@get_datatable_data')->name('datatable.data');
         Route::post('store-or-update', 'ViaVendorController@store_or_update_data')->name('store.or.update');
         Route::post('edit', 'ViaVendorController@edit')->name('edit');
-        Route::post('view', 'ViaVendorController@show')->name('view');
         Route::post('delete', 'ViaVendorController@delete')->name('delete');
         Route::post('bulk-delete', 'ViaVendorController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'ViaVendorController@change_status')->name('change.status');
