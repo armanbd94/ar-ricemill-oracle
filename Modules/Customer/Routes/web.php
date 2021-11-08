@@ -18,11 +18,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('datatable-data', 'CustomerController@get_datatable_data')->name('datatable.data');
         Route::post('store-or-update', 'CustomerController@store_or_update_data')->name('store.or.update');
         Route::post('edit', 'CustomerController@edit')->name('edit');
-        Route::post('view', 'CustomerController@show')->name('view');
         Route::post('delete', 'CustomerController@delete')->name('delete');
         Route::post('bulk-delete', 'CustomerController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'CustomerController@change_status')->name('change.status');
-        Route::get('group-data/{id}','CustomerController@groupData');
         Route::get('previous-balance/{id}', 'CustomerController@previous_balance');
     });
     Route::post('customer-list','CustomerController@customer_list');
@@ -53,16 +51,5 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('change-status', 'CustomerAdvanceController@change_status')->name('change.status');
     });
 
-    Route::post('area-wise-customer-list', 'CustomerAdvanceController@area_wise_customer_list')->name('area.wise.customer.list');
 
-    //Customer Group Routes
-    Route::get('customer-group', 'CustomerGroupController@index')->name('customer.group');
-    Route::group(['prefix' => 'customer-group', 'as'=>'customer.group.'], function () {
-        Route::post('datatable-data', 'CustomerGroupController@get_datatable_data')->name('datatable.data');
-        Route::post('store-or-update', 'CustomerGroupController@store_or_update_data')->name('store.or.update');
-        Route::post('edit', 'CustomerGroupController@edit')->name('edit');
-        Route::post('delete', 'CustomerGroupController@delete')->name('delete');
-        Route::post('bulk-delete', 'CustomerGroupController@bulk_delete')->name('bulk.delete');
-        Route::post('change-status', 'CustomerGroupController@change_status')->name('change.status');
-    });
 });

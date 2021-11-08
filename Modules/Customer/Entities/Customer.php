@@ -4,40 +4,15 @@ namespace Modules\Customer\Entities;
 
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
-use Modules\Location\Entities\Area;
-use Modules\Location\Entities\Route;
 use Illuminate\Support\Facades\Cache;
-use Modules\Location\Entities\Upazila;
-use Modules\Location\Entities\District;
 use Modules\Account\Entities\Transaction;
-use Modules\Setting\Entities\CustomerGroup;
 use Modules\Account\Entities\ChartOfAccount;
 
 class Customer extends BaseModel
 {
-    protected $fillable = [ 'name', 'shop_name', 'mobile', 'email', 'avatar', 'customer_group_id',
-     'district_id', 'upazila_id', 'route_id', 'area_id', 'address', 'status', 'created_by', 'modified_by'];
+    protected $fillable = [ 'code', 'name','trade_name', 'mobile', 'email', 'address', 'status', 'created_by', 'modified_by'];
 
-    public function customer_group()
-    {
-        return $this->belongsTo(CustomerGroup::class,'customer_group_id','id');
-    }
-    public function district()
-    {
-        return $this->belongsTo(District::class,'district_id','id');
-    }
-    public function upazila()
-    {
-        return $this->belongsTo(Upazila::class,'upazila_id','id');
-    }
-    public function route()
-    {
-        return $this->belongsTo(Route::class,'route_id','id');
-    }
-    public function area()
-    {
-        return $this->belongsTo(Area::class,'area_id','id');
-    }
+
     public function coa(){
         return $this->hasOne(ChartOfAccount::class,'customer_id','id');
     }
@@ -51,7 +26,7 @@ class Customer extends BaseModel
     public function customer_balance(int $id)
     {
         $data = DB::table('customers as c')
-            ->selectRaw('c.id,b.id as coaid,b.code,((select ifnull(sum(debit),0) from transactions where chart_of_account_id= b.id AND approve = 1)-(select ifnull(sum(credit),0) from transactions where chart_of_account_id= b.id AND approve = 1)) as balance')
+            ->selectRaw('c.id,b.id as coaid,b.code,((select sum(debit) from transactions where chart_of_account_id= b.id AND approve = 1)-(select sum(credit) from transactions where chart_of_account_id= b.id AND approve = 1)) as balance')
             ->leftjoin('chart_of_accounts as b', 'c.id', '=', 'b.customer_id')
             ->where('c.id',$id)->first();
         $balance = 0;
@@ -65,54 +40,30 @@ class Customer extends BaseModel
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     //custom search column property
+    protected $_code; 
     protected $_name; 
-    protected $_shop_name; 
+    protected $_trade_name; 
     protected $_mobile; 
-    protected $_email; 
-    protected $_customer_group_id; 
-    protected $_area_id; 
-    protected $_district_id; 
-    protected $_upazila_id; 
-    protected $_route_id; 
     protected $_status; 
 
     //methods to set custom search property value
+    public function setCode($code)
+    {
+        $this->_code = $code;
+    }
     public function setName($name)
     {
         $this->_name = $name;
     }
-    public function setShopName($shop_name)
+    public function setTradeName($trade_name)
     {
-        $this->_shop_name = $shop_name;
+        $this->_trade_name = $trade_name;
     }
     public function setMobile($mobile)
     {
         $this->_mobile = $mobile;
     }
-    public function setEmail($email)
-    {
-        $this->_email = $email;
-    }
-    public function setCustomerGroupID($customer_group_id)
-    {
-        $this->_customer_group_id = $customer_group_id;
-    }
-    public function setDistrictID($district_id)
-    {
-        $this->_district_id = $district_id;
-    }
-    public function setUpazilaID($upazila_id)
-    {
-        $this->_upazila_id = $upazila_id;
-    }
-    public function setAreaID($area_id)
-    {
-        $this->_area_id = $area_id;
-    }
-    public function setRouteID($route_id)
-    {
-        $this->_route_id = $route_id;
-    }
+
     public function setStatus($status)
     {
         $this->_status = $status;
@@ -122,40 +73,29 @@ class Customer extends BaseModel
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
-
-        $this->column_order = ['id','id','name', 'shop_name', 'mobile', 'customer_group_id','district_id','upazila_id','route_id', 'area_id','status',null,null];
+        if(permission('customer-bulk-delete'))
+        {
+            $this->column_order = ['id', 'id', 'code', 'name', 'trade_name','mobile', 'email', 'address', 'status', null, null];
+        }else{
+            $this->column_order = ['id', 'code', 'name', 'trade_name','mobile', 'email', 'address', 'status', null, null];
+        }
         
-        
-        $query = self::with('customer_group','district','upazila','route','area');
+        $query = self::toBase();
 
         //search query
+        if (!empty($this->_code)) {
+            $query->where('code', 'like', '%' . $this->_code . '%');
+        }
         if (!empty($this->_name)) {
             $query->where('name', 'like', '%' . $this->_name . '%');
         }
-        if (!empty($this->_shop_name)) {
-            $query->where('shop_name', 'like', '%' . $this->_shop_name . '%');
+        if (!empty($this->_trade_name)) {
+            $query->where('trade_name', 'like', '%' . $this->_trade_name . '%');
         }
         if (!empty($this->_mobile)) {
             $query->where('mobile', 'like', '%' . $this->_mobile . '%');
         }
-        if (!empty($this->_email)) {
-            $query->where('email', 'like', '%' . $this->_email . '%');
-        }
-        if (!empty($this->_customer_group_id)) {
-            $query->where('customer_group_id',  $this->_customer_group_id);
-        }
-        if (!empty($this->_district_id)) {
-            $query->where('district_id',  $this->_district_id);
-        }
-        if (!empty($this->_area_id)) {
-            $query->where('area_id',  $this->_area_id);
-        }
-        if (!empty($this->_upazila_id)) {
-            $query->where('upazila_id',  $this->_upazila_id);
-        }
-        if (!empty($this->_route_id)) {
-            $query->where('route_id',  $this->_route_id);
-        }
+
         if (!empty($this->_status)) {
             $query->where('status', $this->_status);
         }
@@ -212,26 +152,17 @@ class Customer extends BaseModel
     * * *  Begin :: Cache Data * * *
     **************************************/
     protected const ALL_CUSTOMERS    = '_customers';
-    protected const ACTIVE_CUSTOMERS = '_active_customers';
 
     public static function allCustomers(){
         return Cache::rememberForever(self::ALL_CUSTOMERS, function () {
-            return self::toBase()->orderBy('name','asc')->get();
-        });
-    }
-
-    public static function activeCustomers(){
-        return Cache::rememberForever(self::ACTIVE_CUSTOMERS, function () {
-            return self::active()->orderBy('name','asc')->get();
+            return self::toBase()->orderBy('id','asc')->get();
         });
     }
 
 
     public static function flushCache(){
         Cache::forget(self::ALL_CUSTOMERS);
-        Cache::forget(self::ACTIVE_CUSTOMERS);
     }
-
 
     public static function boot(){
         parent::boot();
@@ -251,4 +182,57 @@ class Customer extends BaseModel
     /***********************************
     * * *  Begin :: Cache Data * * *
     ************************************/
+
+
+    public function coa_data(string $code,string $head_name,int $customer_id)
+    {
+        return [
+            'code'              => $code,
+            'name'              => $head_name,
+            'parent_name'       => 'Customer Receivable',
+            'level'             => 4,
+            'type'              => 'A',
+            'is_transaction'    => 1,
+            'general_ledger'    => 2,
+            'customer_id'       => $customer_id,
+            'budget'            => 2,
+            'depreciation'      => 2,
+            'depreciation_rate' => '0',
+            'status'            => 1,
+            'created_by'        => auth()->user()->name
+        ];
+    }
+
+    public function previous_balance_data($balance, int $customer_coa_id, string $customer_name)
+    {
+        $transaction_id = generator(10);
+        $cosdr = array(
+            'chart_of_account_id' => $customer_coa_id,
+            'voucher_no'          => $transaction_id,
+            'voucher_type'        => 'PR Balance',
+            'voucher_date'        => date("Y-m-d"),
+            'description'         => 'Customer debit for previous balance from '.$customer_name,
+            'debit'               => $balance,
+            'credit'              => 0,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        );
+        $inventory = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
+            'voucher_no'          => $transaction_id,
+            'voucher_type'        => 'PR Balance',
+            'voucher_date'        => date("Y-m-d"),
+            'description'         => 'Inventory credit for old sale from '.$customer_name,
+            'debit'               => 0,
+            'credit'              => $balance,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        ); 
+
+        return [$cosdr,$inventory];
+    }
 }

@@ -10,7 +10,7 @@ use Modules\Account\Entities\ChartOfAccount;
 
 class Vendor extends BaseModel
 {
-    protected $fillable = [ 'name', 'mobile', 'email', 'address', 'status', 'created_by', 'modified_by'];
+    protected $fillable = [ 'name', 'trade_name','mobile', 'email', 'address', 'status', 'created_by', 'modified_by'];
 
     public function coa(){
         return $this->hasOne(ChartOfAccount::class,'vendor_id','id');
@@ -43,8 +43,8 @@ class Vendor extends BaseModel
     *******************************************/
     //custom search column property
     protected $_name; 
+    protected $_trade_name; 
     protected $_mobile; 
-    protected $_email; 
     protected $_status; 
 
     //methods to set custom search property value
@@ -52,13 +52,13 @@ class Vendor extends BaseModel
     {
         $this->_name = $name;
     }
+    public function setTradeName($trade_name)
+    {
+        $this->_trade_name = $trade_name;
+    }
     public function setMobile($mobile)
     {
         $this->_mobile = $mobile;
-    }
-    public function setEmail($email)
-    {
-        $this->_email = $email;
     }
     public function setStatus($status)
     {
@@ -69,9 +69,9 @@ class Vendor extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('vendor-bulk-delete')){
-            $this->column_order = [null,'id','name', 'mobile', 'email', 'address','status', null, null];
+            $this->column_order = [null,'id','name','trade_name', 'mobile', 'email', 'address','status', null, null];
         }else{
-            $this->column_order = ['id','name', 'mobile', 'email', 'address','status', null, null];
+            $this->column_order = ['id','name','trade_name', 'mobile', 'email', 'address','status', null, null];
         }
         
         $query = self::toBase();
@@ -79,6 +79,9 @@ class Vendor extends BaseModel
         //search query
         if (!empty($this->_name)) {
             $query->where('name', 'like', '%' . $this->_name . '%');
+        }
+        if (!empty($this->_trade_name)) {
+            $query->where('trade_name', 'like', '%' . $this->_trade_name . '%');
         }
         if (!empty($this->_mobile)) {
             $query->where('mobile', 'like', '%' . $this->_mobile . '%');

@@ -69,6 +69,7 @@ class VendorController extends BaseController
 
                     $row[] = $no;
                     $row[] = $value->name;
+                    $row[] = $value->trade_name;
                     $row[] = $value->mobile;
                     $row[] = $value->email;
                     $row[] = $value->address;
@@ -101,17 +102,17 @@ class VendorController extends BaseController
                     {
                         $coa_max_code      = ChartOfAccount::where('level',3)->where('code','like','50201%')->max('code');
                         $code              = $coa_max_code ? ($coa_max_code + 1) : '50201000001';
-                        $head_name         = $vendor->id.'-'.$vendor->name;
+                        $head_name         = $vendor->id.'-'.$vendor->trade_name;
                         $vendor_coa      = ChartOfAccount::create($this->model->coa_data($code,$head_name,$vendor->id));
                         if(!empty($request->previous_balance))
                         {
                             if($vendor_coa){
-                                Transaction::insert($this->model->previous_balance_data($request->previous_balance,$vendor_coa->id,$vendor->name));
+                                Transaction::insert($this->model->previous_balance_data($request->previous_balance,$vendor_coa->id,$vendor->trade_name));
                             }
                         }
                     }else{
-                        $old_head_name = $request->update_id.'-'.$request->old_name;
-                        $new_head_name = $request->update_id.'-'.$request->name;
+                        $old_head_name = $request->update_id.'-'.$request->old_trade_name;
+                        $new_head_name = $request->update_id.'-'.$request->trade_name;
                         $vendor_coa = ChartOfAccount::where(['name'=>$old_head_name,'vendor_id'=>$request->update_id])->first();
                         if($vendor_coa)
                         {
@@ -155,9 +156,26 @@ class VendorController extends BaseController
     {
         if($request->ajax()){
             if(permission('vendor-delete')){
-                $result   = $this->model->find($request->id)->delete();
-                $output   = $this->delete_message($result);
-                $this->model->flushCache();
+                DB::beginTransaction();
+                try {
+                    $total_purchase_data = DB::table('purchase_orders')->where('vendor_id',$request->id)->get()->count();
+                    if ($total_purchase_data > 0) {
+                        $output = ['status'=>'error','message'=>'This data cannot delete because it is related with others data.'];
+                    } else {
+                        $vendor_coa_id = ChartOfAccount::where('vendor_id',$request->id)->first();
+                        if($vendor_coa_id){
+                            Transaction::where('chart_of_account_id',$vendor_coa_id->id)->delete();
+                            $vendor_coa_id->delete();
+                        }
+                        $result   = $this->model->find($request->id)->delete();
+                        $output   = $this->delete_message($result);
+                    }
+                    DB::commit();
+                    $this->model->flushCache();
+                } catch (Exception $e) {
+                   DB::rollBack();
+                   $output = ['status' => 'error','message' => $e->getMessage()];
+                } 
             }else{
                 $output       = $this->unauthorized();
             }
@@ -171,9 +189,29 @@ class VendorController extends BaseController
     {
         if($request->ajax()){
             if(permission('vendor-bulk-delete')){
-                $result   = $this->model->destroy($request->ids);
-                $output   = $this->bulk_delete_message($result);
-                $this->model->flushCache();
+                DB::beginTransaction();
+                try {
+                    foreach ($request->ids as $id) {
+                        $total_purchase_data = DB::table('purchase_orders')->where('vendor_id',$id)->get()->count();
+                        if ($total_purchase_data > 0) {
+                            $output = ['status'=>'error','message'=>'This data cannot delete because it is related with others data.'];
+                        } else {
+                            $vendor_coa_id = ChartOfAccount::where('vendor_id',$id)->first();
+                            if($vendor_coa_id){
+                                Transaction::where('chart_of_account_id',$vendor_coa_id->id)->delete();
+                                $vendor_coa_id->delete();
+                            }
+                            
+                        }
+                    }
+                    $result   = $this->model->destroy($request->ids);
+                    $output   = $this->delete_message($result);
+                    DB::commit();
+                    $this->model->flushCache();
+                } catch (Exception $e) {
+                   DB::rollBack();
+                   $output = ['status' => 'error','message' => $e->getMessage()];
+                } 
             }else{
                 $output       = $this->unauthorized();
             }

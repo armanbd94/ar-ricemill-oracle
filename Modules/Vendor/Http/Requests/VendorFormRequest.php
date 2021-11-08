@@ -14,6 +14,7 @@ class VendorFormRequest extends FormRequest
     public function rules()
     {
         $rulse['name']             = ['required','string','max:100'];
+        $rulse['trade_name']       = ['required','string','max:100'];
         $rulse['mobile']           = ['required','string','max:15','unique:vendors,mobile'];
         $rulse['email']            = ['nullable','email','string','max:100','unique:vendors,email'];
         $rulse['address']          = ['nullable','string'];

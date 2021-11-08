@@ -29,6 +29,7 @@
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
                         <x-form.textbox labelName="Name" name="name" col="col-md-3" />
+                        <x-form.textbox labelName="Trade Name" name="trade_name" col="col-md-3" />
                         <x-form.textbox labelName="Mobile" name="mobile" col="col-md-3" />
                         <x-form.textbox labelName="Email" name="email" col="col-md-3" />
                         <x-form.selectbox labelName="Status" name="status" col="col-md-3" class="selectpicker">
@@ -36,7 +37,7 @@
                                 <option value="{{ $key }}">{{ $value }}</option>
                             @endforeach
                         </x-form.selectbox>
-                        <div class="col-md-12"> 
+                        <div class="col-md-9"> 
                             <div style="margin-top:0px;">    
                                 <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -69,6 +70,7 @@
                                         @endif
                                         <th>Sl</th>
                                         <th>Name</th>
+                                        <th>Trade Name</th>
                                         <th>Mobile</th>
                                         <th>Email</th>
                                         <th>Address</th>
@@ -120,6 +122,7 @@
                 "type": "POST",
                 "data": function (data) {
                     data.name   = $("#form-filter #name").val();
+                    data.trade_name   = $("#form-filter #trade_name").val();
                     data.mobile = $("#form-filter #mobile").val();
                     data.email  = $("#form-filter #email").val();
                     data.status = $("#form-filter #status").val();
@@ -129,26 +132,26 @@
             "columnDefs": [{
 
                     @if (permission('vendor-bulk-delete'))
-                    "targets": [0,8],
+                    "targets": [0,9],
                     @else
-                    "targets": [7],
+                    "targets": [8],
                     @endif
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
                     @if (permission('vendor-bulk-delete'))
-                    "targets": [1,2,3,6],
+                    "targets": [1,2,3,4,7],
                     @else
-                    "targets": [0,1,2,5],
+                    "targets": [0,1,2,3,6],
                     @endif
                     "className": "text-center"
                 },
                 {
                     @if (permission('vendor-bulk-delete'))
-                    "targets": [7],
+                    "targets": [8],
                     @else
-                    "targets": [6],
+                    "targets": [7],
                     @endif
                     "className": "text-right",
                     "orderable": false,
@@ -171,9 +174,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     },
                     customize: function (win) {
@@ -193,9 +196,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                         @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     }
                 },
@@ -207,9 +210,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                         @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     }
                 },
@@ -223,9 +226,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('vendor-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -286,7 +289,8 @@
                             notification(data.status,data.message)
                         }else{
                             $('#store_or_update_form #update_id').val(data.id);
-                            $('#store_or_update_form #name,#store_or_update_form #old_name').val(data.name);
+                            $('#store_or_update_form #name').val(data.name);
+                            $('#store_or_update_form #trade_name,#store_or_update_form #old_trade_name').val(data.trade_name);
                             $('#store_or_update_form #mobile').val(data.mobile);
                             $('#store_or_update_form #email').val(data.email);
                             $('#store_or_update_form #address').val(data.address);
