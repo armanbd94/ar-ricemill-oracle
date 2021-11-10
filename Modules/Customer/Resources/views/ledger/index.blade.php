@@ -5,22 +5,28 @@
 @push('styles')
 <link href="plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
 <link href="css/daterangepicker.min.css" rel="stylesheet" type="text/css" />
+<style>
+    .drpdn{
+        position: absolute;
+        will-change: transform;
+        top: 0px;
+        left: -20px !important;
+        transform: translate3d(-6px, 38px, 0px);
+    }
+</style>
 @endpush
 
 @section('content')
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Manage</button>
-                        <div class="dropdown-menu" style="">
+                        <div class="dropdown-menu drpdn">
                             <a class="dropdown-item" href="{{ url('customer') }}">Customer</a>
                             <a class="dropdown-item" href="{{ url('credit-customer') }}">Credit Customer</a>
                             <a class="dropdown-item" href="{{ url('paid-customer') }}">Paid Customer</a>
@@ -45,47 +51,16 @@
                                 <input type="hidden" id="end_date" name="end_date" value="{{ date('Y-m-d')}}">
                             </div>
                         </div>
-                        <x-form.selectbox labelName="District" name="district_id" col="col-md-4" class="selectpicker" onchange="getUpazilaList(this.value,1);customer_list();" >
-                            @if (!$locations->isEmpty())
-                                @foreach ($locations as $location)
-                                    @if ($location->type == 1 && $location->parent_id == null)
-                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endif
+                       
+                        <x-form.selectbox labelName="Customer" name="customer_id" col="col-md-4" class="selectpicker">
+                            @if (!$customers->isEmpty())
+                                @foreach ($customers as $value)
+                                    <option value="{{ $value->id }}">{{ $value->trade_name.' - '.$value->mobile.')' }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
-                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-4" class="selectpicker" onchange="getRouteList(this.value,1);customer_list();" >
-                            @if (!$locations->isEmpty())
-                                @foreach ($locations as $location)
-                                    @if ($location->type == 2 && $location->parent_id == auth()->user()->district_id)
-                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </x-form.selectbox>
-
-                        <x-form.selectbox labelName="Route" name="route_id" col="col-md-4" class="selectpicker" onchange="getAreaList(this.value,1);customer_list();">
-                            @if (!$locations->isEmpty())
-                                @foreach ($locations as $location)
-                                    @if ($location->type == 3 && $location->grand_parent_id == auth()->user()->district_id)
-                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </x-form.selectbox>
-
-                        <x-form.selectbox labelName="Area" name="area_id" col="col-md-4" class="selectpicker" onchange="customer_list()">
-                            @if (!$locations->isEmpty())
-                                @foreach ($locations as $location)
-                                    @if ($location->type == 4 && $location->grand_grand_parent_id == auth()->user()->district_id)
-                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </x-form.selectbox>
-                        <x-form.selectbox labelName="Customer" name="customer_id" col="col-md-4" class="selectpicker"/>
                         
-                        <div class="col-md-12">
+                        <div class="col-md-4">
                             <div style="margin-top:28px;">     
                                 <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -179,10 +154,6 @@ $(document).ready(function(){
             "url": "{{route('customer.ledger.datatable.data')}}",
             "type": "POST",
             "data": function (data) {
-                data.district_id = $("#form-filter #district_id").val();
-                data.upazila_id  = $("#form-filter #upazila_id").val();
-                data.route_id    = $("#form-filter #route_id").val();
-                data.area_id     = $("#form-filter #area_id").val();
                 data.customer_id = $("#form-filter #customer_id").val();
                 data.start_date  = $("#form-filter #start_date").val();
                 data.end_date    = $("#form-filter #end_date").val();
@@ -331,110 +302,6 @@ $(document).ready(function(){
         customer_list();
     });
 });
-customer_list();
-function customer_list()
-{
-    let district_id = document.getElementById('district_id').value;
-    let upazila_id = document.getElementById('upazila_id').value;
-    let route_id = document.getElementById('route_id').value;
-    let area_id = document.getElementById('area_id').value;
-    $.ajax({
-        url:"{{ url('customer-list') }}",
-        type:"POST",
-        data:{district_id:district_id,upazila_id:upazila_id,route_id:route_id,area_id:area_id,_token:_token},
-        dataType:"JSON",
-        success:function(data){
-            html = `<option value="">Select Please</option>`;
-            $.each(data, function(key, value) {
-                html += `<option value="${value.id}">${value.name} - ${value.mobile} (${value.shop_name})</option>`;
-            });
-            $('#form-filter #customer_id').empty().append(html);
-            $('#form-filter #customer_id.selectpicker').selectpicker('refresh');
-      
-        },
-    });
 
-}
-function getUpazilaList(district_id,selector,upazila_id=''){
-    $.ajax({
-        url:"{{ url('district-id-wise-upazila-list') }}/"+district_id,
-        type:"GET",
-        dataType:"JSON",
-        success:function(data){
-            html = `<option value="">Select Please</option>`;
-            $.each(data, function(key, value) {
-                html += '<option value="'+ key +'">'+ value +'</option>';
-            });
-            if(selector == 1)
-            {
-                $('#form-filter #upazila_id').empty();
-                $('#form-filter #upazila_id').append(html);
-            }else{
-                $('#store_or_update_form #upazila_id').empty();
-                $('#store_or_update_form #upazila_id').append(html);
-            }
-            $('.selectpicker').selectpicker('refresh');
-            if(upazila_id){
-                $('#store_or_update_form #upazila_id').val(upazila_id);
-                $('#store_or_update_form #upazila_id.selectpicker').selectpicker('refresh');
-            }
-      
-        },
-    });
-}
-function getRouteList(upazila_id,selector,route_id=''){
-    $.ajax({
-        url:"{{ url('upazila-id-wise-route-list') }}/"+upazila_id,
-        type:"GET",
-        dataType:"JSON",
-        success:function(data){
-            html = `<option value="">Select Please</option>`;
-            $.each(data, function(key, value) {
-                html += '<option value="'+ key +'">'+ value +'</option>';
-            });
-            if(selector == 1)
-            {
-                $('#form-filter #route_id').empty();
-                $('#form-filter #route_id').append(html);
-            }else{
-                $('#store_or_update_form #route_id').empty();
-                $('#store_or_update_form #route_id').append(html);
-            }
-            $('.selectpicker').selectpicker('refresh');
-            if(route_id){
-                $('#store_or_update_form #route_id').val(route_id);
-                $('#store_or_update_form #route_id.selectpicker').selectpicker('refresh');
-            }
-      
-        },
-    });
-}
-function getAreaList(route_id,selector,area_id=''){
-    $.ajax({
-        url:"{{ url('route-id-wise-area-list') }}/"+route_id,
-        type:"GET",
-        dataType:"JSON",
-        success:function(data){
-            html = `<option value="">Select Please</option>`;
-            $.each(data, function(key, value) {
-                html += '<option value="'+ key +'">'+ value +'</option>';
-            });
-            if(selector == 1)
-            {
-                $('#form-filter #area_id').empty();
-                $('#form-filter #area_id').append(html);
-            }else{
-                $('#store_or_update_form #area_id').empty();
-                $('#store_or_update_form #area_id').append(html);
-            }
-            $('.selectpicker').selectpicker('refresh');
-            if(area_id){
-                $('#store_or_update_form #area_id').val(area_id);
-                $('#store_or_update_form #area_id.selectpicker').selectpicker('refresh');
-            }
-      
-        },
-    });
-}
 </script>
 @endpush

@@ -11,7 +11,7 @@ class CustomerLedger extends BaseModel
 {
     protected $table = 'transactions';
     protected $order = ['transactions.voucher_date' => 'asc'];
-    protected $fillable = ['chart_of_account_id', 'warehouse_id', 'voucher_no', 'voucher_type', 'voucher_date',
+    protected $fillable = ['chart_of_account_id', 'voucher_no', 'voucher_type', 'voucher_date',
      'description', 'debit', 'credit', 'is_opening', 'posted', 'approve', 'created_by', 'modified_by'];
 
     public function coa()
@@ -28,10 +28,6 @@ class CustomerLedger extends BaseModel
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     //custom search column property
-    protected $_district_id; 
-    protected $_upazila_id; 
-    protected $_route_id; 
-    protected $_area_id; 
     protected $_customer_id; 
     protected $start_date; 
     protected $end_date; 
@@ -49,22 +45,7 @@ class CustomerLedger extends BaseModel
     {
         $this->end_date = $end_date;
     }
-    public function setDistrictID($district_id)
-    {
-        $this->_district_id = $district_id;
-    }
-    public function setUpazilaID($upazila_id)
-    {
-        $this->_upazila_id = $upazila_id;
-    }
-    public function seRouteID($route_id)
-    {
-        $this->_route_id = $route_id;
-    }
-    public function setAreaID($area_id)
-    {
-        $this->_area_id = $area_id;
-    }
+   
 
     private function get_datatable_query()
     {
@@ -73,7 +54,7 @@ class CustomerLedger extends BaseModel
         $this->column_order = ['transactions.voucher_date','transactions.description', 'transactions.voucher_no','transactions.debit','transactions.credit',null];
         
         $query = self::select('transactions.*','coa.id as coa_id','coa.code','coa.name','coa.parent_name',
-        'c.id as customer_id','c.shop_name','c.name','c.mobile')
+        'c.id as customer_id','c.trade_name','c.name as customer_name','c.mobile')
         ->join('chart_of_accounts as coa','transactions.chart_of_account_id','=','coa.id')
         ->join('customers as c','coa.customer_id','c.id')
         ->where('transactions.approve',1);
@@ -82,18 +63,7 @@ class CustomerLedger extends BaseModel
         if (!empty($this->_customer_id)) {
             $query->where('c.id', $this->_customer_id);
         }
-        if (!empty($this->_district_id)) {
-            $query->where('c.district_id', $this->_district_id);
-        }
-        if (!empty($this->_upazila_id)) {
-            $query->where('c.upazila_id', $this->_upazila_id);
-        }
-        if (!empty($this->_route_id)) {
-            $query->where('c.route_id', $this->_route_id);
-        }
-        if (!empty($this->_area_id)) {
-            $query->where('c.area_id', $this->_area_id);
-        }
+
         if (!empty($this->start_date)) {
             $query->where('transactions.voucher_date', '>=',$this->start_date);
         }
@@ -127,7 +97,7 @@ class CustomerLedger extends BaseModel
 
     public function count_all()
     {
-        return self::select('transactions.*','coa.id as coa_id','coa.code','coa.name','coa.parent_name','c.id as customer_id','c.shop_name','c.name','c.mobile')
+        return self::select('transactions.*','coa.id as coa_id','coa.code','coa.name','coa.parent_name','c.id as customer_id','c.trade_name','c.name as customer_name','c.mobile')
         ->join('chart_of_accounts as coa','transactions.chart_of_account_id','=','coa.id')
         ->join('customers as c','coa.customer_id','c.id')
         ->where('transactions.approve',1)

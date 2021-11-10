@@ -18,7 +18,7 @@ class CreateCustomersTable extends Migration
             $table->string('code')->unique();
             $table->string('name');
             $table->string('trade_name')->nullable();
-            $table->string('mobile');
+            $table->string('mobile')->unique();
             $table->string('email')->nullable();
             $table->text('address')->nullable();
             $table->enum('status',['1','2'])->default('1')->comment = "1=Active, 2=Inactive";
