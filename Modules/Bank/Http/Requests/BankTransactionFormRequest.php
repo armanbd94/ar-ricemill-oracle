@@ -14,7 +14,6 @@ class BankTransactionFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'warehouse_id'        => 'required',
             'voucher_date'        => 'required|date',
             'account_type'        => 'required|string',
             'bank_name'           => 'required|string',
@@ -27,7 +26,6 @@ class BankTransactionFormRequest extends FormRequest
     public function messages()
     {
         return [
-            'warehouse_id.required'        => 'The warehouse field is required',
             'voucher_date.required'        => 'The date field is required',
             'voucher_date.date'            => 'The date field value must be date',
             'voucher_no.required'          => 'The withdraw/deposit id field is required',

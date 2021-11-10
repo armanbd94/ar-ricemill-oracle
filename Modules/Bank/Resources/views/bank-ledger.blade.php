@@ -11,12 +11,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     <button type="button" id="print-report" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-print"></i> Print</button>
@@ -37,7 +34,7 @@
         <div class="card card-custom">
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
-                    <div class="row justify-content-center">
+                    <div class="row">
                         <div class="form-group col-md-3">
                             <label for="name">Choose Your Date</label>
                             <div class="input-group">
@@ -53,7 +50,7 @@
                                 @endforeach
                             @endif
                         </x-form.selectbox>
-                        <div class="col-md-1">
+                        <div class="col-md-6">
                             <div style="margin-top:28px;">    
                                 <div style="margin-top:28px;">    
                                     <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
@@ -75,6 +72,7 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                     <div class="row" id="report">
                         <style>
+                            .bg-primary{background-color: #034d97 !important;}
                             @media print {
 
                                 body,
@@ -83,6 +81,7 @@
                                     -webkit-print-color-adjust: exact !important;
                                     font-family: sans-serif;
                                 }
+                                .bg-primary{background-color: #034d97 !important;}
                             }
                         </style>
                         <div class="col-md-12 pb-5">
@@ -101,8 +100,7 @@
                         </div>
                         <div class="col-md-12">
                             <table id="bank-ledger-table" class="table table-bordered table-hover">
-                                <thead class="bg-primary">
-                                    <tr>
+                                <thead class="bg-primary" style="background-color: #034d97 !important;">
                                         <th>Date</th>
                                         <th>Bank Name</th>
                                         <th>Description</th>
@@ -110,7 +108,6 @@
                                         <th class="text-right">Debit (+)</th>
                                         <th class="text-right">Credit (-)</th>
                                         <th class="text-right">Balance</th>
-                                    </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>

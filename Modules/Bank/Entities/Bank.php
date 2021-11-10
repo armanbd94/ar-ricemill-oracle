@@ -4,16 +4,11 @@ namespace Modules\Bank\Entities;
 
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\Cache;
-use Modules\Setting\Entities\Warehouse;
 
 class Bank extends BaseModel
 {
-    protected $fillable = [ 'bank_name', 'account_name', 'account_number', 'warehouse_id',  'status', 'created_by', 'modified_by'];
-    
-    public function warehouse()
-    {
-        return $this->belongsTo(Warehouse::class,'warehouse_id','id');
-    }
+    protected $fillable = [ 'bank_name', 'account_name', 'account_number',  'status', 'created_by', 'modified_by'];
+
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
@@ -21,7 +16,6 @@ class Bank extends BaseModel
     protected $_bank_name; 
     protected $_account_name; 
     protected $_account_number; 
-    protected $_warehouse_id; 
 
     //methods to set custom search property value
     public function setBankName($bank_name)
@@ -36,22 +30,18 @@ class Bank extends BaseModel
     {
         $this->_account_number = $account_number;
     }
-    public function setWarehouseID($warehouse_id)
-    {
-        $this->_warehouse_id = $warehouse_id;
-    }
 
 
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
-        if (permission('menu-bulk-delete')){
-            $this->column_order = [null,'id','bank_name','account_name','account_number','warehouse_id',null, 'status',null];
+        if (permission('bank-bulk-delete')){
+            $this->column_order = [null,'id','bank_name','account_name','account_number',null, 'status',null];
         }else{
-            $this->column_order = ['id','bank_name','account_name','account_number','warehouse_id',null, 'status',null];
+            $this->column_order = ['id','bank_name','account_name','account_number',null, 'status',null];
         }
         
-        $query = self::with('warehouse:id,name');
+        $query = self::toBase();
 
         //search query
         if (!empty($this->_bank_name)) {
@@ -62,9 +52,6 @@ class Bank extends BaseModel
         }
         if (!empty($this->_account_number)) {
             $query->where('account_number', 'like', '%' . $this->_account_number . '%');
-        }
-        if (!empty($this->_warehouse_id)) {
-            $query->where('warehouse_id', $this->_warehouse_id);
         }
 
         //order by data fetching code
@@ -103,22 +90,16 @@ class Bank extends BaseModel
     * * *  Begin :: Cache Data * * *
     **************************************/
     protected const ALL_BANKS    = '_banks';
-    protected const ACTIVE_BANKS    = '_active_banks';
 
     public static function allBankList(){
         return Cache::rememberForever(self::ALL_BANKS, function () {
-            return self::toBase()->orderBy('bank_name','asc')->get();
-        });
-    }
-    public static function activeBankList(){
-        return Cache::rememberForever(self::ACTIVE_BANKS, function () {
-            return self::toBase()->where('status',1)->orderBy('bank_name','asc')->get();
+            return self::toBase()->where('status',1)->get();
         });
     }
 
+
     public static function flushCache(){
         Cache::forget(self::ALL_BANKS);
-        Cache::forget(self::ACTIVE_BANKS);
     }
 
     public static function boot(){

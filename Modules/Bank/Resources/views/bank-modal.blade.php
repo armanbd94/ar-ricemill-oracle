@@ -22,13 +22,6 @@
                     <x-form.textbox labelName="Bank Name" name="bank_name" required="required" col="col-md-12" placeholder="Enter bank name"/>
                     <x-form.textbox labelName="Account Name" name="account_name" required="required" col="col-md-12" placeholder="Enter account name"/>
                     <x-form.textbox labelName="Account Number" name="account_number" required="required" col="col-md-12" placeholder="Enter account number"/>
-                    <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required"  col="col-md-12" class="selectpicker">
-                      @if (!$warehouses->isEmpty())
-                          @foreach ($warehouses as $id => $name)
-                              <option value="{{ $id }}">{{ $name }}</option>
-                          @endforeach
-                      @endif
-                    </x-form.selectbox>
                 </div>
             </div>
             <!-- /modal body -->

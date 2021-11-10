@@ -10,12 +10,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('bank-add'))
                     <a href="javascript:void(0);" onclick="showFormModal('Add New Bank','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
@@ -34,14 +31,7 @@
                         <x-form.textbox labelName="Bank Name" name="bank_name" col="col-md-3" />
                         <x-form.textbox labelName="Account Name" name="account_name" col="col-md-3" />
                         <x-form.textbox labelName="Account Number" name="account_number" col="col-md-3" />
-                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required"  col="col-md-3" class="selectpicker">
-                            @if (!$warehouses->isEmpty())
-                                @foreach ($warehouses as $id => $name)
-                                    <option value="{{ $id }}">{{ $name }}</option>
-                                @endforeach
-                            @endif
-                          </x-form.selectbox>
-                        <div class="col-md-12">
+                        <div class="col-md-3">
                             <div style="margin-top:28px;">      
                                     <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -67,7 +57,6 @@
                                         <th>Bank Name</th>
                                         <th>Account Name</th>
                                         <th>Account Number</th>
-                                        <th>Warehouse</th>
                                         <th>Balance</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -118,23 +107,22 @@
                     data.bank_name      = $("#form-filter #bank_name").val();
                     data.account_name   = $("#form-filter #account_name").val();
                     data.account_number = $("#form-filter #account_number").val();
-                    data.warehouse_id   = $("#form-filter #warehouse_id").val();
                     data._token         = _token;
                 }
             },
             "columnDefs": [
                 {
-                    "targets": [7],
+                    "targets": [6],
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
-                    "targets": [5],
+                    "targets": [4],
                     "orderable": false,
                     "className": "text-right"
                 },
                 {
-                    "targets": [0,6],
+                    "targets": [0,5],
                     "className": "text-center"
                 },
             ],
@@ -143,7 +131,6 @@
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'<'float-right'p>>>",
     
             "buttons": [
-                @if (permission('bank-report'))
                 {
                     'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
                 },
@@ -155,7 +142,7 @@
                     "orientation": "landscape", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(6))' 
                     },
                     customize: function (win) {
                         $(win.document.body).addClass('bg-white');
@@ -173,7 +160,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(6))' 
                     }
                 },
                 {
@@ -183,7 +170,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(6))' 
                     }
                 },
                 {
@@ -195,7 +182,7 @@
                     "orientation": "portrait", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(6))' 
                     },
                     customize: function(doc) {
                         doc.defaultStyle.fontSize = 7; //<-- set fontsize to 16 instead of 10 
@@ -203,7 +190,6 @@
                         doc.pageMargins = [5,5,5,5];
                     } 
                 },
-                @endif 
                 @if (permission('bank-bulk-delete'))
                 {
                     'className':'btn btn-danger btn-sm delete_btn d-none text-white',
@@ -260,7 +246,6 @@
                             $('#store_or_update_form #bank_name').val(data.bank_name);
                             $('#store_or_update_form #account_name').val(data.account_name);
                             $('#store_or_update_form #account_number').val(data.account_number);
-                            $('#store_or_update_form #warehouse_id').val(data.warehouse_id);
                             $('#store_or_update_form .selectpicker').selectpicker('refresh');
                             $('#store_or_update_modal').modal({
                                 keyboard: false,

@@ -22,9 +22,9 @@ class BankController extends BaseController
     public function index()
     {
         if(permission('bank-access')){
-            $this->setPageData('Bank List','Bank List','fas fa-university',[['name' => 'Bank List']]);
-            $warehouses = DB::table('warehouses')->where('status',1)->pluck('name','id');
-            return view('bank::index',compact('warehouses'));
+            $this->setPageData('Manage Bank','Manage Bank','fas fa-university',[['name' => 'Manage Bank']]);
+
+            return view('bank::index');
         }else{
             return $this->access_blocked();
         }
@@ -44,9 +44,7 @@ class BankController extends BaseController
                 if (!empty($request->account_number)) {
                     $this->model->setAccountNumber($request->account_number);
                 }
-                if (!empty($request->warehouse_id)) {
-                    $this->model->setWarehouseID($request->warehouse_id);
-                }
+
                 $this->set_datatable_default_properties($request);//set datatable default properties
                 $list = $this->model->getDatatableList();//get table data
                 $data = [];
@@ -66,9 +64,7 @@ class BankController extends BaseController
                     $row[] = $value->bank_name;
                     $row[] = $value->account_name;
                     $row[] = $value->account_number;
-                    $row[] = $value->warehouse->name;
-                    $row[] = config('settings.currency_position') == '1' ? config('settings.currency_symbol').number_format($this->bank_balance($value->bank_name),2)
-                                : number_format($this->bank_balance($value->bank_name),2).config('settings.currency_symbol');
+                    $row[] = number_format($this->bank_balance($value->id),2);
                     $row[] = permission('bank-edit') ? change_status($value->id,$value->status, $value->bank_name) : STATUS_LABEL[$value->status];
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
@@ -96,7 +92,7 @@ class BankController extends BaseController
                         if($coa_code){
                             $headcode = $coa_code + 1;
                         }else{
-                            $headcode = "102010201";
+                            $headcode = "1020102000001";
                         }
                         $bank_coa['name'] = $request->bank_name;;
                         if(empty($request->update_id)){
@@ -104,7 +100,7 @@ class BankController extends BaseController
                             $bank_coa['parent_name']       = self::CASH_AT_BANK;
                             $bank_coa['level']             = 4;
                             $bank_coa['type']              = 'A';
-                            $bank_coa['transaction']       = 1;               //1=yes,2=no
+                            $bank_coa['is_transaction']    = 1;               //1=yes,2=no
                             $bank_coa['general_ledger']    = 2;               //1=yes,2=no
                             $bank_coa['bank_id']           = $result->id;               //1=yes,2=no
                             $bank_coa['budget']            = 2;               //1=yes,2=no
@@ -208,12 +204,12 @@ class BankController extends BaseController
         }
     }
 
-    private function bank_balance(string $bank_name){
+    private function bank_balance(int $bank_id){
         $data = DB::table('transactions as t')
                 ->leftjoin('chart_of_accounts as coa','t.chart_of_account_id','=','coa.id')
                 ->select(DB::raw("SUM(t.debit) - SUM(t.credit) as balance"),'coa.name')
                 ->groupBy('coa.name')
-                ->where('coa.name',$bank_name)
+                ->where('coa.bank_id',$bank_id)
                 ->where('t.approve',1)
                 ->first();
         return !empty($data) ? $data->balance : 0;
@@ -276,9 +272,5 @@ class BankController extends BaseController
         }
     }
 
-    public function warehouse_wise_bank_list(int $warehouse_id)
-    {
-        $banks = $this->model->where('warehouse_id',$warehouse_id)->get();
-        return json_encode($banks);
-    }
+
 }
