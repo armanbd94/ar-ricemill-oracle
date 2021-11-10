@@ -9,5 +9,6 @@
     "Purchase": true,
     "Production": true,
     "Vendor": true,
-    "ViaCustomer": true
+    "ViaCustomer": true,
+    "Expense":true
 }
