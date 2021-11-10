@@ -17,7 +17,7 @@ class MobileBankFormRequest extends FormRequest
         $this->rules['bank_name']      = ['required','string','unique:mobile_banks,bank_name'];
         $this->rules['account_name']   = ['required','string'];
         $this->rules['account_number'] = ['required','string'];
-        $this->rules['warehouse_id'] = ['required'];
+
         if(request()->update_id){
             $this->rules['bank_name'][2]      = 'unique:mobile_banks,bank_name,'.request()->update_id;
         }

@@ -26,19 +26,18 @@
                     
                         <form id="bank_transaction_form" method="post">
                             @csrf
-                            <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required" onchange="getBankList(this.value)" col="col-md-6" class="selectpicker">
-                                @if (!$warehouses->isEmpty())
-                                    @foreach ($warehouses as $id => $name)
-                                        <option value="{{ $id }}">{{ $name }}</option>
-                                    @endforeach
-                                @endif
-                            </x-form.selectbox>
                             <x-form.textbox labelName="Date" name="voucher_date" required="required" class="date" value="{{ date('Y-m-d') }}" col="col-md-6"/>
                             <x-form.selectbox labelName="Account Type" name="account_type" required="required" col="col-md-6" class="selectpicker">
                                 <option value="Debit(+)">Debit (+)</option>
                                 <option value="Credit(-)">Credit (-)</option>
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="Mobile Bank Name" name="bank_name" required="required" col="col-md-6" class="selectpicker"/>
+                            <x-form.selectbox labelName="Mobile Bank Name" name="bank_name" required="required" col="col-md-6" class="selectpicker">
+                                @if (!$banks->isEmpty())
+                                    @foreach ($banks as $bank)
+                                        <option value="{{ $bank->bank_name }}">{{ $bank->bank_name.' - '.$bank->account_number }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
                             <x-form.textbox labelName="Withdraw / Deposite ID" name="voucher_no" required="required" col="col-md-6"/>
                             <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-6"/>
                             <x-form.textarea labelName="Description" name="description" col="col-md-6"/>
@@ -72,23 +71,7 @@ function refresh_selectpicker()
     $('#bank_transaction_form').find('.is-invalid').removeClass('is-invalid');
     $('#bank_transaction_form').find('.error').remove();
 }
-function getBankList(warehouse_id)
-{
-    $.ajax({
-        url:"{{ url('warehouse-wise-mobile-bank-list') }}/"+warehouse_id,
-        type:"GET",
-        dataType:"JSON",
-        success:function(data){
-            html = `<option value="">Select Please</option>`;
-            $.each(data, function(key, value) {
-                html += '<option value="'+ value.bank_name +'">'+ value.bank_name + ' - ' + value.account_number +'</option>';
-            });
-            
-            $('#bank_transaction_form #bank_name').empty().append(html);
-            $('#bank_transaction_form .selectpicker').selectpicker('refresh');
-        },
-    });
-}
+
 function save_data() {
     let form = document.getElementById('bank_transaction_form');
     let formData = new FormData(form);

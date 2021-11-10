@@ -20,9 +20,9 @@ class MobileBankTransactionController extends BaseController
     public function index()
     {
         if(permission('mobile-bank-transaction-access')){
-            $this->setPageData('Mobile Bank Transaction','Mobile Bank Transaction','far fa-money-bill-alt',[['name' => 'Bank Transaction']]);
-            $warehouses = DB::table('warehouses')->where('status',1)->pluck('name','id');
-            return view('mobilebank::transaction',compact('warehouses'));
+            $this->setPageData('Mobile Bank Transaction','Mobile Bank Transaction','far fa-money-bill-alt',[['name' => 'Mobile Bank Transaction']]);
+            $banks = MobileBank::allMobileBankList();
+            return view('mobilebank::transaction',compact('banks'));
         }else{
             return $this->access_blocked();
         }
@@ -46,7 +46,6 @@ class MobileBankTransactionController extends BaseController
                     }
                     $coa_mobile_bank_transaction = $collection->merge([
                         'chart_of_account_id' => ChartOfAccount::account_id_by_name($request->bank_name),//get chart of account(coa) id
-                        'warehouse_id'        => $request->warehouse_id,
                         'voucher_type'        => 'Mobile Bank Transaction',
                         'debit'               => $debit,
                         'credit'              => $credit,
@@ -56,7 +55,6 @@ class MobileBankTransactionController extends BaseController
                     $bank_transaction = $this->model->create($coa_mobile_bank_transaction->all());
                     $coa_cash_transaction = $collection->merge([
                         'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', $this->coa_head_code('cash_in_hand'))->value('id'),//get chart of account(coa) id
-                        'warehouse_id'        => $request->warehouse_id,
                         'voucher_type'        => 'Mobile Bank Transaction',
                         'debit'               => $credit,
                         'credit'              => $debit,

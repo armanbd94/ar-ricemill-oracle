@@ -23,7 +23,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('change-status', 'MobileBankController@change_status')->name('change.status');
         Route::post('delete', 'MobileBankController@delete')->name('delete');
     });
-    Route::get('warehouse-wise-mobile-bank-list/{warehouse_id}', 'MobileBankController@warehouse_wise_mobile_bank_list')->name('warehouse.wise.mobile.bank.list');
 
     Route::get('mobile-bank-transaction', 'MobileBankTransactionController@index')->name('mobilebank.transaction');
     Route::post('store-mobile-bank-transaction', 'MobileBankTransactionController@store')->name('store.mobilebank.transaction');

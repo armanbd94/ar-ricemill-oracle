@@ -24,7 +24,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('change-status', 'BankController@change_status')->name('change.status');
         Route::post('delete', 'BankController@delete')->name('delete');
     });
-    Route::get('warehouse-wise-bank-list/{warehouse_id}', 'BankController@warehouse_wise_bank_list')->name('warehouse.wise.bank.list');
 
     Route::get('bank-transaction', 'BankTransactionController@index')->name('bank.transaction');
     Route::post('store-bank-transaction', 'BankTransactionController@store')->name('store.bank.transaction');
