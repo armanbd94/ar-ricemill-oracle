@@ -10,12 +10,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('material-add'))
                     <a href="javascript:void(0);" onclick="showNewFormModal('Add New Material','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
@@ -72,14 +69,12 @@
                                         </th>
                                         @endif
                                         <th>Sl</th>
-                                        <th>Image</th>
                                         <th>Name</th>
                                         <th>Code</th>
                                         <th>Category</th>
                                         <th>Type</th>
                                         <th>Cost</th>
                                         <th>Stock Unit</th>
-                                        <th>Purchase Unit</th>
                                         <th>Stock Qty</th>
                                         <th>Alert Qty</th>
                                         <th>Status</th>
@@ -139,26 +134,26 @@
             },
             "columnDefs": [{
                     @if (permission('material-bulk-delete'))
-                    "targets": [0,13],
+                    "targets": [0,11],
                     @else 
-                    "targets": [12],
+                    "targets": [10],
                     @endif
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
                     @if (permission('material-bulk-delete'))
-                    "targets": [1,2,4,5,6,8,9,10,11,12],
+                    "targets": [1,2,3,4,5,7,8,9,10],
                     @else 
-                    "targets": [0,1,3,4,5,7,8,9,10,11],
+                    "targets": [0,1,2,3,4,6,7,8,9]
                     @endif
                     "className": "text-center"
                 },
                 {
                     @if (permission('material-bulk-delete'))
-                    "targets": [7],
-                    @else 
                     "targets": [6],
+                    @else 
+                    "targets": [5],
                     @endif
                     "className": "text-right"
                 }
@@ -168,7 +163,6 @@
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'<'float-right'p>>>",
     
             "buttons": [
-                @if (permission('material-report'))
                 {
                     'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
                 },
@@ -181,9 +175,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('material-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(13))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(12))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     },
                     customize: function (win) {
@@ -203,9 +197,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                         @if (permission('material-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(13))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(12))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     }
                 },
@@ -217,9 +211,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                         @if (permission('material-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(13))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(12))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     }
                 },
@@ -233,9 +227,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('material-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(13))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(12))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -244,7 +238,6 @@
                         doc.pageMargins = [5,5,5,5];
                     } 
                 },
-                @endif 
                 @if (permission('material-bulk-delete'))
                 {
                     'className':'btn btn-danger btn-sm delete_btn d-none text-white',
@@ -267,26 +260,7 @@
             table.ajax.reload();
         });
 
-        $("#material_image").spartanMultiImagePicker({
-            fieldName:        'material_image',
-            maxCount: 1,
-            rowHeight:        '200px',
-            groupClassName:   'col-md-12 col-sm-12 col-xs-12',
-            maxFileSize:      '',
-            dropFileLabel : "Drop Here",
-            allowedExt: 'png|jpg|jpeg',
-            onExtensionErr : function(index, file){
-                Swal.fire({icon: 'error',title: 'Oops...',text: 'Only png,jpg,jpeg file format allowed!'});
-            },
 
-        });
-
-        $("input[name='material_image']").prop('required',true);
-
-        $('.remove-files').on('click', function(){
-            $(this).parents(".col-md-12").remove();
-        });
-    
         $(document).on('click', '#save-btn', function () {
             let form = document.getElementById('store_or_update_form');
             let formData = new FormData(form);
@@ -374,7 +348,6 @@
                             $('#store_or_update_form #material_code').val(data.material_code);
                             $('#store_or_update_form #category_id').val(data.category_id);
                             $('#store_or_update_form #type').val(data.type);
-                            $('#store_or_update_form #cost').val(parseFloat(data.cost).toFixed(2));
                             $('#store_or_update_form #unit_id').val(data.unit_id);
                             $('#store_or_update_form #alert_qty').val(data.alert_qty);
                             data.tax_id ? $('#store_or_update_form #tax_id').val(data.tax_id) : $('#store_or_update_form #tax_id').val(0)
@@ -383,32 +356,7 @@
                             
                             
                             $('#has_opening_stock').val(data.has_opening_stock);
-                            if(data.has_opening_stock == 1)
-                            {
-                                $('#opening_stock').prop('checked',true);
-                                $('.material-qty,.material-cost,.opening-warehouse-id').removeClass('d-none');
-                                $('#store_or_update_form #opening_stock_qty').val(data.opening_stock_qty);
-                                $('#store_or_update_form #opening_cost').val(data.opening_cost);
-                                $('#store_or_update_form #opening_warehouse_id').val(data.opening_warehouse_id);
-                            }else{
-                                $('#opening_stock').prop('checked',false);
-                                $('#opening_stock_qty,#opening_cost,#opening_warehouse_id').val('');
-                                $('.material-qty,.material-cost,.opening-warehouse-id').addClass('d-none');
-                            }
                             $('#store_or_update_form .selectpicker').selectpicker('refresh');
-                            $('#store_or_update_form #old_material_image').val(data.material_image);
-                            if(data.material_image){
-                                $('#store_or_update_form img').css('display','none');
-                                $('#store_or_update_form .spartan_remove_row').css('display','none');
-                                $('#store_or_update_form .img_').css('display','block');
-                                $('#store_or_update_form .img_').attr('src',`{{ 'storage/'.MATERIAL_IMAGE_PATH }}`+data.material_image);
-                            }else{
-                                $('#store_or_update_form img').css('display','block');
-                                $('#store_or_update_form .spartan_remove_row').css('display','none');
-                                $('#store_or_update_form .img_').css('display','none');
-                                $('#store_or_update_form .img_').attr('src','');
-                            }
-                            populate_unit(data.unit_id,data.purchase_unit_id);
                             $('#store_or_update_modal').modal({
                                 keyboard: false,
                                 backdrop: 'static',
@@ -509,60 +457,18 @@
                 }
             });
         });
-
-        $(document).on('change','#opening_stock', function(){
-            if($(this).is(':checked')) {
-                $('#has_opening_stock').val(1);
-                $('.material-qty,.opening-warehouse-id,.material-cost').removeClass('d-none');
-                $('#opening_stock_qty,#opening_warehouse_id,#opening_cost').val('');
-                $('#store_or_update_form .selectpicker').selectpicker('refresh');
-            }else{
-                $('#has_opening_stock').val(2);
-                $('#opening_stock_qty,#opening_warehouse_id,#opening_cost').val('');
-                $('#store_or_update_form .selectpicker').selectpicker('refresh');
-                $('.material-qty,.opening-warehouse-id,.material-cost').addClass('d-none');
-            }
-        });
-    
     
     });
 
-    function populate_unit(unit_id,purchase_unit_id='')
-    {
-        $.ajax({
-            url:"{{ url('populate-unit') }}/"+unit_id,
-            type:"GET",
-            dataType:"JSON",
-            success:function(data){
-                $('#purchase_unit_id').empty();
-                $.each(data, function(key, value) {
-                    $('#purchase_unit_id').append('<option value="'+ key +'">'+ value +'</option>');
-                });
-                $('.selectpicker').selectpicker('refresh');
-                if(purchase_unit_id){
-                    $('#purchase_unit_id').val(purchase_unit_id);
-                    $('.selectpicker').selectpicker('refresh');
-                }
-                
-            },
-        });
-    }
 
     function showNewFormModal(modal_title, btn_text) {
         $('#store_or_update_form')[0].reset();
         $('#store_or_update_form #update_id').val('');
         $('#store_or_update_form').find('.is-invalid').removeClass('is-invalid');
         $('#store_or_update_form').find('.error').remove();
-        $('#has_opening_stock').val(2);
+        $('#store_or_update_form #tax_method').val(2);
         $('#opening_stock_qty,#opening_warehouse_id').val('');
         $('#store_or_update_form .selectpicker').selectpicker('refresh');
-        $('.material-qty,.material-cost,.opening-warehouse-id').addClass('d-none');
-
-        $('#store_or_update_form .spartan_image_placeholder').css('display','block');
-        $('#store_or_update_form .spartan_remove_row').css('display','none');
-        $('#store_or_update_form .img_').css('display','none');
-        $('#store_or_update_form .img_').attr('src','');
-   
         $('#store_or_update_modal').modal({
             keyboard: false,
             backdrop: 'static',

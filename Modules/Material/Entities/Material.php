@@ -9,8 +9,8 @@ use App\Models\BaseModel;
 
 class Material extends BaseModel
 {
-    protected $fillable = ['category_id','material_name', 'material_code', 'unit_id', 'purchase_unit_id', 'cost', 'old_cost', 'qty', 'alert_qty', 
-    'tax_id', 'tax_method','type', 'status', 'has_opening_stock', 'opening_stock_qty','opening_cost', 'opening_warehouse_id', 'created_by', 'modified_by'];
+    protected $fillable = ['category_id','material_name', 'material_code', 'unit_id', 'cost', 'old_cost', 'qty', 'alert_qty', 
+    'tax_id', 'tax_method','type', 'status', 'has_opening_stock', 'opening_stock_qty', 'created_by', 'modified_by'];
 
 
     /******************************************
@@ -45,12 +45,12 @@ class Material extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('material-bulk-delete')){
-            $this->column_order = [null,'id','material_image','material_name','material_code','category_id','type','cost','unit_id','purchase_unit_id','qty', 'alert_qty', 'status',null];
+            $this->column_order = [null,'id','material_name','material_code','category_id','type','cost','unit_id','qty', 'alert_qty', 'status',null];
         }else{
-            $this->column_order = ['id','material_image','material_name','material_code','category_id','type','cost','unit_id', 'purchase_unit_id','qty', 'alert_qty', 'status',null];
+            $this->column_order = ['id','material_name','material_code','category_id','type','cost','unit_id', 'qty', 'alert_qty', 'status',null];
         }
         
-        $query = self::with('unit:id,unit_name,unit_code','purchase_unit:id,unit_name,unit_code','category:id,name');
+        $query = self::with('unit:id,unit_name,unit_code','category:id,name');
 
         //search query
         if (!empty($this->_category_id)) {
@@ -109,18 +109,12 @@ class Material extends BaseModel
     {
         return $this->belongsTo(Unit::class,'unit_id','id');
     }
-    public function purchase_unit()
-    {
-        return $this->belongsTo(Unit::class,'purchase_unit_id','id');
-    }
+
     public function tax()
     {
         return $this->belongsTo(Tax::class)->orderBy('name','asc')->withDefault(['name'=>'No Tax','rate'=>0]);
     }
-    public function opening_warehouse()
-    {
-        return $this->belongsTo(Warehouse::class,'opening_warehouse_id','id')->withDefault(['name' => '']);
-    }
+
     /***************************************
      * * * End :: Model Relationship * * *
     ****************************************/

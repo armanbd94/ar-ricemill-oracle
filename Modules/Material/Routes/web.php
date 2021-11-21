@@ -26,8 +26,5 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('change-status', 'MaterialController@change_status')->name('change.status');
         Route::get('generate-code', 'MaterialController@generateMaterialCode')->name('generate.code');
     });
-    Route::post('material-autocomplete-search', 'MaterialController@autocomplete_search_material');
-    Route::post('material-search', 'MaterialController@search_material')->name('material.search');
-    Route::post('warehouse-wise-materials', 'MaterialController@warehouse_wise_materials')->name('warehouse.wise.materials');
-    Route::post('material-search-by-id', 'MaterialController@search_material_by_id')->name('material.search.by.id');
+
 });
