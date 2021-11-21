@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Material\Http\Controllers;
+namespace Modules\Product\Http\Controllers;
 
 use Keygen\Keygen;
 use App\Models\Tax;
@@ -8,28 +8,29 @@ use App\Models\Unit;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Material\Entities\Material;
+use Modules\Product\Entities\Product;
 use App\Http\Controllers\BaseController;
-use Modules\Material\Entities\SiteMaterial;
-use Modules\Material\Http\Requests\MaterialFormRequest;
+use Modules\Product\Entities\SiteProduct;
+use Modules\Product\Http\Requests\ProductFormRequest;
 
-class MaterialController extends BaseController
+
+class ProductController extends BaseController
 {
-    public function __construct(Material $model)
+    public function __construct(Product $model)
     {
         $this->model = $model;
     }
 
     public function index()
     {
-        if(permission('material-access')){
-            $this->setPageData('Manage Material','Manage Material','fas fa-toolbox',[['name' => 'Manage Material']]);
+        if(permission('product-access')){
+            $this->setPageData('Manage Product','Manage Product','fas fa-toolbox',[['name' => 'Manage Product']]);
             $data = [
                 'units'      => Unit::where('status',1)->get(),
                 'taxes'      => Tax::activeTaxes(),
-                'categories' => Category::allMaterialCategories(),
+                'categories' => Category::allProductCategories(),
             ];
-            return view('material::index',$data);
+            return view('product::index',$data);
         }else{
             return $this->access_blocked();
         }
@@ -38,13 +39,13 @@ class MaterialController extends BaseController
     public function get_datatable_data(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-access')){
+            if(permission('product-access')){
 
-                if (!empty($request->material_name)) {
-                    $this->model->setMaterialName($request->material_name);
+                if (!empty($request->name)) {
+                    $this->model->setName($request->name);
                 }
-                if (!empty($request->material_code)) {
-                    $this->model->setMaterialCode($request->material_code);
+                if (!empty($request->code)) {
+                    $this->model->setCode($request->code);
                 }
                 if (!empty($request->status)) {
                     $this->model->setStatus($request->status);
@@ -60,30 +61,30 @@ class MaterialController extends BaseController
                 foreach ($list as $value) {
                     $no++;
                     $action = '';
-                    if(permission('material-edit')){
+                    if(permission('product-edit')){
                         $action .= ' <a class="dropdown-item edit_data" data-id="' . $value->id . '">'.self::ACTION_BUTTON['Edit'].'</a>';
                     }
-                    if(permission('material-view')){
-                        $action .= ' <a class="dropdown-item view_data" data-id="' . $value->id . '" data-name="' . $value->material_name . '">'.self::ACTION_BUTTON['View'].'</a>';
+                    if(permission('product-view')){
+                        $action .= ' <a class="dropdown-item view_data" data-id="' . $value->id . '" data-name="' . $value->name . '">'.self::ACTION_BUTTON['View'].'</a>';
                     }
-                    if(permission('material-delete')){
-                        $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->material_name . '">'.self::ACTION_BUTTON['Delete'].'</a>';
+                    if(permission('product-delete')){
+                        $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->name . '">'.self::ACTION_BUTTON['Delete'].'</a>';
                     }
 
                     $row = [];
-                    if(permission('material-bulk-delete')){
+                    if(permission('product-bulk-delete')){
                         $row[] = row_checkbox($value->id);//custom helper function to show the table each row checkbox
                     }
                     $row[] = $no;
-                    $row[] = $value->material_name;
-                    $row[] = $value->material_code;
+                    $row[] = $value->name;
+                    $row[] = $value->code;
                     $row[] = $value->category->name;
-                    $row[] = MATERIAL_TYPE[$value->type];
                     $row[] = $value->cost ? number_format($value->cost,2,'.',',') : 0;
+                    $row[] = $value->cost ? number_format($value->price,2,'.',',') : 0;
                     $row[] = $value->unit->unit_name;
                     $row[] = $value->qty ? $value->qty : "<span class='label label-rounded label-danger'>0</span>";
                     $row[] = $value->alert_qty ? $value->alert_qty : "<span class='label label-rounded label-danger'>0</span>";
-                    $row[] = permission('material-edit') ? change_status($value->id,$value->status, $value->material_name) : STATUS_LABEL[$value->status];
+                    $row[] = permission('product-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
                 }
@@ -95,10 +96,10 @@ class MaterialController extends BaseController
         }
     }
 
-    public function store_or_update_data(MaterialFormRequest $request)
+    public function store_or_update_data(ProductFormRequest $request)
     {
         if($request->ajax()){
-            if(permission('material-add') || permission('material-edit')){
+            if(permission('product-add') || permission('product-edit')){
                 DB::beginTransaction();
                 try {
                     $collection = collect($request->validated())->except('alert_qty','tax_id');
@@ -125,9 +126,9 @@ class MaterialController extends BaseController
     public function show(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-view')){
-                $material = $this->model->with('unit')->findOrFail($request->id);
-                return view('material::view-modal-data',compact('material'))->render();
+            if(permission('product-view')){
+                $product = $this->model->with('unit')->findOrFail($request->id);
+                return view('product::view-modal-data',compact('product'))->render();
             }
         }
     }
@@ -135,7 +136,7 @@ class MaterialController extends BaseController
     public function edit(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-edit')){
+            if(permission('product-edit')){
                 $data   = $this->model->findOrFail($request->id);
                 $output = $this->data_message($data); //if data found then it will return data otherwise return error message
             }else{
@@ -150,8 +151,8 @@ class MaterialController extends BaseController
     public function delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-delete')){
-                SiteMaterial::where('material_id',$request->id)->delete();
+            if(permission('product-delete')){
+                SiteProduct::where('product_id',$request->id)->delete();
                 $material  = $this->model->find($request->id)->delete();
                 $output   = $this->delete_message($material);
             }else{
@@ -166,8 +167,8 @@ class MaterialController extends BaseController
     public function bulk_delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-bulk-delete')){
-                SiteMaterial::whereIn('material_id',$request->ids)->delete();
+            if(permission('product-bulk-delete')){
+                SiteProduct::whereIn('product_id',$request->ids)->delete();
                 $material  = $this->model->destroy($request->ids);
                 $output   = $this->bulk_delete_message($material);
             }else{
@@ -182,7 +183,7 @@ class MaterialController extends BaseController
     public function change_status(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-edit')){
+            if(permission('product-edit')){
                 $result   = $this->model->find($request->id)->update(['status' => $request->status]);
                 $output   = $result ? ['status' => 'success','message' => 'Status Has Been Changed Successfully']
                 : ['status' => 'error','message' => 'Failed To Change Status'];
@@ -196,18 +197,15 @@ class MaterialController extends BaseController
     }
 
     //Generate Material Code
-    public function generateMaterialCode()
+    public function generateProductCode()
     {
         $code = Keygen::numeric(8)->generate();
         //Check Material Code ALready Exist or Not
-        if(DB::table('materials')->where('material_code',$code)->exists())
+        if(DB::table('products')->where('code',$code)->exists())
         {
             $this->generateMaterialCode();
         }else{
             return response()->json($code);
         }
     }
-
-
-
 }

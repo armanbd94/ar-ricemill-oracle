@@ -14,7 +14,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    @if (permission('material-add'))
+                    @if (permission('product-add'))
                     <a href="javascript:void(0);" onclick="showNewFormModal('Add New Material','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
@@ -28,8 +28,8 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
-                        <x-form.textbox labelName="Material Name" name="material_name" col="col-md-3" />
-                        <x-form.textbox labelName="Material Code" name="material_code" col="col-md-3" />
+                        <x-form.textbox labelName="Name" name="name" col="col-md-3" />
+                        <x-form.textbox labelName="Code" name="code" col="col-md-3" />
                         <x-form.selectbox labelName="Category" name="category_id" col="col-md-3" class="selectpicker">
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -60,7 +60,7 @@
                             <table id="dataTable" class="table table-bordered table-hover">
                                 <thead class="bg-primary">
                                     <tr>
-                                        @if (permission('material-bulk-delete'))
+                                        @if (permission('product-bulk-delete'))
                                         <th>
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" class="custom-control-input" id="select_all" onchange="select_all()">
@@ -72,8 +72,8 @@
                                         <th>Name</th>
                                         <th>Code</th>
                                         <th>Category</th>
-                                        <th>Type</th>
                                         <th>Cost</th>
+                                        <th>Price</th>
                                         <th>Stock Unit</th>
                                         <th>Stock Qty</th>
                                         <th>Alert Qty</th>
@@ -92,8 +92,8 @@
         <!--end::Card-->
     </div>
 </div>
-@include('material::modal')
-@include('material::view-modal')
+@include('product::modal')
+@include('product::view-modal')
 @endsection
 
 @push('scripts')
@@ -121,18 +121,18 @@
                 zeroRecords: '<strong class="text-danger">No Data Found</strong>'
             },
             "ajax": {
-                "url": "{{route('material.datatable.data')}}",
+                "url": "{{route('product.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
-                    data.material_name = $("#form-filter #material_name").val();
-                    data.material_code = $("#form-filter #material_code").val();
+                    data.name = $("#form-filter #name").val();
+                    data.code = $("#form-filter #code").val();
                     data.status        = $("#form-filter #status").val();
                     data.category_id   = $("#form-filter #category_id").val();
                     data._token        = _token;
                 }
             },
             "columnDefs": [{
-                    @if (permission('material-bulk-delete'))
+                    @if (permission('product-bulk-delete'))
                     "targets": [0,11],
                     @else 
                     "targets": [10],
@@ -141,18 +141,18 @@
                     "className": "text-center"
                 },
                 {
-                    @if (permission('material-bulk-delete'))
-                    "targets": [1,2,3,4,5,7,8,9,10],
+                    @if (permission('product-bulk-delete'))
+                    "targets": [1,2,3,4,7,8,9,10],
                     @else 
-                    "targets": [0,1,2,3,4,6,7,8,9]
+                    "targets": [0,1,2,3,6,7,8,9]
                     @endif
                     "className": "text-center"
                 },
                 {
-                    @if (permission('material-bulk-delete'))
-                    "targets": [6],
+                    @if (permission('product-bulk-delete'))
+                    "targets": [5,6],
                     @else 
-                    "targets": [5],
+                    "targets": [4,5],
                     @endif
                     "className": "text-right"
                 }
@@ -173,7 +173,7 @@
                     "orientation": "landscape", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        @if (permission('material-bulk-delete'))
+                        @if (permission('product-bulk-delete'))
                         columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
                         columns: ':visible:not(:eq(10))' 
@@ -195,7 +195,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('material-bulk-delete'))
+                        @if (permission('product-bulk-delete'))
                         columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
                         columns: ':visible:not(:eq(10))' 
@@ -209,7 +209,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('material-bulk-delete'))
+                        @if (permission('product-bulk-delete'))
                         columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
                         columns: ':visible:not(:eq(10))' 
@@ -225,7 +225,7 @@
                     "orientation": "landscape", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        @if (permission('material-bulk-delete'))
+                        @if (permission('product-bulk-delete'))
                         columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
                         columns: ':visible:not(:eq(10))' 
@@ -237,7 +237,7 @@
                         doc.pageMargins = [5,5,5,5];
                     } 
                 },
-                @if (permission('material-bulk-delete'))
+                @if (permission('product-bulk-delete'))
                 {
                     'className':'btn btn-danger btn-sm delete_btn d-none text-white',
                     'text':'Delete',
@@ -263,7 +263,7 @@
         $(document).on('click', '#save-btn', function () {
             let form = document.getElementById('store_or_update_form');
             let formData = new FormData(form);
-            let url = "{{route('material.store.or.update')}}";
+            let url = "{{route('product.store.or.update')}}";
             let id = $('#update_id').val();
             let method;
             if (id) {
@@ -293,7 +293,7 @@
                             $('#store_or_update_form input#' + key).addClass('is-invalid');
                             $('#store_or_update_form textarea#' + key).addClass('is-invalid');
                             $('#store_or_update_form select#' + key).parent().addClass('is-invalid');
-                            if(key == 'material_code'){
+                            if(key == 'code'){
                                 $('#store_or_update_form #' + key).parents('.form-group').append(
                                 '<small class="error text-danger">' + value + '</small>');
                             }else{
@@ -334,7 +334,7 @@
             $('#store_or_update_form').find('.error').remove();
             if (id) {
                 $.ajax({
-                    url: "{{route('material.edit')}}",
+                    url: "{{route('product.edit')}}",
                     type: "POST",
                     data: { id: id,_token: _token},
                     dataType: "JSON",
@@ -343,12 +343,12 @@
                             notification(data.status,data.message)
                         }else{
                             $('#store_or_update_form #update_id').val(data.id);
-                            $('#store_or_update_form #material_name').val(data.material_name);
-                            $('#store_or_update_form #material_code').val(data.material_code);
+                            $('#store_or_update_form #name').val(data.name);
+                            $('#store_or_update_form #code').val(data.code);
                             $('#store_or_update_form #category_id').val(data.category_id);
-                            $('#store_or_update_form #type').val(data.type);
                             $('#store_or_update_form #unit_id').val(data.unit_id);
                             $('#store_or_update_form #alert_qty').val(data.alert_qty);
+                            $('#store_or_update_form #price').val(data.price);
                             data.tax_id ? $('#store_or_update_form #tax_id').val(data.tax_id) : $('#store_or_update_form #tax_id').val(0)
                             
                             $('#store_or_update_form #tax_method').val(data.tax_method);
@@ -378,7 +378,7 @@
             let name  = $(this).data('name');
             if (id) {
                 $.ajax({
-                    url: "{{route('material.view')}}",
+                    url: "{{route('product.view')}}",
                     type: "POST",
                     data: { id: id,_token: _token},
                     success: function (data) {
@@ -402,7 +402,7 @@
             let id    = $(this).data('id');
             let name  = $(this).data('name');
             let row   = table.row($(this).parent('tr'));
-            let url   = "{{ route('material.delete') }}";
+            let url   = "{{ route('product.delete') }}";
             delete_data(id, url, table, row, name);
         });
     
@@ -421,7 +421,7 @@
                     icon: 'warning',
                 });
             }else{
-                let url = "{{route('material.bulk.delete')}}";
+                let url = "{{route('product.bulk.delete')}}";
                 bulk_delete(ids,url,table,rows);
             }
         }
@@ -431,7 +431,7 @@
             let name   = $(this).data('name');
             let status = $(this).data('status');
             let row    = table.row($(this).parent('tr'));
-            let url    = "{{ route('material.change.status') }}";
+            let url    = "{{ route('product.change.status') }}";
             change_status(id, url, table, row, name, status);
         });
 
@@ -439,7 +439,7 @@
         //Generate Material Code
         $(document).on('click','#generate-code',function(){
             $.ajax({
-                url: "{{ route('material.generate.code') }}",
+                url: "{{ route('product.generate.code') }}",
                 type: "GET",
                 dataType: "JSON",
                 beforeSend: function(){
@@ -449,7 +449,7 @@
                     $('#generate-code').removeClass('spinner spinner-white spinner-right');
                 },
                 success: function (data) {
-                    data ? $('#store_or_update_form #material_code').val(data) : $('#store_or_update_form #material_code').val('');
+                    data ? $('#store_or_update_form #code').val(data) : $('#store_or_update_form #code').val('');
                 },
                 error: function (xhr, ajaxOption, thrownError) {
                     console.log(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);

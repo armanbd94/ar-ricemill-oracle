@@ -10,5 +10,6 @@
     "Production": true,
     "Vendor": true,
     "ViaCustomer": true,
-    "Expense":true
+    "Expense": true,
+    "Product": true
 }

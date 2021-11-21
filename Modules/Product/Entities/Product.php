@@ -1,16 +1,18 @@
 <?php
 
-namespace Modules\Material\Entities;
+namespace Modules\Product\Entities;
 
 use App\Models\Tax;
 use App\Models\Unit;
 use App\Models\Category;
 use App\Models\BaseModel;
 
-class Material extends BaseModel
+
+class Product extends BaseModel
 {
-    protected $fillable = ['category_id','material_name', 'material_code', 'unit_id', 'cost', 'old_cost', 'qty', 'alert_qty', 
-    'tax_id', 'tax_method','type', 'status', 'has_opening_stock', 'created_by', 'modified_by'];
+
+    protected $fillable = ['category_id','name', 'code', 'unit_id', 'cost','price', 'qty', 'alert_qty', 
+    'tax_id', 'tax_method', 'status', 'has_opening_stock','created_by', 'modified_by'];
 
 
     /******************************************
@@ -18,8 +20,8 @@ class Material extends BaseModel
     *******************************************/
     //custom search column property
     protected $_category_id; 
-    protected $_material_name; 
-    protected $_material_code; 
+    protected $_name; 
+    protected $_code; 
     protected $_status; 
 
     //methods to set custom search property value
@@ -27,13 +29,13 @@ class Material extends BaseModel
     {
         $this->_category_id = $category_id;
     }
-    public function setMaterialName($material_name)
+    public function setName($name)
     {
-        $this->_material_name = $material_name;
+        $this->_name = $name;
     }
-    public function setMaterialCode($material_code)
+    public function setCode($code)
     {
-        $this->_material_code = $material_code;
+        $this->_code = $code;
     }
     public function setStatus($status)
     {
@@ -44,10 +46,10 @@ class Material extends BaseModel
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
-        if (permission('material-bulk-delete')){
-            $this->column_order = [null,'id','material_name','material_code','category_id','type','cost','unit_id','qty', 'alert_qty', 'status',null];
+        if (permission('product-bulk-delete')){
+            $this->column_order = [null,'id','name','code','category_id','price','unit_id','qty', 'alert_qty', 'status',null];
         }else{
-            $this->column_order = ['id','material_name','material_code','category_id','type','cost','unit_id', 'qty', 'alert_qty', 'status',null];
+            $this->column_order = ['id','name','code','category_id','price','unit_id', 'qty', 'alert_qty', 'status',null];
         }
         
         $query = self::with('unit:id,unit_name,unit_code','category:id,name');
@@ -56,11 +58,11 @@ class Material extends BaseModel
         if (!empty($this->_category_id)) {
             $query->where('category_id', $this->_category_id);
         }
-        if (!empty($this->_material_name)) {
-            $query->where('material_name', 'like', '%' . $this->_material_name . '%');
+        if (!empty($this->_name)) {
+            $query->where('name', 'like', '%' . $this->_name . '%');
         }
-        if (!empty($this->_material_code)) {
-            $query->where('material_code', 'like', '%' . $this->_material_code . '%');
+        if (!empty($this->_code)) {
+            $query->where('code', 'like', '%' . $this->_code . '%');
         }
         if (!empty($this->_status)) {
             $query->where('status', $this->_status);
@@ -118,4 +120,6 @@ class Material extends BaseModel
     /***************************************
      * * * End :: Model Relationship * * *
     ****************************************/
+    
+
 }
