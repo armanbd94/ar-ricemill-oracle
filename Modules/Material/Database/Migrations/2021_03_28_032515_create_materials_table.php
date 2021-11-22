@@ -15,8 +15,8 @@ class CreateMaterialsTable extends Migration
     {
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
-            $table->string('material_name');
-            $table->string('material_code')->unique();
+            $table->string('material_name')->unique()->index('material_name');
+            $table->string('material_code')->unique()->index('material_code');
             $table->unsignedBigInteger('category_id');
             $table->foreign('category_id')->references('id')->on('categories');
             $table->unsignedBigInteger('unit_id');

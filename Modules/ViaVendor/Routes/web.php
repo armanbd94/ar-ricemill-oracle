@@ -22,5 +22,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('delete', 'ViaVendorController@delete')->name('delete');
         Route::post('bulk-delete', 'ViaVendorController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'ViaVendorController@change_status')->name('change.status');
+        
     });
+    Route::get('vendor-wise-list/{id}', 'ViaVendorController@vendor_wise_list');
 });

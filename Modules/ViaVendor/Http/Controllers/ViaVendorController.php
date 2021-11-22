@@ -177,5 +177,11 @@ class ViaVendorController extends BaseController
         }
     }
 
+    public function vendor_wise_list(int $id)
+    {
+        $via_vendors = DB::table('via_vendors')->where([['vendor_id',$id],['status',1]])->pluck('name','id');
+        return json_encode($via_vendors);
+    }
+
 
 }

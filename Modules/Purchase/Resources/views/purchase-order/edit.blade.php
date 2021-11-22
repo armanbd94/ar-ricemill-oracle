@@ -14,8 +14,8 @@
         <div class="card card-custom custom-card">
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
-                    <button type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-sync-alt"></i> Reset</button>
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-danger btn-sm mr-3" onclick="window.location.replace('{{ url("purchase/order") }}')"><i class="fas fa-sync-alt"></i> Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -30,19 +30,20 @@
 
                     <form action="" id="purchase_store_form" method="post" enctype="multipart/form-data">
                         @csrf
+                        <input type="hidden" name="purchase_id" id="purchase_id" value="{{ $purchase->id }}">
                         <div class="row">
                             <div class="form-group col-md-3 required">
                                 <label for="chalan_no">Memo No.</label>
-                                <input type="text" class="form-control" name="memo_no" id="memo_no" />
+                                <input type="text" class="form-control" name="memo_no" id="memo_no" value="{{ $purchase->memo_no }}" />
                             </div>
-                            <x-form.textbox labelName="Order Date" name="order_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>
-                            <x-form.textbox labelName="Delivery Date" name="delivery_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>
-                            <x-form.textbox labelName="PO No." name="po_no"  required="required"  col="col-md-3"/>
-                            <x-form.textbox labelName="NOS Truck" name="nos_truck"  required="required"  col="col-md-3"/>
+                            <x-form.textbox labelName="Order Date" name="order_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"  value="{{ $purchase->order_date }}"/>
+                            <x-form.textbox labelName="Delivery Date" name="delivery_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"  value="{{ $purchase->delivery_date }}"/>
+                            <x-form.textbox labelName="PO No." name="po_no"  required="required"  col="col-md-3"  value="{{ $purchase->po_no }}"/>
+                            <x-form.textbox labelName="NOS Truck" name="nos_truck"  required="required"  col="col-md-3"  value="{{ $purchase->nos_truck }}"/>
                             <x-form.selectbox labelName="Vendor" name="vendor_id" required="required" class="selectpicker" onchange="getViaVendorList(this.value)" col="col-md-3">
                                 @if (!$vendors->isEmpty())
                                     @foreach ($vendors as $vendor)
-                                        <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                        <option value="{{ $vendor->id }}" {{ $vendor->id == $purchase->vendor_id ? 'selected' : '' }}>{{ $vendor->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
@@ -60,44 +61,53 @@
                                         <th class="text-center"><i class="fas fa-trash text-white"></i></th>
                                     </thead>
                                     <tbody>
-
-                                        <tr>
-                                            <td class="col-md-3">                                                  
-                                                <select name="materials[1][id]" id="materials_1_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(1)"  data-live-search="true" data-row="1">    
-                                                    <option value="">Select Please</option>                                        
-                                                    @if (!$materials->isEmpty())
-                                                        @foreach ($materials as $material)
-                                                            <option value="{{ $material->id }}" data-unitid={{ $material->unit_id }} data-unitname="{{ $material->unit->unit_name }}" data-category="{{ $material->category->name }}">{{ $material->material_name }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </td>    
-                                            <td><input type="text" class="form-control" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                            <td class="category_name_1 text-center"  id="category_name_1"  data-row="1"></td>
-                                            <td class="unit_name_1 text-center"  id="unit_name_1"  data-row="1"></td>
-                                            <td><input type="text" class="form-control qty text-center" onkeyup="calculateRowTotal(1)" name="materials[1][qty]" id="materials_1_qty" data-row="1"></td>
-                                            <td><input type="text" class="text-right form-control net_unit_cost" onkeyup="calculateRowTotal(1)" name="materials[1][net_unit_cost]" id="materials_1_net_unit_cost" data-row="1"></td>
-                                            <td class="subtotal_1 text-right" id="sub_total_1" data-row="1"></td>
-                                            <td class="text-center" data-row="1"></td>
-                                            <input type="hidden" id="materials_1_purchase_unit_id" name="materials[1][purchase_unit_id]" data-row="1">
-                                            <input type="hidden" class="subtotal" id="materials_1_subtotal" name="materials[1][subtotal]" data-row="1">
-                                        </tr>
-
+                                        @if(!$purchase->materials->isEmpty())
+                                            @foreach($purchase->materials as $key => $value)
+                                                @php
+                                                $unit_name = DB::table('units')->where('id',$value->pivot->purchase_unit_id)->value('unit_name');
+                                                @endphp
+                                                <tr>
+                                                    <td class="col-md-3">                                                  
+                                                        <select name="materials[{{ $key+1 }}][id]" id="materials_{{ $key+1 }}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails({{ $key+1 }})"  data-live-search="true" data-row="{{ $key+1 }}">    
+                                                            <option value="">Select Please</option>                                        
+                                                            @if (!$materials->isEmpty())
+                                                                @foreach ($materials as $material)
+                                                                    <option value="{{ $material->id }}" {{ $value->id == $material->id ? 'selected' : '' }} data-unitid={{ $material->unit_id }} data-unitname="{{ $material->unit->unit_name }}" data-category="{{ $material->category->name }}">{{ $material->material_name }}</option>
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </td>    
+                                                    <td><input type="text" class="form-control" name="materials[{{ $key+1 }}][description]" value="{{ $value->pivot->description }}"  id="materials_{{ $key+1 }}_description" data-row="{{ $key+1 }}"></td>                                    
+                                                    <td class="category_name_{{ $key+1 }} text-center"  id="category_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $value->category->name }}</td>
+                                                    <td class="unit_name_{{ $key+1 }} text-center"  id="unit_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $unit_name }}</td>
+                                                    <td><input type="text" class="form-control qty text-center" value="{{ $value->pivot->qty }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="materials[{{ $key+1 }}][qty]" id="materials_{{ $key+1 }}_qty" data-row="{{ $key+1 }}"></td>
+                                                    <td><input type="text" class="text-right form-control net_unit_cost" value="{{ $value->pivot->net_unit_cost }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="materials[{{ $key+1 }}][net_unit_cost]" id="materials_{{ $key+1 }}_net_unit_cost" data-row="{{ $key+1 }}"></td>
+                                                    <td class="subtotal_{{ $key+1 }} text-right" id="sub_total_{{ $key+1 }}" data-row="{{ $key+1 }}">{{ $value->pivot->total }}</td>
+                                                    <td class="text-center" data-row="{{ $key+1 }}">
+                                                        @if($key != 0)
+                                                        <button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button>
+                                                        @endif
+                                                    </td>
+                                                    <input type="hidden" id="materials_{{ $key+1 }}_purchase_unit_id" name="materials[{{ $key+1 }}][purchase_unit_id]" data-row="{{ $key+1 }}">
+                                                    <input type="hidden" class="subtotal" value="{{ $value->pivot->total }}" id="materials_{{ $key+1 }}_subtotal" name="materials[{{ $key+1 }}][subtotal]" data-row="{{ $key+1 }}">
+                                                </tr>
+                                            @endforeach
+                                        @endif
                                     </tbody>
                                     <tfoot class="bg-primary">
                                         <th colspan="4" class="font-weight-bolder">Total</th>
-                                        <th id="total-qty" class="text-center font-weight-bolder">0</th>
+                                        <th id="total-qty" class="text-center font-weight-bolder">{{ $purchase->total_qty }}</th>
                                         <th></th>
-                                        <th id="total" class="text-right font-weight-bolder">0.00</th>
+                                        <th id="total" class="text-right font-weight-bolder">{{ $purchase->grand_total }}</th>
                                         <th class="text-center"><button type="button" data-toggle="tooltip" data-theme="dark" title="Add More" class="btn btn-success btn-sm add-material"><i class="fas fa-plus"></i></button></th>
                                     </tfoot>
                                 </table>
                             </div>
                             
                             <div class="col-md-12">
-                                <input type="hidden" name="item" id="item">
-                                <input type="hidden" name="total_qty" id="total_qty">
-                                <input type="hidden" name="grand_total" id="grand_total">
+                                <input type="hidden" name="item" id="item" value="{{ $purchase->item }}">
+                                <input type="hidden" name="total_qty" id="total_qty" value="{{ $purchase->total_qty }}">
+                                <input type="hidden" name="grand_total" id="grand_total" value="{{ $purchase->grand_total }}">
                             </div>
                     </form>
                 </div>
@@ -124,6 +134,9 @@ $(document).ready(function () {
     });
 
     var count = 1;
+    @if(!$purchase->materials->isEmpty())
+    count = "{{ count($purchase->materials) }}";
+    @endif
     $('#material_table').on('click','.add-material',function(){
         count++;
         material_row_add(count);
@@ -208,24 +221,31 @@ function calculateTotal()
     var item = $('#material_table tbody tr:last').index()+1;
     $('input[name="item"]').val(item);
 }
-
-function getViaVendorList(vendor_id)
-    {
-        $.ajax({
-            url:"{{ url('vendor-wise-list') }}/"+vendor_id,
-            type:"GET",
-            dataType:"JSON",
-            success:function(data){
-                $('#via_vendor_id').empty();
-                var html = '<option value="">Select Please</option>';
-                $.each(data, function(key, value) {
-                    html += '<option value="'+ key +'">'+ value +'</option>';
-                });
-                $('#via_vendor_id').append(html);
+@if($purchase->via_vendor_id)
+getViaVendorList("{{ $purchase->vendor_id }}","{{ $purchase->via_vendor_id }}");
+@endif
+function getViaVendorList(vendor_id,via_vendor_id='')
+{
+    $.ajax({
+        url:"{{ url('vendor-wise-list') }}/"+vendor_id,
+        type:"GET",
+        dataType:"JSON",
+        success:function(data){
+            $('#via_vendor_id').empty();
+            var html = '<option value="">Select Please</option>';
+            $.each(data, function(key, value) {
+                html += '<option value="'+ key +'">'+ value +'</option>';
+            });
+            $('#via_vendor_id').append(html);
+            $('#via_vendor_id.selectpicker').selectpicker('refresh');
+            if(via_vendor_id)
+            {
+                $('#via_vendor_id').val(via_vendor_id);
                 $('#via_vendor_id.selectpicker').selectpicker('refresh');
-            },
-        });
-    }
+            }
+        },
+    });
+}
 
 function store_data(){
     var rownumber = $('table#material_table tbody tr:last').index();
@@ -234,7 +254,7 @@ function store_data(){
     }else{
         let form = document.getElementById('purchase_store_form');
         let formData = new FormData(form);
-        let url = "{{route('purchase.order.store')}}";
+        let url = "{{route('purchase.order.update')}}";
         $.ajax({
             url: url,
             type: "POST",
@@ -264,8 +284,7 @@ function store_data(){
                 } else {
                     notification(data.status, data.message);
                     if (data.status == 'success') {
-                        window.location.replace("{{ url('purchase/order/view') }}/"+data.purchase_id);
-                        
+                        window.location.replace("{{ url('purchase/order') }}");
                         
                     }
                 }

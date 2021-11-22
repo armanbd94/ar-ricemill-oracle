@@ -124,12 +124,11 @@ define('TRANSFER_STATUS_LABEL',[
 
 define('DAYS',['1'=>'Saturday','2'=>'Sunday','3'=>'Monday','4'=>'Tuesday','5'=>'Wednesday','6'=>'Thursday']);
 
-define('PURCHASE_STATUS',['1'=>'Received','2'=>'Partial','3'=>'Pending','4'=>'Ordered']);
+define('PURCHASE_STATUS',['1'=>'Received','2'=>'Partial','3'=>'Ordered']);
 define('PURCHASE_STATUS_LABEL',[
     '1'=>'<span class="label label-success label-pill label-inline" style="min-width:70px !important;">Received</span>',
     '2'=>'<span class="label label-warning label-pill label-inline" style="min-width:70px !important;">Partial</span>',
-    '3'=>'<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">Pending</span>',
-    '4'=>'<span class="label label-info label-pill label-inline" style="min-width:70px !important;">Ordered</span>',
+    '3'=>'<span class="label label-info label-pill label-inline" style="min-width:70px !important;">Ordered</span>',
 ]);
 
 define('PAYMENT_STATUS',['1'=>'Paid','2'=>'Partial','3'=>'Due']);
