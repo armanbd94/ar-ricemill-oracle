@@ -48,7 +48,7 @@
                             </x-form.selectbox>
                             <x-form.textbox labelName="Challan No." name="challan_no"  required="required"  col="col-md-3"/>
                             <x-form.textbox labelName="Transport No." name="transport_no"  required="required"  col="col-md-3"/>
-                            <div class="col-md-12">
+                            <div class="col-md-12 table-responsive">
                                 {{-- <div class="col-md-12 text-center">
                                     <h3 class="py-3 bg-warning text-white" style="margin: 10px auto 10px auto;width:300px;">Dumping Materials</h3>
                                 </div> --}}
@@ -66,25 +66,25 @@
                                         <th class="text-center"><i class="fas fa-trash text-white"></i></th>
                                     </thead>
                                     <tbody>
-                                        <td class="col-md-3">                                                  
+                                        <td style="width: 250px;">                                                  
                                             <select name="materials[1][id]" id="materials_1_id" class="fcs col-md-12 material form-control selectpicker" onchange="getMaterialDetails(this.value,1)"  data-live-search="true" data-row="1">                                            
                                                 <option>Material One</option>
                                                 <option>Material Two</option>
                                             </select>
                                         </td>    
                                         <td><input type="text" class="text-right form-control" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                        <td class="category-name_1 text-center"  id="category_name_1"  data-row="1"></td>
-                                        <td class="unit-name_1 text-center"  id="unit_name_1"  data-row="1"></td>
-                                        <td><input type="text" class="form-control qty text-center" name="materials[1][qty]" id="materials_1_qty" value="1"  data-row="1"></td>
-                                        <td><input type="text" class="text-right form-control net_unit_cost" name="materials[1][net_unit_cost]" id="materials_1_net_unit_cost" data-row="1"></td>
-                                        <td class="sub-total text-right" data-row="1"></td>
-                                        <td class="col-md-3">                                                  
+                                        <td class="category-name_1 text-center" style="min-width: 120px;" id="category_name_1"  data-row="1"></td>
+                                        <td class="unit-name_1 text-center" style="min-width: 80px;" id="unit_name_1"  data-row="1"></td>
+                                        <td style="width: 120px;"><input type="text" class="form-control qty text-center" name="materials[1][qty]" id="materials_1_qty" value="1"  data-row="1"></td>
+                                        <td style="width: 120px;"><input type="text" class="text-right form-control net_unit_cost" name="materials[1][net_unit_cost]" id="materials_1_net_unit_cost" data-row="1"></td>
+                                        <td class="sub-total text-right"  style="min-width: 150px;" data-row="1"></td>
+                                        <td style="width: 250px;">                                                  
                                             <select name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
                                                 <option>Site One</option>
                                                 <option>Site Two</option>
                                             </select>
                                         </td>  
-                                        <td class="col-md-3">                                                  
+                                        <td  style="width: 250px;">                                                  
                                             <select name="materials[1][location_id]" id="materials_1_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
                                                 <option>Location One</option>
                                                 <option>Location Two</option>
@@ -107,11 +107,7 @@
                                     </tfoot>
                                 </table>
                             </div>
-                            
-                            <div class="form-group col-md-12">
-                                <label for="shipping_cost">Note</label>
-                                <textarea  class="form-control" name="note" id="note" cols="30" rows="3"></textarea>
-                            </div>
+
                             <div class="col-md-12">
                                 <table class="table table-bordered">
                                     <thead class="bg-primary">
@@ -131,29 +127,7 @@
                                 <input type="hidden" name="order_tax">
                                 <input type="hidden" name="grand_total">
                             </div>
-                            <div class="payment col-md-12 d-none">
-                                <div class="row">
-                                    <div class="form-group col-md-3 required">
-                                        <label for="paid_amount">Paid Amount</label>
-                                        <input type="text" class="form-control" name="paid_amount" id="paid_amount">
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label for="due_amount">Due Amount</label>
-                                        <input type="text" class="form-control" id="due_amount" readonly>
-                                    </div>
-                                    <x-form.selectbox labelName="Payment Method" name="payment_method" required="required"  col="col-md-3"  class="selectpicker">
-                                        @foreach (PAYMENT_METHOD as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                        @endforeach
-                                    </x-form.selectbox>
-                                    <x-form.selectbox labelName="Account" name="account_id" required="required"  col="col-md-3"  class="selectpicker" />
-                                    <div class="form-group col-md-3 d-none cheque_number required">
-                                        <label for="cheque_number">Cheque No.</label>
-                                        <input type="text" class="form-control" name="cheque_number" id="cheque_number">
-                                    </div>
-                                </div>
-                            
-                            </div>
+
                            
                             <div class="form-grou col-md-12 text-center pt-5">
                                 <button type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-sync-alt"></i> Reset</button>
