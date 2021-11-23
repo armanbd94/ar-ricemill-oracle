@@ -11,7 +11,7 @@ class OrderReceivedMaterial extends Model
 {
     protected $table = 'received_materials';
     protected $fillable = [
-        'order_id','received_id','material_id', 'site_id', 'location_id','received_qty','received_unit_id','net_unit_cost','total','description',
+        'order_id','received_id','material_id', 'site_id', 'location_id','received_qty','received_unit_id','net_unit_cost','total','description','old_cost'
     ];
 
     public function order()

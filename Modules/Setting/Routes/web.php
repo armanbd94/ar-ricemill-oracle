@@ -36,7 +36,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('bulk-delete', 'LocationController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'LocationController@change_status')->name('change.status');
     });
-
+    Route::get('site-wise-location-list/{site_id}', 'LocationController@site_wise_location_list');
     //Job Type Routes
     Route::get('job-type', 'JobTypeController@index')->name('job.type');
     Route::group(['prefix' => 'job-type', 'as'=>'job.type.'], function () {

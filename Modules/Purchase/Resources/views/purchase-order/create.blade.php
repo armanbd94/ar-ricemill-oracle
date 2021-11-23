@@ -99,6 +99,7 @@
                                 <input type="hidden" name="total_qty" id="total_qty">
                                 <input type="hidden" name="grand_total" id="grand_total">
                             </div>
+                        </div>
                     </form>
                 </div>
                 <!--end: Datatable-->
@@ -210,22 +211,22 @@ function calculateTotal()
 }
 
 function getViaVendorList(vendor_id)
-    {
-        $.ajax({
-            url:"{{ url('vendor-wise-list') }}/"+vendor_id,
-            type:"GET",
-            dataType:"JSON",
-            success:function(data){
-                $('#via_vendor_id').empty();
-                var html = '<option value="">Select Please</option>';
-                $.each(data, function(key, value) {
-                    html += '<option value="'+ key +'">'+ value +'</option>';
-                });
-                $('#via_vendor_id').append(html);
-                $('#via_vendor_id.selectpicker').selectpicker('refresh');
-            },
-        });
-    }
+{
+    $.ajax({
+        url:"{{ url('vendor-wise-list') }}/"+vendor_id,
+        type:"GET",
+        dataType:"JSON",
+        success:function(data){
+            $('#via_vendor_id').empty();
+            var html = '<option value="">Select Please</option>';
+            $.each(data, function(key, value) {
+                html += '<option value="'+ key +'">'+ value +'</option>';
+            });
+            $('#via_vendor_id').append(html);
+            $('#via_vendor_id.selectpicker').selectpicker('refresh');
+        },
+    });
+}
 
 function store_data(){
     var rownumber = $('table#material_table tbody tr:last').index();

@@ -88,7 +88,7 @@
                                                         <button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button>
                                                         @endif
                                                     </td>
-                                                    <input type="hidden" id="materials_{{ $key+1 }}_purchase_unit_id" name="materials[{{ $key+1 }}][purchase_unit_id]" data-row="{{ $key+1 }}">
+                                                    <input type="hidden" id="materials_{{ $key+1 }}_purchase_unit_id" value="{{ $value->pivot->purchase_unit_id }}" name="materials[{{ $key+1 }}][purchase_unit_id]" data-row="{{ $key+1 }}">
                                                     <input type="hidden" class="subtotal" value="{{ $value->pivot->total }}" id="materials_{{ $key+1 }}_subtotal" name="materials[{{ $key+1 }}][subtotal]" data-row="{{ $key+1 }}">
                                                 </tr>
                                             @endforeach
@@ -109,6 +109,7 @@
                                 <input type="hidden" name="total_qty" id="total_qty" value="{{ $purchase->total_qty }}">
                                 <input type="hidden" name="grand_total" id="grand_total" value="{{ $purchase->grand_total }}">
                             </div>
+                        </div>
                     </form>
                 </div>
                 <!--end: Datatable-->

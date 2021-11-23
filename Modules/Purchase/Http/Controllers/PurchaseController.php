@@ -65,6 +65,9 @@ class PurchaseController extends BaseController
                     if(permission('purchase-order-view')){
                         $action .= ' <a class="dropdown-item view_data" href="'.route("purchase.order.view",$value->id).'">'.self::ACTION_BUTTON['View'].'</a>';
                     }
+                    if(permission('purchase-received-add')){
+                        $action .= ' <a class="dropdown-item view_data" href="'.route("purchase.received.create",$value->memo_no).'"><i class="fas fa-truck-loading text-info mr-2"></i> Receive Item</a>';
+                    }
                     if(permission('purchase-order-delete')){
                         $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->memo_no . '">'.self::ACTION_BUTTON['Delete'].'</a>';
                     }
@@ -209,7 +212,7 @@ class PurchaseController extends BaseController
     {
         if($request->ajax()){
             if(permission('purchase-order-edit')){
-                //dd($request->all());
+                // dd($request->all());
                 DB::beginTransaction();
                 try {
                     $purchaseData = $this->model->with('materials')->find($request->purchase_id);

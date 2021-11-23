@@ -33,7 +33,7 @@ Route::group(['middleware' => ['auth']], function () {
         //Received Route
         Route::get('received', 'ReceivedItemController@index')->name('received');
         Route::group(['prefix' => 'received', 'as'=>'received.'], function () {
-            Route::get('create', 'ReceivedItemController@create')->name('create');
+            Route::get('create/{memo_no}', 'ReceivedItemController@create')->name('create');
             Route::post('datatable-data', 'ReceivedItemController@get_datatable_data')->name('datatable.data');
             Route::post('store', 'ReceivedItemController@store')->name('store');
             Route::post('update', 'ReceivedItemController@update')->name('update');

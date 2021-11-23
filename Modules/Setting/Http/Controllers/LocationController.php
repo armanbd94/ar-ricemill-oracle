@@ -154,4 +154,10 @@ class LocationController extends BaseController
             return response()->json($this->unauthorized());
         }
     }
+
+    public function site_wise_location_list($site_id)
+    {
+        $locations = $this->model->where('site_id',$site_id)->pluck('name','id');
+        return json_encode($locations);
+    }
 }
