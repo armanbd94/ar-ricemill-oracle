@@ -29,6 +29,7 @@ class CreateReceivedMaterialsTable extends Migration
             $table->unsignedBigInteger('received_unit_id')->nullable();
             $table->foreign('received_unit_id')->references('id')->on('units');
             $table->double('net_unit_cost',12,0);
+            $table->double('old_cost',12,0)->nullable();
             $table->double('total',12,0);
             $table->text('description')->nullable();
             $table->timestamps();

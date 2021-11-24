@@ -38,11 +38,14 @@
                             <div class="form-group col-md-4 required">
                                 <label for="chalan_no">Memo No.</label>
                                 <input type="text" class="form-control" name="memo_no" id="memo_no" value="{{ $purchase->memo_no }}" readonly />
-                                <input type="text" class="form-control" name="order_id" id="order_id" value="{{ $purchase->id }}" readonly />
+                                <input type="hidden" class="form-control" name="order_id" id="order_id" value="{{ $purchase->id }}" />
+                                <input type="hidden" class="form-control" name="order_total_qty" id="order_total_qty" value="{{ $purchase->total_qty }}" />
+                                
                             </div>
                             <div class="form-group col-md-4 required">
                                 <label>Vendor</label>
-                                <input type="text" class="form-control" value="{{ $purchase->vendor->name }}" readonly />
+                                <input type="text" class="form-control" name="vendor_name" value="{{ $purchase->vendor->name }}" readonly />
+                                <input type="hidden" class="form-control" name="vendor_coa_id" value="{{ $purchase->vendor->coa->id }}" />
                             </div>
                             <div class="form-group col-md-4">
                                 <label>Via Vendor</label>

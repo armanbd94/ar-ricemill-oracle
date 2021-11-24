@@ -127,4 +127,53 @@ class OrderReceived extends BaseModel
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
+
+    public function transaction_data(array $data) : array
+    {
+        $vendor = array(
+            'chart_of_account_id' => $data['vendor_coa_id'],
+            'voucher_no'          => $data['challan_no'],
+            'voucher_type'        => 'Purchase',
+            'voucher_date'        => $data['received_date'],
+            'description'         => 'Supplier debit '.$data['grand_total'].'Tk for material purchase of Challan No. '.$data['challan_no'],
+            'debit'               => 0,
+            'credit'              => $data['grand_total'],
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        );
+
+        //Inventory Debit
+        $inventory = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
+            'voucher_no'          => $data['challan_no'],
+            'voucher_type'        => 'Purchase',
+            'voucher_date'        => $data['received_date'],
+            'description'         => 'Inventory debit '.$data['grand_total'].'Tk for material purchase from vendor '.$data['vendor_name'],
+            'debit'               => $data['grand_total'],
+            'credit'              => 0,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        ); 
+
+         // Expense for company
+        $expense = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '402')->value('id'),
+            'voucher_no'          => $data['challan_no'],
+            'voucher_type'        => 'Purchase',
+            'voucher_date'        => $data['received_date'],
+            'description'         => 'Company expense '.$data['grand_total'].'Tk for material purchase from vendor '.$data['vendor_name'],
+            'debit'               => $data['grand_total'],
+            'credit'              => 0,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        ); 
+
+        return [$vendor,$inventory,$expense];
+    } 
 }

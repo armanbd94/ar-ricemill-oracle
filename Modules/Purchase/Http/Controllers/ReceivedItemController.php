@@ -2,16 +2,18 @@
 
 namespace Modules\Purchase\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Vendor\Entities\Vendor;
 use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
+use Modules\Account\Entities\Transaction;
 use Modules\Material\Entities\SiteMaterial;
 use Modules\Purchase\Entities\OrderReceived;
-use Modules\Purchase\Entities\OrderReceivedMaterial;
 use Modules\Purchase\Entities\PurchaseOrder;
+use Modules\Purchase\Entities\OrderReceivedMaterial;
 use Modules\Purchase\Entities\PurchaseOrderMaterial;
 use Modules\Purchase\Http\Requests\OrderReceivedFormRequest;
 use Modules\Purchase\Http\Requests\PurchaseOrderFormRequest;
@@ -119,9 +121,10 @@ class ReceivedItemController extends BaseController
     {
         if($request->ajax()){
             if(permission('purchase-received-add')){
-                dd($request->all());
+                // dd($request->all());
                 DB::beginTransaction();
                 try {
+                    
                     $order_received  = $this->model->create([
                         'order_id'      => $request->order_id,
                         'challan_no'    => $request->challan_no,
@@ -134,6 +137,15 @@ class ReceivedItemController extends BaseController
                     ]);
 
                     if($order_received){
+                        $total_received_qty = $this->model->where('order_id',$request->order_id)->sum('total_qty');
+                        $purchase_order = PurchaseOrder::find($request->order_id);
+                        if($total_received_qty >= $request->order_total_qty)
+                        {
+                            $purchase_order->purchase_status = 1;
+                        }elseif (($total_received_qty < $request->order_total_qty) && ($total_received_qty > 0)) {
+                            $purchase_order->purchase_status = 2;
+                        }
+                        $purchase_order->update();
                         $materials = [];
                         if($request->has('materials'))
                         {                        
@@ -159,7 +171,7 @@ class ReceivedItemController extends BaseController
                                     'material_id'      => $value['id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
-                                    'qty'              => $value['qty'],
+                                    'received_qty'     => $value['qty'],
                                     'received_unit_id' => $value['received_unit_id'],
                                     'net_unit_cost'    => $value['net_unit_cost'],
                                     'old_cost'         => $old_cost,
@@ -191,6 +203,14 @@ class ReceivedItemController extends BaseController
                             {
                                 OrderReceivedMaterial::insert($materials);
                             }
+                
+                            Transaction::insert($this->model->transaction_data([
+                                'challan_no'    => $request->challan_no,
+                                'grand_total'   => $request->grand_total,
+                                'vendor_coa_id' => $request->vendor_coa_id,
+                                'vendor_name'   => $request->vendor_name,
+                                'received_date' => $request->received_date
+                            ]));
                         }
                         $output = ['status'=>'success','message'=>'Data has been saved successfully','received_id'=>$order_received->id];
                     }else{
