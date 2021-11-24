@@ -2,10 +2,6 @@
 
 @section('title', $page_title)
 
-@push('styles')
-<style>
-</style>
-@endpush
 
 @section('content')
 <div class="d-flex flex-column-fluid">
@@ -15,9 +11,10 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
-                    
-                    <a href="{{ route('purchase.received') }}" class="btn btn-warning btn-sm font-weight-bolder"> 
+                    <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i
+                            class="fas fa-print"></i> Print</button>
+
+                    <a href="{{ route('purchase.received') }}" class="btn btn-warning btn-sm font-weight-bolder">
                         <i class="fas fa-arrow-left"></i> Back</a>
                     <!--end::Button-->
                 </div>
@@ -25,20 +22,21 @@
         </div>
         <!--end::Notice-->
         <!--begin::Card-->
-        <div class="card card-custom" style="padding-bottom: 100px !important;">
-            <div class="card-body" style="padding-bottom: 100px !important;">
-                <div class="col-md-12 col-lg-12"  style="width: 100%;">
+        <div class="card card-custom">
+            <div class="card-body">
+                <div class="col-md-12 col-lg-12" style="width: 100%;">
                     <div id="invoice">
                         <style>
-                            body,html {
-                                background: #fff !important;
+                            body,
+                            html {
+                                /* background: #fff !important; */
                                 -webkit-print-color-adjust: exact !important;
-  
+
                             }
 
                             .invoice {
                                 /* position: relative; */
-                                background: #fff !important;
+                                /* background: #fff !important; */
                                 /* min-height: 680px; */
                             }
 
@@ -112,13 +110,18 @@
                                 padding: 5px;
                                 border-bottom: 1px solid #fff
                             }
-                            .invoice #product_table td{
+
+                            .invoice #product_table td {
                                 border: 1px solid #000 !important;
                             }
+
                             .invoice #product_table tbody tr:last-child td {
                                 border: 1px solid #000 !important;
                             }
-                            #info-table td{padding:0px !important;}
+
+                            #info-table td {
+                                padding: 0px !important;
+                            }
 
                             .invoice table th {
                                 white-space: nowrap;
@@ -222,35 +225,106 @@
                             .page {
                                 page-break-after: always;
                             }
-                            .dashed-border{
-                                width:180px;height:2px;margin:0 auto;padding:0;border-top:1px dashed #454d55 !important;
+
+                            .dashed-border {
+                                width: 180px;
+                                height: 2px;
+                                margin: 0 auto;
+                                padding: 0;
+                                border-top: 1px dashed #454d55 !important;
                             }
 
                             @media screen {
-                                .no_screen {display: none;}
+                                .no_screen {
+                                    display: none;
+                                }
+
                                 /* .no_print {display: block;} */
-                                thead {display: table-header-group;} 
-                                tfoot {display: table-footer-group;}
-                                button {display: none;}
-                                body {margin: 0;}
+                                thead {
+                                    display: table-header-group;
+                                }
+
+                                tfoot {
+                                    display: table-footer-group;
+                                }
+
+                                button {
+                                    display: none;
+                                }
+
+                                body {
+                                    margin: 0;
+                                }
                             }
 
                             @media print {
 
                                 body,
                                 html {
-                                    /* background: #fff !important; */
+                                    background: #fff !important;
                                     -webkit-print-color-adjust: exact !important;
                                     font-family: sans-serif;
                                     /* font-size: 12px !important; */
                                     /* margin-bottom: 100px !important; */
                                 }
-                                html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, label, legend,  {
+
+                                html,
+                                body,
+                                div,
+                                span,
+                                applet,
+                                object,
+                                iframe,
+                                h1,
+                                h2,
+                                h3,
+                                h4,
+                                h5,
+                                h6,
+                                p,
+                                blockquote,
+                                pre,
+                                a,
+                                abbr,
+                                acronym,
+                                address,
+                                big,
+                                cite,
+                                code,
+                                del,
+                                dfn,
+                                em,
+                                font,
+                                ins,
+                                kbd,
+                                q,
+                                s,
+                                samp,
+                                small,
+                                strike,
+                                strong,
+                                sub,
+                                sup,
+                                tt,
+                                var,
+                                dl,
+                                dt,
+                                dd,
+                                ol,
+                                ul,
+                                li,
+                                fieldset,
+                                form,
+                                label,
+                                legend,
+                                    {
                                     font-size: 10pt !important;
                                 }
-                                #product_table tbody td{
+
+                                #product_table tbody td {
                                     font-size: 9pt !important;
                                 }
+
                                 .m-0 {
                                     margin: 0 !important;
                                 }
@@ -322,8 +396,13 @@
                                 .hidden-print {
                                     display: none !important;
                                 }
-                                .dashed-border{
-                                    width:180px;height:2px;margin:0 auto;padding:0;border-top:1px dashed #454d55 !important;
+
+                                .dashed-border {
+                                    width: 180px;
+                                    height: 2px;
+                                    margin: 0 auto;
+                                    padding: 0;
+                                    border-top: 1px dashed #454d55 !important;
                                 }
                             }
 
@@ -338,15 +417,21 @@
                                 <table>
                                     <tr>
                                         <td class="text-center">
-                                            <h2 class="name m-0" style="text-transform: uppercase;"><b>{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</b></h2>
-                                            @if(config('settings.contact_no'))<p style="font-weight: normal;margin:0;"><b>Contact No.: </b>{{ config('settings.contact_no') }}, @if(config('settings.email'))<b>Email: </b>{{ config('settings.email') }}@endif</p>@endif
-                                            @if(config('settings.address'))<p style="font-weight: normal;margin:0;">{{ config('settings.address') }}</p>@endif
-                                            <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto;
-                            font-weight: bold;background: black;border-radius: 10px;width: 200px;color: white;text-align: center;padding:5px 0;}">PURCHASE RECEIVED MEMO</p>
+                                            <h2 class="name m-0" style="text-transform: uppercase;">
+                                                <b>{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</b>
+                                            </h2>
+                                            @if(config('settings.contact_no'))<p style="font-weight: normal;margin:0;">
+                                                <b>Contact No.: </b>{{ config('settings.contact_no') }},
+                                                @if(config('settings.email'))<b>Email:
+                                                </b>{{ config('settings.email') }}@endif</p>@endif
+                                            @if(config('settings.address'))<p style="font-weight: normal;margin:0;">
+                                                {{ config('settings.address') }}</p>@endif
+                                            <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto; font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">
+                                                PURCHASE RECEIVED MEMO</p>
                                         </td>
                                     </tr>
                                 </table>
-                                <div style="width: 100%;height:3px;border-top:1px solid #000;border-bottom:1px solid #000;"></div>
+                                <div style="width: 100%;height:3px;border-top:1px solid #000;border-bottom:1px solid #000;"> </div>
                                 <table style="margin-bottom: 0px;margin-top:10px;" id="info-table">
                                     <tr>
                                         <td width="40%">
@@ -379,7 +464,9 @@
                                         <td width="20%"></td>
                                         <td width="40%">
                                             <table>
-                                                <tr><td colspan="2"></td></tr>
+                                                <tr>
+                                                    <td colspan="2"></td>
+                                                </tr>
                                                 <tr>
                                                     <td><b>Challan No.</b></td>
                                                     <td><b>: #{{ $received->challan_no }}</b></td>
@@ -390,7 +477,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td><b>Receive Date</b></td>
-                                                    <td><b>: </b> {{ date('d-M-Y',strtotime($received->order->received_date)) }}</td>
+                                                    <td><b>: </b>
+                                                        {{ date('d-M-Y',strtotime($received->order->received_date)) }}
+                                                    </td>
                                                 </tr>
                                             </table>
                                         </td>
@@ -412,23 +501,24 @@
                                             <td class="text-right font-weight-bolder">SUBTOTAL</td>
                                         </tr>
                                         @if (!$received_materials->isEmpty())
-                                            @foreach ($received_materials as $key => $item)
-                                                <tr>
-                                                    <td class="text-center">{{ $key+1 }}</td>
-                                                    <td class="text-left">{{ $item->material->material_name }}</td>
-                                                    <td class="text-left no_print">{{ $item->description }}</td>
-                                                    <td class="text-center no_print">{{ $item->material->category->name }}</td>
-                                                    <td class="text-center no_print">{{ $item->site->name }}</td>
-                                                    <td class="text-center no_print">{{ $item->location->name }}</td>
-                                                    <td class="text-center">{{ $item->received_unit->unit_name }}</td>
-                                                    <td class="text-center">{{ $item->received_qty }}</td>
-                                                    <td class="text-right">{{ number_format($item->net_unit_cost,2,'.',',') }}</td>
-                                                    <td class="text-right"> {{ number_format($item->total,2,'.',',') }}</td>
-                                                </tr>
-                                            @endforeach
+                                        @foreach ($received_materials as $key => $item)
+                                        <tr>
+                                            <td class="text-center">{{ $key+1 }}</td>
+                                            <td class="text-left">{{ $item->material->material_name }}</td>
+                                            <td class="text-left no_print">{{ $item->description }}</td>
+                                            <td class="text-center no_print">{{ $item->material->category->name }}</td>
+                                            <td class="text-center no_print">{{ $item->site->name }}</td>
+                                            <td class="text-center no_print">{{ $item->location->name }}</td>
+                                            <td class="text-center">{{ $item->received_unit->unit_name }}</td>
+                                            <td class="text-center">{{ $item->received_qty }}</td>
+                                            <td class="text-right">{{ number_format($item->net_unit_cost,2,'.',',') }}
+                                            </td>
+                                            <td class="text-right"> {{ number_format($item->total,2,'.',',') }}</td>
+                                        </tr>
+                                        @endforeach
                                         @endif
                                         <tr>
-                                            <td colspan="2"  class="font-weight-bolder">TOTAL</td>
+                                            <td colspan="2" class="font-weight-bolder">TOTAL</td>
                                             <td class="no_print"></td>
                                             <td class="no_print"></td>
                                             <td class="no_print"></td>
@@ -436,7 +526,8 @@
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td class="text-right font-weight-bolder"> {{ number_format($received->grand_total,2,'.',',') }}</td>
+                                            <td class="text-right font-weight-bolder">
+                                                {{ number_format($received->grand_total,2,'.',',') }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -451,14 +542,16 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="font-size-10" style="width:250px;float:right;">
-                                                <p style="margin:0;padding:0;"><b class="text-uppercase">{{ $received->created_by }}</b>
-                                                    <br> {{ date('d-M-Y h:i:s A',strtotime($received->created_at)) }}</p>
+                                                <p style="margin:0;padding:0;"><b
+                                                        class="text-uppercase">{{ $received->created_by }}</b>
+                                                    <br> {{ date('d-M-Y h:i:s A',strtotime($received->created_at)) }}
+                                                </p>
                                                 <p class="dashed-border"></p>
                                                 <p style="margin:0;padding:0;">Generated By</p>
                                             </div>
                                         </td>
 
-                                        
+
                                     </tr>
                                 </table>
                             </div>
@@ -476,18 +569,17 @@
 @push('scripts')
 <script src="js/jquery.printarea.js"></script>
 <script>
-$(document).ready(function () {
-    //QR Code Print
-    $(document).on('click','#print-invoice',function(){
-        var mode = 'iframe'; // popup
-        var close = mode == "popup";
-        var options = {
-            mode: mode,
-            popClose: close
-        };
-        $("#invoice").printArea(options);
+    $(document).ready(function () {
+        //QR Code Print
+        $(document).on('click', '#print-invoice', function () {
+            var mode = 'iframe'; // popup
+            var close = mode == "popup";
+            var options = {
+                mode: mode,
+                popClose: close
+            };
+            $("#invoice").printArea(options);
+        });
     });
-});
-
 </script>
 @endpush

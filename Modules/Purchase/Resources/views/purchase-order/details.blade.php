@@ -25,20 +25,20 @@
         </div>
         <!--end::Notice-->
         <!--begin::Card-->
-        <div class="card card-custom" style="padding-bottom: 100px !important;">
-            <div class="card-body" style="padding-bottom: 100px !important;">
+        <div class="card card-custom">
+            <div class="card-body">
                 <div class="col-md-12 col-lg-12"  style="width: 100%;">
                     <div id="invoice">
                         <style>
                             body,html {
-                                background: #fff !important;
+                                /* background: #fff !important; */
                                 -webkit-print-color-adjust: exact !important;
   
                             }
 
                             .invoice {
                                 /* position: relative; */
-                                background: #fff !important;
+                                /* background: #fff !important; */
                                 /* min-height: 680px; */
                             }
 
@@ -239,7 +239,7 @@
 
                                 body,
                                 html {
-                                    /* background: #fff !important; */
+                                    background: #fff !important;
                                     -webkit-print-color-adjust: exact !important;
                                     font-family: sans-serif;
                                     /* font-size: 12px !important; */
