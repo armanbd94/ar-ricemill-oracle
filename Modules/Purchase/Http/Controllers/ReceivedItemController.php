@@ -215,6 +215,7 @@ class ReceivedItemController extends BaseController
                             }
                             if(!empty($materials) && count($materials))
                             {
+                                
                                 OrderReceivedMaterial::insert($materials);
                             }
                 
@@ -338,7 +339,54 @@ class ReceivedItemController extends BaseController
             if(permission('purchase-received-delete')){
                 DB::beginTransaction();
                 try {
-                    
+                    $orderReceivedData = $this->model->with('received_materials')->find($request->id);
+                    $order_id =  $orderReceivedData->order_id;
+                    if(!$orderReceivedData->received_materials->isEmpty())
+                    {
+                        foreach ($orderReceivedData->received_materials as $received_material) {
+                            $received_qty = $received_material->pivot->received_qty;
+                            $material = Material::find($received_material->id);
+                            if($material){
+                                $material->qty -= $received_qty;
+                                $material->cost = $material->old_cost;
+                                $material->old_cost = $received_material->pivot->old_cost;
+                                $material->update();
+                            }
+
+                            $site_material = SiteMaterial::where([
+                                'site_id' => $received_material->pivot->site_id,
+                                'location_id' => $received_material->pivot->location_id,
+                                'material_id'  => $received_material->id
+                                ])->first();
+                            if($site_material){
+                                $site_material->qty -= $received_qty;
+                                $site_material->update();
+                            }
+
+                        }
+                        $orderReceivedData->received_materials()->detach();
+                    }
+                   
+                    Transaction::where(['voucher_no'=>$orderReceivedData->challan_no,'voucher_type'=>'Purchase'])->delete();
+    
+                    $result = $orderReceivedData->delete();
+                    if($result)
+                    {
+                        $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
+                        $purchase_order = PurchaseOrder::find($order_id);
+                        if($total_received_qty >= $purchase_order->order_total_qty)
+                        {
+                            $purchase_order->purchase_status = 1;
+                        }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                            $purchase_order->purchase_status = 2;
+                        }else{
+                            $purchase_order->purchase_status = 3;
+                        }
+                        $purchase_order->update();
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollBack();
@@ -362,7 +410,54 @@ class ReceivedItemController extends BaseController
                 try {
                     foreach ($request->ids as $id) {
                         
-                        
+                        $orderReceivedData = $this->model->with('received_materials')->find($id);
+                        $order_id =  $orderReceivedData->order_id;
+                        if(!$orderReceivedData->received_materials->isEmpty())
+                        {
+                            foreach ($orderReceivedData->received_materials as $received_material) {
+                                $received_qty = $received_material->pivot->received_qty;
+                                $material = Material::find($received_material->id);
+                                if($material){
+                                    $material->qty -= $received_qty;
+                                    $material->cost = $material->old_cost;
+                                    $material->old_cost = $received_material->pivot->old_cost;
+                                    $material->update();
+                                }
+
+                                $site_material = SiteMaterial::where([
+                                    'site_id' => $received_material->pivot->site_id,
+                                    'location_id' => $received_material->pivot->location_id,
+                                    'material_id'  => $received_material->id
+                                    ])->first();
+                                if($site_material){
+                                    $site_material->qty -= $received_qty;
+                                    $site_material->update();
+                                }
+
+                            }
+                            $orderReceivedData->received_materials()->detach();
+                        }
+                    
+                        Transaction::where(['voucher_no'=>$orderReceivedData->challan_no,'voucher_type'=>'Purchase'])->delete();
+        
+                        $result = $orderReceivedData->delete();
+                        if($result)
+                        {
+                            $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
+                            $purchase_order = PurchaseOrder::find($order_id);
+                            if($total_received_qty >= $purchase_order->order_total_qty)
+                            {
+                                $purchase_order->purchase_status = 1;
+                            }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                                $purchase_order->purchase_status = 2;
+                            }else{
+                                $purchase_order->purchase_status = 3;
+                            }
+                            $purchase_order->update();
+                            $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                        }else{
+                            $output = ['status' => 'error','message' => 'Failed to delete data'];
+                        }
                             
                     }
                 DB::commit();
