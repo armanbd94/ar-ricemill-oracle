@@ -2,6 +2,9 @@
 
 namespace Modules\Purchase\Entities;
 
+use App\Models\Unit;
+use Modules\Setting\Entities\Site;
+use Modules\Setting\Entities\Location;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Material\Entities\Material;
 use Modules\Purchase\Entities\OrderReceived;
@@ -27,5 +30,17 @@ class OrderReceivedMaterial extends Model
     public function material()
     {
         return $this->belongsTo(Material::class,'material_id','id'); 
+    }
+    public function site()
+    {
+        return $this->belongsTo(Site::class,'site_id','id'); 
+    }
+    public function location()
+    {
+        return $this->belongsTo(Location::class,'location_id','id'); 
+    }
+    public function received_unit()
+    {
+        return $this->belongsTo(Unit::class,'received_unit_id','id'); 
     }
 }

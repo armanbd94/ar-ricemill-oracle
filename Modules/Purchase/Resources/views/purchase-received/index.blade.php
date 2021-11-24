@@ -18,7 +18,7 @@
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('purchase-received-add'))
-                    <a href="{{ route('purchase.received.create') }}"  class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="{{ route('purchase.received.form') }}"  class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                     @endif
                     <!--end::Button-->

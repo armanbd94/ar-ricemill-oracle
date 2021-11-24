@@ -17,7 +17,7 @@
                     <!--begin::Button-->
                     <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
                     
-                    <a href="{{ route('purchase.order') }}" class="btn btn-warning btn-sm font-weight-bolder"> 
+                    <a href="{{ route('purchase.received') }}" class="btn btn-warning btn-sm font-weight-bolder"> 
                         <i class="fas fa-arrow-left"></i> Back</a>
                     <!--end::Button-->
                 </div>
@@ -228,7 +228,7 @@
 
                             @media screen {
                                 .no_screen {display: none;}
-                                .no_print {display: block;}
+                                /* .no_print {display: block;} */
                                 thead {display: table-header-group;} 
                                 tfoot {display: table-footer-group;}
                                 button {display: none;}
@@ -342,7 +342,7 @@
                                             @if(config('settings.contact_no'))<p style="font-weight: normal;margin:0;"><b>Contact No.: </b>{{ config('settings.contact_no') }}, @if(config('settings.email'))<b>Email: </b>{{ config('settings.email') }}@endif</p>@endif
                                             @if(config('settings.address'))<p style="font-weight: normal;margin:0;">{{ config('settings.address') }}</p>@endif
                                             <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto;
-                            font-weight: bold;background: black;border-radius: 10px;width: 200px;color: white;text-align: center;padding:5px 0;}">PURCHASE MEMO</p>
+                            font-weight: bold;background: black;border-radius: 10px;width: 200px;color: white;text-align: center;padding:5px 0;}">PURCHASE RECEIVED MEMO</p>
                                         </td>
                                     </tr>
                                 </table>
@@ -356,22 +356,22 @@
                                                 </tr>
                                                 <tr>
                                                     <td><b>Vendor Name</b></td>
-                                                    <td><b>: {{ $purchase->vendor->name}}</b></td>
+                                                    <td><b>: {{ $received->order->vendor->name}}</b></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Mobile No.</b></td>
-                                                    <td><b>: </b>{{ $purchase->vendor->mobile }}</td>
+                                                    <td><b>: </b>{{ $received->order->vendor->mobile }}</td>
                                                 </tr>
-                                                @if($purchase->vendor->address)
+                                                @if($received->order->vendor->address)
                                                 <tr>
                                                     <td><b>Address</b></td>
-                                                    <td><b>: </b>{{ $purchase->vendor->address }}</td>
+                                                    <td><b>: </b>{{ $received->order->vendor->address }}</td>
                                                 </tr>
                                                 @endif
-                                                @if($purchase->via_vendor_id)
+                                                @if($received->order->via_vendor_id)
                                                 <tr>
                                                     <td><b>Via Vendor Name</b></td>
-                                                    <td><b>: </b>{{ $purchase->via_vendor->name }}</td>
+                                                    <td><b>: </b>{{ $received->order->via_vendor->name }}</td>
                                                 </tr>
                                                 @endif
                                             </table>
@@ -381,16 +381,16 @@
                                             <table>
                                                 <tr><td colspan="2"></td></tr>
                                                 <tr>
+                                                    <td><b>Challan No.</b></td>
+                                                    <td><b>: #{{ $received->challan_no }}</b></td>
+                                                </tr>
+                                                <tr>
                                                     <td><b>Memo No.</b></td>
-                                                    <td><b>: #{{ $purchase->memo_no }}</b></td>
+                                                    <td><b>: #{{ $received->order->memo_no }}</b></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><b>Order Date</b></td>
-                                                    <td><b>: </b> {{ date('d-M-Y',strtotime($purchase->order_date)) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Delivery Date</b></td>
-                                                    <td><b>: </b> {{ date('d-M-Y',strtotime($purchase->delivery_date)) }}</td>
+                                                    <td><b>Receive Date</b></td>
+                                                    <td><b>: </b> {{ date('d-M-Y',strtotime($received->order->received_date)) }}</td>
                                                 </tr>
                                             </table>
                                         </td>
@@ -402,35 +402,41 @@
                                         <tr>
                                             <td class="text-center font-weight-bolder">SL</td>
                                             <td class="text-left font-weight-bolder">ITEM</td>
-                                            <td class="text-center font-weight-bolder">CLASS</td>
+                                            <td class="text-left font-weight-bolder no_print">DESCRIPTION</td>
+                                            <td class="text-center font-weight-bolder no_print">CLASS</td>
+                                            <td class="text-center font-weight-bolder no_print">SITE</td>
+                                            <td class="text-center font-weight-bolder no_print">LOCATION</td>
                                             <td class="text-center font-weight-bolder">UNIT</td>
                                             <td class="text-center font-weight-bolder">QUANTITY</td>
                                             <td class="text-right font-weight-bolder">RATE</td>
                                             <td class="text-right font-weight-bolder">SUBTOTAL</td>
                                         </tr>
-                                        @if (!$purchase->materials->isEmpty())
-                                            @foreach ($purchase->materials as $key => $item)
-                                                @php
-                                                    $unit_name = '';
-                                                    if($item->pivot->purchase_unit_id)
-                                                    {
-                                                        $unit_name = DB::table('units')->where('id',$item->pivot->purchase_unit_id)->value('unit_name');
-                                                    }
-                                                @endphp
+                                        @if (!$received_materials->isEmpty())
+                                            @foreach ($received_materials as $key => $item)
                                                 <tr>
                                                     <td class="text-center">{{ $key+1 }}</td>
-                                                    <td class="text-left">{{ $item->material_name }}</td>
-                                                    <td class="text-center">{{ $item->category->name }}</td>
-                                                    <td class="text-center">{{ $unit_name }}</td>
-                                                    <td class="text-center">{{ $item->pivot->qty }}</td>
-                                                    <td class="text-right">{{ number_format($item->pivot->net_unit_cost,2,'.',',') }}</td>
-                                                    <td class="text-right"> {{ number_format($item->pivot->total,2,'.',',') }}</td>
+                                                    <td class="text-left">{{ $item->material->material_name }}</td>
+                                                    <td class="text-left no_print">{{ $item->description }}</td>
+                                                    <td class="text-center no_print">{{ $item->material->category->name }}</td>
+                                                    <td class="text-center no_print">{{ $item->site->name }}</td>
+                                                    <td class="text-center no_print">{{ $item->location->name }}</td>
+                                                    <td class="text-center">{{ $item->received_unit->unit_name }}</td>
+                                                    <td class="text-center">{{ $item->received_qty }}</td>
+                                                    <td class="text-right">{{ number_format($item->net_unit_cost,2,'.',',') }}</td>
+                                                    <td class="text-right"> {{ number_format($item->total,2,'.',',') }}</td>
                                                 </tr>
                                             @endforeach
                                         @endif
                                         <tr>
-                                            <td colspan="6"  class="font-weight-bolder">TOTAL</td>
-                                            <td class="text-right font-weight-bolder"> {{ number_format($purchase->grand_total,2,'.',',') }}</td>
+                                            <td colspan="2"  class="font-weight-bolder">TOTAL</td>
+                                            <td class="no_print"></td>
+                                            <td class="no_print"></td>
+                                            <td class="no_print"></td>
+                                            <td class="no_print"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-right font-weight-bolder"> {{ number_format($received->grand_total,2,'.',',') }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -445,8 +451,8 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="font-size-10" style="width:250px;float:right;">
-                                                <p style="margin:0;padding:0;"><b class="text-uppercase">{{ $purchase->created_by }}</b>
-                                                    <br> {{ date('d-M-Y h:i:s A',strtotime($purchase->created_at)) }}</p>
+                                                <p style="margin:0;padding:0;"><b class="text-uppercase">{{ $received->created_by }}</b>
+                                                    <br> {{ date('d-M-Y h:i:s A',strtotime($received->created_at)) }}</p>
                                                 <p class="dashed-border"></p>
                                                 <p style="margin:0;padding:0;">Generated By</p>
                                             </div>

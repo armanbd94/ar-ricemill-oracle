@@ -60,7 +60,7 @@
                                     <thead class="bg-primary">
                                         <th>Item</th>
                                         <th>Description</th>
-                                        <th class="text-center">Category</th>
+                                        <th class="text-center">Class</th>
                                         <th class="text-center">Site</th>
                                         <th class="text-center">Location</th>
                                         <th class="text-center">Unit</th>
@@ -84,7 +84,7 @@
                                                     @endif
                                                 </select>
                                             </td>    
-                                            <td><input type="text" class="text-right form-control" style="width: 150px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
+                                            <td><input type="text" class="form-control" style="width: 150px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
                                             <td class="category_name_1 text-center" style="min-width: 120px;" id="category_name_1"  data-row="1"></td>
                                             <td>                                                  
                                                 <select name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
@@ -172,7 +172,7 @@ $(document).ready(function () {
                                 @endif
                             </select>
                         </td>    
-                        <td><input type="text" class="text-right form-control" style="width: 150px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
+                        <td><input type="text" class="form-control" style="width: 150px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
                         <td class="category_name_${count} text-center" style="min-width: 120px;" id="category_name_${count}"  data-row="${count}"></td>
                         <td>                                                  
                             <select name="materials[${count}][site_id]" id="materials_${count}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            

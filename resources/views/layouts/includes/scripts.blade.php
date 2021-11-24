@@ -74,7 +74,7 @@
         <?php 
         if (session('error')){
         ?>
-        notification("error","{{session('message')}}");
+        notification("error","{{session('error')}}");
         <?php
         }
         ?>

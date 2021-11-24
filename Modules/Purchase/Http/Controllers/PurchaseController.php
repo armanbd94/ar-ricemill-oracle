@@ -65,8 +65,8 @@ class PurchaseController extends BaseController
                     if(permission('purchase-order-view')){
                         $action .= ' <a class="dropdown-item view_data" href="'.route("purchase.order.view",$value->id).'">'.self::ACTION_BUTTON['View'].'</a>';
                     }
-                    if(permission('purchase-received-add')){
-                        $action .= ' <a class="dropdown-item view_data" href="'.route("purchase.received.create",$value->memo_no).'"><i class="fas fa-truck-loading text-info mr-2"></i> Receive Item</a>';
+                    if(permission('purchase-received-add')   && $value->purchase_status != 1){
+                        $action .= ' <a class="dropdown-item view_data" href="'.url("purchase/received/create?memo_no=".$value->memo_no).'"><i class="fas fa-truck-loading text-info mr-2"></i> Receive Item</a>';
                     }
                     if(permission('purchase-order-delete')){
                         $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->memo_no . '">'.self::ACTION_BUTTON['Delete'].'</a>';

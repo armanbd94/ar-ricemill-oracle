@@ -35,6 +35,16 @@ class ReceivedItemController extends BaseController
         }
     }
 
+    public function purchase_received_memo_form()
+    {
+        if(permission('purchase-received-add')){
+            $this->setPageData('Purchase Received Form','Purchase Received Form','fas fa-truck-loading',[['name' => 'Purchase Received Form']]);
+            return view('purchase::purchase-received.form');
+        }else{
+            return $this->access_blocked();
+        }
+    }
+
     public function get_datatable_data(Request $request)
     {
         if($request->ajax()){
@@ -61,7 +71,7 @@ class ReceivedItemController extends BaseController
                 foreach ($list as $value) {
                     $no++;
                     $action = '';
-                    if(permission('purchase-received-edit')  && $value->purchase_status == 3){
+                    if(permission('purchase-received-edit')){
                         $action .= ' <a class="dropdown-item" href="'.route("purchase.received.edit",$value->id).'">'.self::ACTION_BUTTON['Edit'].'</a>';
                     }
                     if(permission('purchase-received-view')){
@@ -97,20 +107,24 @@ class ReceivedItemController extends BaseController
         }
     }
 
-    public function create($memo_no)
+    public function create(Request $request)
     {
         if(permission('purchase-received-add')){
-            $purchase = PurchaseOrder::with('materials','vendor','via_vendor')->where([['memo_no',$memo_no],['purchase_status','!=',1]])->first();
-            if($purchase){
-                $this->setPageData('Purchase Order Form','Purchase Order Form','fas fa-truck-loading',[['name' => 'Purchase Order Form']]);
-                $data = [
-                    'purchase' => $purchase,
-                    'sites' => Site::allSites(),
-                ];
-                return view('purchase::purchase-received.create',$data);
+            if($request->memo_no){
+                $purchase = PurchaseOrder::with('materials','vendor','via_vendor')->where([['memo_no',$request->memo_no],['purchase_status','!=',1]])->first();
+                if($purchase){
+                    $this->setPageData('Purchase Order Form','Purchase Order Form','fas fa-truck-loading',[['name' => 'Purchase Order Form']]);
+                    $data = [
+                        'purchase' => $purchase,
+                        'sites' => Site::allSites(),
+                    ];
+                    return view('purchase::purchase-received.create',$data);
+                }else{
+                    return back()->with('error','Nothing to receive!');
+                } 
             }else{
-                return redirect()->back()->with('error','No Record Found!');
-            } 
+                return back()->with('error','Invalid Memo No.!');
+            }
         }else{
             return $this->access_blocked();
         }
@@ -217,11 +231,9 @@ class ReceivedItemController extends BaseController
                         $output = ['status'=>'error','message'=>'Failed to save data','received_id'=>''];
                     }
                     DB::commit();
-                    // return response()->json($output);
                 } catch (Exception $e) {
                     DB::rollback();
                     $output = ['status' => 'error','message' => $e->getMessage()];
-                    // return response()->json($output);
                 }
             }else{
                 $output       = $this->unauthorized();
@@ -236,9 +248,10 @@ class ReceivedItemController extends BaseController
     public function show(int $id)
     {
         if(permission('purchase-received-view')){
-            $this->setPageData('Purchase Order Details','Purchase Order Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Purchase Order Details']]);
-            $purchase = $this->model->with('materials','vendor','via_vendor')->find($id);
-            return view('purchase::purchase-received.details',compact('purchase'));
+            $this->setPageData('Purchase Received Details','Purchase Received Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Purchase Received Details']]);
+            $received = $this->model->with('order')->find($id);
+            $received_materials = OrderReceivedMaterial::with(['site:id,name','location:id,name','material','received_unit:id,unit_name'])->where('received_id',$id)->get();
+            return view('purchase::purchase-received.details',compact('received','received_materials'));
         }else{
             return $this->access_blocked();
         }
