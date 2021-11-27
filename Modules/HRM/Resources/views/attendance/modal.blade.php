@@ -19,9 +19,9 @@
             
                 <div class="row">
                     <input type="hidden" name="update_id" id="update_id"/>
-                    <div class="form-group col-md-12">
+                    <div class="form-group col-md-12" >
                             <label for="date">Date</label>
-                            <input type="text" class="form-control date" value="{{date('Y-m-d')}}" name="date" id="date" readonly/>
+                            <input type="text" class="form-control date" value="{{date('Y-m-d')}}" name="date" id="date" readonly required="required"/>
                     </div>
                     <x-form.selectbox labelName="Employee Name" name="emp_id" onchange="getEmployeeDetails(this.value)" required="required" col="col-md-12" class="selectpicker">
                         @if (!$employees->isEmpty())
@@ -30,30 +30,30 @@
                         @endforeach
                         @endif
                     </x-form.selectbox>
-                    <!-- <div class="form-group col-md-12">
+                    <div class="form-group col-md-12">
                             <label for="wallet_number">Wallet Number</label>
                             <input type="text" class="form-control" name="wallet_number" id="wallet_number" readonly />
                     </div>
-                    <x-form.selectbox labelName="Route Name" name="employee_route_id" required="required" col="col-md-12" class="selectpicker">
+                    <x-form.selectbox labelName="Route Name" name="employee_route_id" col="col-md-12" class="selectpicker">
                         @if (!$employees_route->isEmpty())
                         @foreach ($employees_route as $route)
                             <option value="{{ $route->id }}">{{ $route->name }}</option>
                         @endforeach
                         @endif
-                    </x-form.selectbox> -->
-                    <div class="form-group col-md-12 required">
+                    </x-form.selectbox>
+                    <div class="form-group col-md-12">
                             <label for="start_time">Start Time</label>
                             <input type="text" class="form-control timepicker" name="start_time" id="start_time" readonly />
                     </div>
-                    <div class="form-group col-md-12 required">
+                    <div class="form-group col-md-12">
                             <label for="end_time">End Time</label>
                             <input type="text" class="form-control timepicker" name="end_time" id="end_time" readonly />
                     </div>
-                    <!-- <x-form.selectbox labelName="Deletable" name="deletable" required="required" col="col-md-12" class="selectpicker">
+                    <x-form.selectbox labelName="Deletable" name="deletable" required="required" col="col-md-12" class="selectpicker">
                         @foreach ($deletable as $key => $item)
                             <option value="{{ $key }}">{{ $item }}</option>
                         @endforeach
-                    </x-form.selectbox> -->
+                    </x-form.selectbox>
                 </div>
             </div>
             <!-- /modal body -->

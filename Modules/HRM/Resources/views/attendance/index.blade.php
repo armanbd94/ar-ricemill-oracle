@@ -3,8 +3,9 @@
 @section('title', $page_title)
 
 @push('styles')
-<link href="css/daterangepicker.min.css" rel="stylesheet" type="text/css" />
+<link href="plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
 <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+<link href="css/daterangepicker.min.css" rel="stylesheet" type="text/css" />
 @endpush
 
 @section('content')
@@ -30,42 +31,7 @@
         <!--begin::Card-->
         <div class="card card-custom">
             <div class="card-header flex-wrap py-5">
-            Todays Attendance Adding
-                <!-- <form method="POST" id="form-filter" action="" class="col-md-12 px-0">
-                    <div class="row justify-content-center">
-                        
-                        <div class="form-group col-md-3">
-                            <label for="name">Choose Your Date</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control daterangepicker-filed" value="{{ date('Y-m-d') }} To {{ date('Y-m-d') }}">
-                                <input type="hidden" id="start_date" name="start_date" value="{{ date('Y-m-d') }}">
-                                <input type="hidden" id="end_date" name="end_date" value="{{ date('Y-m-d')}}">
-                            </div>
-                        </div>
-                        <x-form.selectbox labelName="Employee" name="employee_id" col="col-md-3" class="selectpicker">
-                            @if (!$employees->isEmpty())
-                                @foreach ($employees as $value)
-                                    <option value="{{ $value->id }}">{{ $value->name.' - '.$value->employee_id  }}</option>
-                                @endforeach
-                            @endif
-                        </x-form.selectbox>
-
-                        
-                        <div class="col-md-1">
-                            <div style="margin-top:28px;">    
-                                <div style="margin-top:28px;">    
-                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
-                                    data-toggle="tooltip" data-theme="dark" title="Reset">
-                                    <i class="fas fa-undo-alt"></i></button>
-    
-                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
-                                    data-toggle="tooltip" data-theme="dark" title="Search">
-                                    <i class="fas fa-search"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form> -->
+            Today's Attendance Adding
             </div>
             <div class="card-body">
                 <!--begin: Datatable-->
@@ -79,8 +45,8 @@
                                         <th>Employee Name</th>
                                         <th>Designation</th>
                                         <th>Department</th>
-                                        <th>Todays In Time</th>
-                                        <th>Todays Out Time</th>
+                                        <th>Today's In Time</th>
+                                        <th>Today's Out Time</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -101,6 +67,8 @@
 @endsection
 
 @push('scripts')
+<script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+<script src="js/moment.js"></script>
 <script src="js/knockout-3.4.2.js"></script>
 <script src="js/daterangepicker.min.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>

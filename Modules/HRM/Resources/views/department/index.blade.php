@@ -2,6 +2,11 @@
 
 @section('title', $page_title)
 
+@push('styles')
+<link href="plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+@endpush
+
 @section('content')
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
@@ -81,6 +86,9 @@
 @endsection
 
 @push('scripts')
+<script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+<script src="js/moment.js"></script>
+<script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
     var table;
     $(document).ready(function(){

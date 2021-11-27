@@ -6,7 +6,7 @@
     <x-form.textbox labelName="Phone" name="phone" value="{{ isset($employee) ? $employee->phone : '' }}" required="required" col="col-md-4"/>
     <x-form.textbox labelName="Alternative Phone" name="alternative_phone" value="{{ isset($employee) ? $employee->alternative_phone : '' }}" col="col-md-4"/>
    
-    <x-form.textbox labelName="City" name="city" required="required" value="{{ isset($employee) ? $employee->city : '' }}" col="col-md-4"/>
+    <x-form.textbox labelName="City" name="city" value="{{ isset($employee) ? $employee->city : '' }}" col="col-md-4"/>
    
     <x-form.textbox labelName="Zipcode" name="zipcode" value="{{ isset($employee) ? $employee->zipcode : '' }}"  col="col-md-4"/>
     <x-form.textbox labelName="Address" name="address" value="{{ isset($employee) ? $employee->address : '' }}"  col="col-md-8" required="required" />

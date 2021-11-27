@@ -6,6 +6,8 @@
 @section('title', $page_title)
 
 @push('styles')
+<link href="plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
 <link href="css/daterangepicker.min.css" rel="stylesheet" type="text/css" />
 @endpush
 
@@ -25,7 +27,7 @@
         <div class="card card-custom">
             <div class="card-header flex-wrap py-5">
              <form method="GET" action="{{ route('attendance.report.datatable.data') }}" id="form-filter" class="col-md-12 px-0">
-                    <div class="row justify-content-center">
+                    <div class="row">
                         
                         <div class="form-group col-md-3">
                             <label for="name">Choose Your Date</label>
@@ -44,7 +46,7 @@
                         </x-form.selectbox>
 
                         
-                        <div class="col-md-1">
+                        <div class="col-md-6">
                             <div style="margin-top:28px;">    
                                 <div style="margin-top:28px;">    
                                     <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
@@ -96,6 +98,8 @@
 @endsection
 
 @push('scripts')
+<script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+<script src="js/moment.js"></script>
 <script src="js/knockout-3.4.2.js"></script>
 <script src="js/daterangepicker.min.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>

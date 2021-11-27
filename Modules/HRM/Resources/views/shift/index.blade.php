@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('title', $page_title)
+
 @push('styles')
+<link href="plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
 <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
 @endpush
 
@@ -87,6 +89,7 @@
 @endsection
 
 @push('scripts')
+<script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
 <script src="js/moment.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>

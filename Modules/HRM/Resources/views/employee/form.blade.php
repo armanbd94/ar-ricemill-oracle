@@ -195,12 +195,11 @@
 @endsection
 
 @push('scripts')
+<script src="js/moment.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
 $(document).ready(function(){
     $('.date').datetimepicker({format: 'YYYY-MM-DD',ignoreReadonly: true});  
-
-
 });
 
 function store_data(){

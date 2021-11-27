@@ -12,7 +12,7 @@
             <option value="{{ $key }}"  @if(isset($employee)) {{ ($employee->marital_status == $key) ? 'selected' : '' }} @endif>{{ $value }}</option>
         @endforeach 
     </x-form.selectbox>
-    <x-form.selectbox labelName="Blood Group" name="blood_group" col="col-md-4" class="selectpicker" required="required">
+    <x-form.selectbox labelName="Blood Group" name="blood_group" col="col-md-4" class="selectpicker">
         @foreach (BLOOD_GROUP as $key => $value)
             <option value="{{ $key }}" @if(isset($employee)) {{ ($employee->blood_group == $key) ? 'selected' : '' }} @endif>{{ $value }}</option>
         @endforeach 

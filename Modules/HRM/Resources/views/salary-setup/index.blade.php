@@ -2,6 +2,11 @@
 
 @section('title', $page_title)
 
+@push('styles')
+<link href="plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+@endpush
+
 @section('content')
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
@@ -37,7 +42,7 @@
                             @endif
                         </x-form.selectbox>
 
-                        <x-form.selectbox labelName="Alowance" name="allowance_id" required="required" col="col-md-3" class="selectpicker">
+                        <x-form.selectbox labelName="Allowance" name="allowance_id" required="required" col="col-md-3" class="selectpicker">
                             @if (!$allowances->isEmpty())
                             @foreach ($allowances as $allowance)
                             <option value="{{ $allowance->id }}" >{{ $allowance->name }}</option>
@@ -110,6 +115,8 @@
 @endsection
 
 @push('scripts')
+<script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+<script src="js/moment.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
     var table;

@@ -4,7 +4,6 @@
 
 @push('styles')
 <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-<link href="css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
 <link href="css/pages/wizard/wizard-4.css" rel="stylesheet" type="text/css" />
 <style>
     .wizard.wizard-4 .wizard-nav .wizard-steps {
@@ -112,8 +111,8 @@
                                                         @endforeach
                                                         @endif
                                                     </x-form.selectbox>
-                                                    <x-form.textbox labelName="Start Date" name="start_date" required="required" value="{{ isset($leaveapplication) ? $leaveapplication->start_date : '' }}" required="required" col="col-md-4" />
-                                                    <x-form.textbox labelName="End Date" name="end_date" required="required" value="{{ isset($leaveapplication) ? $leaveapplication->end_date : '' }}" required="required" col="col-md-4" />
+                                                    <x-form.textbox labelName="Start Date" name="start_date" required="required" value="{{ isset($leaveapplication) ? $leaveapplication->start_date : '' }}" col="col-md-4" class="date" />
+                                                    <x-form.textbox labelName="End Date" name="end_date" required="required" value="{{ isset($leaveapplication) ? $leaveapplication->end_date : '' }}" col="col-md-4" class="date" />
                                                     <x-form.textbox type="text" labelName="Leave Number" name="number_leave" value="{{ isset($leaveapplication) ? $leaveapplication->number_leave : '' }}" required="required" col="col-md-4" property="readonly" />
                                                     <x-form.textbox labelName="Employee Location" name="employee_location" value="{{ isset($leaveapplication) ? $leaveapplication->employee_location : '' }}" col="col-md-4" />
 
@@ -159,13 +158,22 @@
 @endsection
 
 @push('scripts')
+<script src="js/moment.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>
-<script src="js/bootstrap-datepicker.min.js"></script>
 <script>
     $(document).ready(function() {
         $('.date').datetimepicker({
             format: 'YYYY-MM-DD',
             ignoreReadonly: true
+        });
+        
+        $(document).on('focusout', '#end_date', function() {
+            var edate = new Date($('#end_date').val());
+            var sdate = new Date($('#start_date').val());
+            
+            days = (edate- sdate) / (1000 * 60 * 60 * 24);
+            days=days+1;
+            $("#number_leave").val(days);
         });
     });
 
@@ -236,7 +244,6 @@
                         "</tr>";
                 });
 
-
                 $("#show_all_leave_data").html(stuff);
             },
         });
@@ -252,36 +259,6 @@
             },
         });
     }
-
-    $(function() {
-
-        $('#start_date').datepicker({
-            format: "yyyy-mm-dd",
-            todayHighlight: 'TRUE',
-            autoclose: true,
-            minDate: 0,
-            maxDate: '+1Y+6M'
-        }).on('changeDate', function(ev) {
-            $('#tdate').datepicker('setStartDate', $("#start_date").val());
-        });
-
-        $('#end_date').datepicker({
-            format: "yyyy-mm-dd",
-            todayHighlight: 'TRUE',
-            autoclose: true,
-            minDate: '0',
-            maxDate: '+1Y+6M'
-        }).on('changeDate', function(ev) {
-            var start = $("#start_date").val();
-            var startD = new Date(start);
-            var end = $("#end_date").val();
-            var endD = new Date(end);
-            var diff = parseInt((endD.getTime() - startD.getTime()) / (24 * 3600 * 1000));
-            $("#number_leave").val(diff);
-            //alert(diff);
-        });
-
-    });
 
     /*****************************************
      * End :: Dynamic Experience Input Field *
