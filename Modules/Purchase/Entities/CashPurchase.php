@@ -5,7 +5,7 @@ namespace Modules\Purchase\Entities;
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
 use Modules\Material\Entities\Material;
-
+use Modules\Setting\Entities\JobType;
 
 class CashPurchase extends BaseModel
 {
@@ -21,6 +21,10 @@ class CashPurchase extends BaseModel
         ->withTimeStamps(); 
     }
 
+    public function jobType()
+    {
+        return $this->belongsTo(JobType::class,'job_type_id','id')->withDefault(['job_type'=>'']);
+    }
 
      /******************************************
      * * * Begin :: Custom Datatable Code * * *
@@ -57,8 +61,8 @@ class CashPurchase extends BaseModel
         }
         
         $query = DB::table('cash_purchases as cp')
-        ->join('job_types as jt','cp.job_type_id','=','jt.id')
-        ->join('chart_of_accounts as coa','cp.account_id','=','coa.id')
+        ->leftJoin('job_types as jt','cp.job_type_id','=','jt.id')
+        ->leftJoin('chart_of_accounts as coa','cp.account_id','=','coa.id')
         ->select('cp.id', 'cp.challan_no','cp.memo_no','cp.vendor_name','cp.job_type_id','jt.job_type','cp.name',
         'cp.account_id', 'coa.name as account_name','cp.item','cp.total_qty','cp.grand_total','cp.receive_date','cp.created_by');
 
@@ -116,7 +120,7 @@ class CashPurchase extends BaseModel
             'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
             'voucher_no'          => $data['challan_no'],
             'voucher_type'        => 'Purchase',
-            'voucher_date'        => $data['received_date'],
+            'voucher_date'        => $data['receive_date'],
             'description'         => 'Inventory debit '.$data['grand_total'].'Tk for material purchase from vendor '.$data['vendor_name'],
             'debit'               => $data['grand_total'],
             'credit'              => 0,
@@ -131,7 +135,7 @@ class CashPurchase extends BaseModel
             'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '402')->value('id'),
             'voucher_no'          => $data['challan_no'],
             'voucher_type'        => 'Purchase',
-            'voucher_date'        => $data['received_date'],
+            'voucher_date'        => $data['receive_date'],
             'description'         => 'Company expense '.$data['grand_total'].'Tk for material purchase from vendor '.$data['vendor_name'],
             'debit'               => $data['grand_total'],
             'credit'              => 0,
