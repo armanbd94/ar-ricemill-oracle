@@ -20,9 +20,9 @@ class CashPurchaseFormRequest extends FormRequest
         $this->rules['receive_date'] = ['required','date_format:Y-m-d'];
         $this->rules['vendor_name'] = ['required'];
         $this->rules['vendor_name'] = ['required'];
-        if(request()->receive_id)
+        if(request()->purchase_id)
         {
-            $this->rules['challan_no'][1] = 'unique:cash_purchases,challan_no,'.request()->receive_id;
+            $this->rules['challan_no'][1] = 'unique:cash_purchases,challan_no,'.request()->purchase_id;
         }
 
         if(request()->has('materials'))

@@ -14,7 +14,6 @@ use Modules\Material\Entities\SiteMaterial;
 use Modules\Purchase\Entities\CashPurchase;
 use Modules\Purchase\Entities\CashPurchaseMaterial;
 use Modules\Purchase\Http\Requests\CashPurchaseFormRequest;
-use Modules\Purchase\Http\Requests\PurchaseOrderFormRequest;
 
 
 class CashPurchaseController extends BaseController
@@ -244,7 +243,7 @@ class CashPurchaseController extends BaseController
         }
     }
 
-    public function update(PurchaseOrderFormRequest $request)
+    public function update(CashPurchaseFormRequest $request)
     {
         if($request->ajax()){
             if(permission('cash-purchase-edit')){
