@@ -20,9 +20,9 @@ class CreateSalaryIncementsTable extends Migration
             $table->date('date')->nullable();
             $table->string('inc_month')->nullable();
             $table->integer('percent')->nullable();
-            $table->double('amount');
-            $table->double('previous_basic');
-            $table->double('current_basic');
+            $table->double('amount',12,0);
+            $table->double('previous_basic',12,0);
+            $table->double('current_basic',12,0);
             $table->enum('status',['1','2','3'])->default('1')->comment = "1=Active, 2=Inactive, 3=Cancel";
             $table->enum('deletable',['1','2'])->default('2')->comment = "1=No, 2=Yes";
             $table->string('created_by')->nullable();

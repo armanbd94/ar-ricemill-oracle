@@ -26,7 +26,7 @@ class CreateSalaryGeneratePaymentsTable extends Migration
             $table->string('voucher_no')->nullable();
             $table->date('voucher_date')->nullable();
             $table->string('month')->nullable();
-            $table->double('amount');
+            $table->double('amount',12,0);
             $table->enum('payment_method',['1','2','3'])->comment="1=Cash,2=Cheque,3=Mobile";
             $table->string('cheque_no')->nullable();
             $table->text('payment_note')->nullable();

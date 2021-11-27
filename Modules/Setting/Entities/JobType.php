@@ -77,7 +77,7 @@ class JobType extends BaseModel
     **************************************/
     protected const ALL_JOB_TYPES    = '_job_types';
 
-    public static function allBatches(){
+    public static function allJobTypes(){
         return Cache::rememberForever(self::ALL_JOB_TYPES, function () {
             return DB::table('job_types')->where('status',1)->get();
         });

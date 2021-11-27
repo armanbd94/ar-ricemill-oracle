@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
-use Modules\Vendor\Entities\Vendor;
 use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\Transaction;
@@ -14,9 +13,7 @@ use Modules\Material\Entities\SiteMaterial;
 use Modules\Purchase\Entities\OrderReceived;
 use Modules\Purchase\Entities\PurchaseOrder;
 use Modules\Purchase\Entities\OrderReceivedMaterial;
-use Modules\Purchase\Entities\PurchaseOrderMaterial;
 use Modules\Purchase\Http\Requests\OrderReceivedFormRequest;
-use Modules\Purchase\Http\Requests\PurchaseOrderFormRequest;
 
 class ReceivedItemController extends BaseController
 {
@@ -218,15 +215,14 @@ class ReceivedItemController extends BaseController
                                 
                                 OrderReceivedMaterial::insert($materials);
                             }
-                
-                            Transaction::insert($this->model->transaction_data([
-                                'challan_no'    => $request->challan_no,
-                                'grand_total'   => $request->grand_total,
-                                'vendor_coa_id' => $request->vendor_coa_id,
-                                'vendor_name'   => $request->vendor_name,
-                                'received_date' => $request->received_date
-                            ]));
                         }
+                        Transaction::insert($this->model->transaction_data([
+                            'challan_no'    => $request->challan_no,
+                            'grand_total'   => $request->grand_total,
+                            'vendor_coa_id' => $request->vendor_coa_id,
+                            'vendor_name'   => $request->vendor_name,
+                            'received_date' => $request->received_date
+                        ]));
                         $output = ['status'=>'success','message'=>'Data has been saved successfully','received_id'=>$order_received->id];
                     }else{
                         $output = ['status'=>'error','message'=>'Failed to save data','received_id'=>''];
@@ -372,6 +368,14 @@ class ReceivedItemController extends BaseController
                     {
                         $orderReceivedData->received_materials()->sync($materials);
                     }
+                    Transaction::where(['voucher_no'=>$orderReceivedData->challan_no,'voucher_type'=>'Purchase'])->delete();
+                    Transaction::insert($this->model->transaction_data([
+                        'challan_no'    => $request->challan_no,
+                        'grand_total'   => $request->grand_total,
+                        'vendor_coa_id' => $request->vendor_coa_id,
+                        'vendor_name'   => $request->vendor_name,
+                        'received_date' => $request->received_date
+                    ]));
                     $purchase = $orderReceivedData->update($order_received);
                     $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
                     $purchase_order = PurchaseOrder::find($order_id);
@@ -384,6 +388,8 @@ class ReceivedItemController extends BaseController
                         $purchase_order->purchase_status = 3;
                     }
                     $purchase_order->update();
+
+                    
 
                     $output  = $this->store_message($purchase, $request->receive_id);
                     DB::commit();

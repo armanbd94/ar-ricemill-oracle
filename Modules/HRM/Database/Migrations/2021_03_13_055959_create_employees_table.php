@@ -49,8 +49,8 @@ class CreateEmployeesTable extends Migration
             $table->date('termination_date')->nullable();
             $table->text('termination_reason')->nullable();
             $table->enum('rate_type',['1','2'])->comment = "1=Hourly,2=Salary";
-            $table->double('rate');
-            $table->double('joining_rate')->nullable();
+            $table->double('rate',12,0);
+            $table->double('joining_rate',12,0)->nullable();
             $table->enum('overtime',['1','2'])->nullable()->comment = "1=Allowed,2=Not Allowed";
             $table->enum('pay_freequency',['1','2','3','4'])->comment = "1=Weekly,2=Biweekly,3=Monthly,4=Annual";
             $table->string('bank_name')->nullable();

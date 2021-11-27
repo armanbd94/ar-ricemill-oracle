@@ -17,8 +17,6 @@ class CreateAttendancesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')->references('id')->on('employees');
-            $table->unsignedBigInteger('employee_route_id')->nullable();
-            $table->foreign('employee_route_id')->references('id')->on('employee_routes');
             $table->string('wallet_number')->nullable();
             $table->string('date_time')->nullable();
             $table->date('date')->nullable();

@@ -20,9 +20,9 @@ class CreateAllowanceDeductionManagesTable extends Migration
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->integer('type')->nullable()->comment = "1=Alowance, 2=Deduction, 3=Others";
-            $table->double('basic_salary');
+            $table->double('basic_salary',12,0);
             $table->integer('percentage');
-            $table->double('amount');
+            $table->double('amount',12,0);
             $table->enum('status',['1','2','3'])->default('1')->comment = "1=Active, 2=Inactive, 3=Cancel";
             $table->enum('deletable',['1','2'])->default('2')->comment = "1=No, 2=Yes";
             $table->string('created_by')->nullable();
