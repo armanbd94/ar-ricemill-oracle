@@ -11,5 +11,6 @@
     "Vendor": true,
     "ViaCustomer": true,
     "Expense": true,
-    "Product": true
+    "Product": true,
+    "HRM": true
 }
