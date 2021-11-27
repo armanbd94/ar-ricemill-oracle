@@ -19,9 +19,9 @@ class OrderReceivedFormRequest extends FormRequest
         $this->rules['challan_no']    = ['required','unique:order_received,challan_no'];
         $this->rules['received_date'] = ['required','date_format:Y-m-d'];
         $this->rules['transport_no']  = ['nullable'];
-        if(request()->purchase_id)
+        if(request()->receive_id)
         {
-            $this->rules['challan_no'][1] = 'unique:order_received,challan_no,'.request()->purchase_id;
+            $this->rules['challan_no'][1] = 'unique:order_received,challan_no,'.request()->receive_id;
         }
 
         if(request()->has('materials'))

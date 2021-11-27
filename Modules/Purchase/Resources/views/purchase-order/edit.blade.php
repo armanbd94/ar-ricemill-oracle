@@ -14,7 +14,7 @@
         <div class="card card-custom custom-card">
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
-                    <button type="button" class="btn btn-danger btn-sm mr-3" onclick="window.location.replace('{{ url("purchase/order") }}')"><i class="fas fa-sync-alt"></i> Cancel</button>
+                    <a href="{{ route('purchase.order') }}" type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-window-close"></i> Cancel</a>
                     <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
                 </div>
             </div>

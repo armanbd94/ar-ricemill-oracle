@@ -259,13 +259,14 @@ class ReceivedItemController extends BaseController
     }
     public function edit(int $id)
     {
-
         if(permission('purchase-received-edit')){
-            $this->setPageData('Edit Purchase Order','Edit Purchase Order','fas fa-edit',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Edit Purchase Order']]);
+            $this->setPageData('Edit Purchase Receive','Edit Purchase Receive','fas fa-edit',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Edit Purchase Receive']]);
+            $receive = $this->model->with('received_materials')->find($id);
+            $purchase = PurchaseOrder::with('materials','vendor','via_vendor')->where('memo_no',$receive->order->memo_no)->first();
             $data = [
-                'purchase'  => $this->model->with('materials')->find($id),
-                'vendors'   => Vendor::allVendors(),
-                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'purchase' => $purchase,
+                'sites'    => Site::allSites(),
+                'receive'  => $receive,
             ];
             return view('purchase::purchase-received.edit',$data);
         }else{
@@ -273,50 +274,118 @@ class ReceivedItemController extends BaseController
         }
     }
 
-    public function update(PurchaseOrderFormRequest $request)
+    public function update(OrderReceivedFormRequest $request)
     {
         if($request->ajax()){
             if(permission('purchase-received-edit')){
-                //dd($request->all());
+                // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $purchaseData = $this->model->with('materials')->find($request->purchase_id);
-
-                    $purchase_data = [
-                        'memo_no'         => $request->memo_no,
-                        'vendor_id'       => $request->vendor_id,
-                        'via_vendor_id'   => $request->via_vendor_id,
-                        'item'            => $request->item,
-                        'total_qty'       => $request->total_qty,
-                        'grand_total'     => $request->grand_total,
-                        'order_date'      => $request->order_date,
-                        'delivery_date'   => $request->delivery_date,
-                        'po_no'           => $request->po_no,
-                        'nos_truck'       => $request->nos_truck,
+                    $orderReceivedData = $this->model->with('received_materials')->find($request->receive_id);
+                    $order_id =  $orderReceivedData->order_id;
+                    $order_received = [
+                        'challan_no'    => $request->challan_no,
+                        'transport_no'  => $request->transport_no,
+                        'item'          => $request->item,
+                        'total_qty'     => $request->total_qty,
+                        'grand_total'   => $request->grand_total,
+                        'received_date' => $request->received_date,
                         'modified_by'     => auth()->user()->name
                     ];
+                    if(!$orderReceivedData->received_materials->isEmpty())
+                    {
+                        foreach ($orderReceivedData->received_materials as $received_material) {
+                            $received_qty = $received_material->pivot->received_qty;
+                            $material = Material::find($received_material->id);
+                            if($material){
+                                $material->qty -= $received_qty;
+                                $material->cost = $material->old_cost;
+                                $material->old_cost = $received_material->pivot->old_cost;
+                                $material->update();
+                            }
 
+                            $site_material = SiteMaterial::where([
+                                'site_id' => $received_material->pivot->site_id,
+                                'location_id' => $received_material->pivot->location_id,
+                                'material_id'  => $received_material->id
+                                ])->first();
+                            if($site_material){
+                                $site_material->qty -= $received_qty;
+                                $site_material->update();
+                            }
+
+                        }
+                    }
                     $materials = [];
                     if($request->has('materials'))
                     {                        
                         foreach ($request->materials as $key => $value) {
 
+                            $material = Material::find($value['id']);
+
+                            $current_stock_value = ($material->qty ? $material->qty : 0) * ($material->cost ? $material->cost : 0);
+                            $new_cost            = ($value['subtotal'] + $current_stock_value) / ($value['qty'] + $material->qty);
+                            $current_cost        = $material->cost ? $material->cost : 0;
+                            $old_cost            = $material->old_cost ? $material->old_cost : 0;
+                            if($material)
+                            {
+                                $material->qty += $value['qty'];
+                                $material->cost += $new_cost;
+                                $material->old_cost = $current_cost;
+                                $material->update();
+                            }
+
                             $materials[$value['id']] = [
-                                'qty'              => $value['qty'],
-                                'purchase_unit_id' => $value['purchase_unit_id'],
+                                'order_id'         => $orderReceivedData->order_id,
+                                'site_id'          => $value['site_id'],
+                                'location_id'      => $value['location_id'],
+                                'received_qty'     => $value['qty'],
+                                'received_unit_id' => $value['received_unit_id'],
                                 'net_unit_cost'    => $value['net_unit_cost'],
+                                'old_cost'         => $old_cost,
                                 'total'            => $value['subtotal'],
                                 'description'      => $value['description'],
                                 'created_at'       => date('Y-m-d H:i:s')
                             ];
+
+                            $site_material = SiteMaterial::where([
+                                ['site_id',$value['site_id']],
+                                ['location_id',$value['location_id']],
+                                ['material_id',$value['id']],
+                            ])->first();
+                            
+                            if($site_material)
+                            {
+                                $site_material->qty += $value['qty'];
+                                $site_material->update();
+                            }else{
+                                SiteMaterial::create([
+                                    'site_id'     => $value['site_id'],
+                                    'location_id' => $value['location_id'],
+                                    'material_id' => $value['id'],
+                                    'qty'         => $value['qty']
+                                ]);
+                            }
                         }
                     }
                     if(!empty($materials) && count($materials))
                     {
-                        $purchaseData->materials()->sync($materials);
+                        $orderReceivedData->received_materials()->sync($materials);
                     }
-                    $purchase = $purchaseData->update($purchase_data);
-                    $output  = $this->store_message($purchase, $request->purchase_id);
+                    $purchase = $orderReceivedData->update($order_received);
+                    $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
+                    $purchase_order = PurchaseOrder::find($order_id);
+                    if($total_received_qty >= $purchase_order->order_total_qty)
+                    {
+                        $purchase_order->purchase_status = 1;
+                    }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                        $purchase_order->purchase_status = 2;
+                    }else{
+                        $purchase_order->purchase_status = 3;
+                    }
+                    $purchase_order->update();
+
+                    $output  = $this->store_message($purchase, $request->receive_id);
                     DB::commit();
                     // return response()->json($output);
                 } catch (Exception $e) {
