@@ -34,8 +34,7 @@ class AttendanceReportController extends BaseController
             $this->setPageData('Manage Employee Attendance Rerport', 'Manage Employee Attendance Report', 'fas fa-user-secret', [['name' => 'HRM', 'link' => 'javascript::void();'], ['name' => 'Manage Employee Attendance Report']]);
             $data = [
                 'deletable' => self::DELETABLE,
-                'employees'    => Employee::toBase()->where('status', 1)->get(),
-                'employees_route'    => EmployeeRoute::toBase()->where('status', 1)->get()
+                'employees'    => Employee::toBase()->where('status', 1)->get()
             ];
             return view('hrm::attendance-report.index', $data);
         } else {
@@ -54,8 +53,7 @@ class AttendanceReportController extends BaseController
             $this->setPageData('Manage Employee Attendance Rerport', 'Manage Employee Attendance Report', 'fas fa-user-secret', [['name' => 'HRM', 'link' => 'javascript::void();'], ['name' => 'Manage Employee Attendance Report']]);
             $data = [
                 'deletable' => self::DELETABLE,
-                'employees'    => Employee::toBase()->where('status', 1)->get(),
-                'employees_route'    => EmployeeRoute::toBase()->where('status', 1)->get()
+                'employees'    => Employee::toBase()->where('status', 1)->get()
             ];
             if ($v->fails()) {
                 $data['start_date'] = date('Y-m-01');

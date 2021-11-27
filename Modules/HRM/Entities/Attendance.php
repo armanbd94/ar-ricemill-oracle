@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cache;
 class Attendance extends BaseModel
 {
     protected $table = 'attendances';
-    protected $fillable = ['employee_id ','wallet_number','date_time','date', 'time', 'am_pm', 'time_str', 'time_str_am_pm', 'status','deletable ', 'created_by', 'modified_by'];
+    protected $fillable = ['employee_id','wallet_number','date_time','date', 'time', 'am_pm', 'time_str', 'time_str_am_pm', 'status','deletable ', 'created_by', 'modified_by'];
 
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
