@@ -144,8 +144,8 @@ class CashPurchaseController extends BaseController
                                 $old_cost            = $material->old_cost ? $material->old_cost : 0;
                                 if($material)
                                 {
-                                    $material->qty += $value['qty'];
-                                    $material->cost += $new_cost;
+                                    $material->qty     += $value['qty'];
+                                    $material->cost     = $new_cost;
                                     $material->old_cost = $current_cost;
                                     $material->update();
                                 }
@@ -153,6 +153,8 @@ class CashPurchaseController extends BaseController
                                 $materials[] = [
                                     'cash_id'         => $cashPurchase->id,
                                     'material_id'      => $value['id'],
+                                    'site_id'          => $value['site_id'],
+                                    'location_id'      => $value['location_id'],
                                     'qty'              => $value['qty'],
                                     'purchase_unit_id' => $value['purchase_unit_id'],
                                     'net_unit_cost'    => $value['net_unit_cost'],
@@ -302,13 +304,15 @@ class CashPurchaseController extends BaseController
                                 $old_cost            = $material->old_cost ? $material->old_cost : 0;
                                 if($material)
                                 {
-                                    $material->qty += $value['qty'];
-                                    $material->cost += $new_cost;
+                                    $material->qty     += $value['qty'];
+                                    $material->cost     = $new_cost;
                                     $material->old_cost = $current_cost;
                                     $material->update();
                                 }
 
                                 $materials[$value['id']] = [
+                                    'site_id'          => $value['site_id'],
+                                    'location_id'      => $value['location_id'],
                                     'qty'              => $value['qty'],
                                     'purchase_unit_id' => $value['purchase_unit_id'],
                                     'net_unit_cost'    => $value['net_unit_cost'],

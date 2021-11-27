@@ -29,7 +29,7 @@ class CashPurchase extends BaseModel
      /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
-    protected $order = ['orcv.id' => 'desc'];
+    protected $order = ['cp.id' => 'desc'];
     //custom search column property
     protected $_challan_no; 
     protected $_from_date; 
@@ -144,6 +144,21 @@ class CashPurchase extends BaseModel
             'created_by'          => auth()->user()->name,
             'created_at'          => date('Y-m-d H:i:s')
         ); 
+
+        $payment = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '1020101')->value('id'),
+            'voucher_no'          => $data['challan_no'],
+            'voucher_type'        => 'Purchase',
+            'voucher_date'        => $data['receive_date'],
+            'description'         => 'Cash '.$data['grand_total'].'Tk given for material purchase',
+            'debit'               => 0,
+            'credit'              => $data['grand_total'],
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+            
+        );
 
         return [$inventory,$expense];
     } 

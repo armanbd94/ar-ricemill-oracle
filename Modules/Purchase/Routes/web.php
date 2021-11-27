@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['prefix' => 'purchase', 'as'=>'purchase.'], function () {
-        //Order Route
+        //Purchase Order Route
         Route::get('order', 'PurchaseController@index')->name('order');
         Route::group(['prefix' => 'order', 'as'=>'order.'], function () {
             Route::get('create', 'PurchaseController@create')->name('create');
@@ -42,6 +42,19 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('view/{id}', 'ReceivedItemController@show')->name('view');
             Route::post('delete', 'ReceivedItemController@delete')->name('delete');
             Route::post('bulk-delete', 'ReceivedItemController@bulk_delete')->name('bulk.delete');
+        });
+
+        //Cash Purchase Route
+        Route::get('cash', 'CashPurchaseController@index')->name('cash');
+        Route::group(['prefix' => 'cash', 'as'=>'cash.'], function () {
+            Route::get('create', 'CashPurchaseController@create')->name('create');
+            Route::post('datatable-data', 'CashPurchaseController@get_datatable_data')->name('datatable.data');
+            Route::post('store', 'CashPurchaseController@store')->name('store');
+            Route::post('update', 'CashPurchaseController@update')->name('update');
+            Route::get('edit/{id}', 'CashPurchaseController@edit')->name('edit');
+            Route::get('view/{id}', 'CashPurchaseController@show')->name('view');
+            Route::post('delete', 'CashPurchaseController@delete')->name('delete');
+            Route::post('bulk-delete', 'CashPurchaseController@bulk_delete')->name('bulk.delete');
         });
     });
     

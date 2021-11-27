@@ -170,8 +170,8 @@ class ReceivedItemController extends BaseController
                                 $old_cost            = $material->old_cost ? $material->old_cost : 0;
                                 if($material)
                                 {
-                                    $material->qty += $value['qty'];
-                                    $material->cost += $new_cost;
+                                    $material->qty     += $value['qty'];
+                                    $material->cost     = $new_cost;
                                     $material->old_cost = $current_cost;
                                     $material->update();
                                 }
@@ -325,8 +325,8 @@ class ReceivedItemController extends BaseController
                             $old_cost            = $material->old_cost ? $material->old_cost : 0;
                             if($material)
                             {
-                                $material->qty += $value['qty'];
-                                $material->cost += $new_cost;
+                                $material->qty     += $value['qty'];
+                                $material->cost     = $new_cost;
                                 $material->old_cost = $current_cost;
                                 $material->update();
                             }
