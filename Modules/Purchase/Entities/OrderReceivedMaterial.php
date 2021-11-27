@@ -22,7 +22,7 @@ class OrderReceivedMaterial extends Model
         return $this->belongsTo(PurchaseOrder::class,'order_id','id');
     }
 
-    public function receuved()
+    public function received()
     {
         return $this->belongsTo(OrderReceived::class,'received_id','id');
     }
