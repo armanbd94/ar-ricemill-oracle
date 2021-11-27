@@ -221,7 +221,8 @@ class CashPurchaseController extends BaseController
         if(permission('cash-purchase-view')){
             $this->setPageData('Cash Purchase Details','Cash Purchase Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Cash Purchase Details']]);
             $purchase = $this->model->with('materials','jobType')->find($id);
-            return view('purchase::cash-purchase.details',compact('purchase'));
+            $purchase_materials = CashPurchaseMaterial::with(['site:id,name','location:id,name','material','purchase_unit:id,unit_name'])->where('cash_id',$id)->get();
+            return view('purchase::cash-purchase.details',compact('purchase','purchase_materials'));
         }else{
             return $this->access_blocked();
         }
