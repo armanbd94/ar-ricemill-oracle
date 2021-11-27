@@ -32,8 +32,7 @@ class AttendanceController extends BaseController
             $this->setPageData('Manage Employee Attendance', 'Manage Employee Attendance', 'fas fa-user-secret', [['name' => 'HRM', 'link' => 'javascript::void();'], ['name' => 'Manage Employee Attendance']]);
             $data = [
                 'deletable' => self::DELETABLE,
-                'employees'    => Employee::toBase()->where('status', 1)->get(),
-                'employees_route'    => EmployeeRoute::toBase()->where('status', 1)->get()
+                'employees'    => Employee::toBase()->where('status', 1)->get()
             ];
             return view('hrm::attendance.index', $data);
         } else {
@@ -92,7 +91,6 @@ class AttendanceController extends BaseController
                 $ex = explode(" ", $request->start_time);
                 $dataIn = array(
                     "employee_id" => $request->emp_id,
-                    "employee_route_id" => ($request->employee_route_id) ? $request->employee_route_id : '',
                     "wallet_number" => ($request->wallet_number) ? $request->wallet_number : '',
                     "date_time" => $mDateTime,
                     "date" => date('Y-m-d', strtotime($request->date)),
@@ -108,7 +106,6 @@ class AttendanceController extends BaseController
                 $exOut = explode(" ", $request->end_time);
                 $dataOut = array(
                     "employee_id" => $request->emp_id,
-                    "employee_route_id" => ($request->employee_route_id) ? $request->employee_route_id : '',
                     "wallet_number" => ($request->wallet_number) ? $request->wallet_number : '',
                     "date_time" => $mDateTimeOut,
                     "date" => date('Y-m-d', strtotime($request->date)),

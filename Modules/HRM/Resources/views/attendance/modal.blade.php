@@ -31,17 +31,6 @@
                         @endif
                     </x-form.selectbox>
                     <div class="form-group col-md-12">
-                            <label for="wallet_number">Wallet Number</label>
-                            <input type="text" class="form-control" name="wallet_number" id="wallet_number" readonly />
-                    </div>
-                    <x-form.selectbox labelName="Route Name" name="employee_route_id" col="col-md-12" class="selectpicker">
-                        @if (!$employees_route->isEmpty())
-                        @foreach ($employees_route as $route)
-                            <option value="{{ $route->id }}">{{ $route->name }}</option>
-                        @endforeach
-                        @endif
-                    </x-form.selectbox>
-                    <div class="form-group col-md-12">
                             <label for="start_time">Start Time</label>
                             <input type="text" class="form-control timepicker" name="start_time" id="start_time" readonly />
                     </div>
@@ -49,11 +38,6 @@
                             <label for="end_time">End Time</label>
                             <input type="text" class="form-control timepicker" name="end_time" id="end_time" readonly />
                     </div>
-                    <x-form.selectbox labelName="Deletable" name="deletable" required="required" col="col-md-12" class="selectpicker">
-                        @foreach ($deletable as $key => $item)
-                            <option value="{{ $key }}">{{ $item }}</option>
-                        @endforeach
-                    </x-form.selectbox>
                 </div>
             </div>
             <!-- /modal body -->
