@@ -61,12 +61,12 @@ class AttendanceController extends BaseController
                 $no++;
                 $action = '';
                 if(permission('attendance-edit')){
-                    $action .= ' <a class="dropdown-item edit_data" data-wallet-number="' . $value->wallet_number . '" data-id="' . $value->id . '">Save</a>';
+                    $action .= ' <a class="dropdown-item edit_data"  data-id="' . $value->id . '">Save</a>';
                 }
 
                 $row = [];
                 $row[] = $no;
-                $row[] = $value->name.' - '.$value->phone;
+                $row[] = $value->employee_name.' - '.$value->phone;
                 $row[] = $value->dname;
                 $row[] = $value->dename;
                 $row[] = ($value->in_time_str) ? date('h:i:s a', $value->in_time_str):'';

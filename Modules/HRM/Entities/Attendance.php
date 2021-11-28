@@ -15,7 +15,7 @@ class Attendance extends BaseModel
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     //custom search column property
-    protected $order = ['date' => 'desc'];
+    protected $order = ['attendance.date' => 'desc'];
     protected $start_date; 
     protected $end_date; 
     protected $employee_id; 
@@ -40,25 +40,26 @@ class Attendance extends BaseModel
         //set column sorting index table column name wise (should match with frontend table header)
 
         $this->column_order = ['id','date', 'date_time','employee_id','time','am_pm','time_str','time_str_am_pm'];
-                
+        
 
         $latestPosts = DB::table('attendances')
-        ->selectRaw('employee_id,MIN(id) as min_id,
-        MAX(id) as max_id,MIN(time_str_am_pm) as in_time_str,MAX(time_str_am_pm) as out_time_str,
-            MIN(time) as in_time,MAX(time) as out_time,date_time as date_time,date as date,time as time,am_pm as am_pm,time_str as time_str,time_str_am_pm as time_str_am_pm,deletable')
-        ->where('date', '=',date('Y-m-d'))
-        ->groupBy('employee_id');
+        ->select('employee_id',
+        DB::raw("MIN(id) as min_id,MAX(id) as max_id,MIN(time_str_am_pm) as in_time_str,
+        MAX(time_str_am_pm) as out_time_str,MIN(time) as in_time,MAX(time) as out_time
+        "),'date')
+        ->where('date', date('Y-m-d'))
+        ->groupBy('employee_id','date');
 
         $query = DB::table('employees')
-        ->selectRaw("employees.*,attendance.*, d.name as dname, de.name as dename")
+        ->selectRaw("employees.id,employees.name as employee_name,employees.phone,attendance.*,d.name as dname, de.name as dename")
         ->leftjoin('designations as d','employees.current_designation_id','=','d.id')
         ->leftjoin('departments as de','employees.department_id','=','de.id')
         ->leftjoinSub($latestPosts, 'attendance', function ($join) {
             $join->on('employees.id', '=', 'attendance.employee_id');
         });
-
+// dd($query);
          if (!empty($this->employee_id)) {
-             $query->where('employee_id',$this->employee_id);
+             $query->where('employees.id',$this->employee_id);
          }
         //  if (!empty($this->start_date)) {
         //      $query->where('date', '>=',$this->start_date);
@@ -94,11 +95,22 @@ class Attendance extends BaseModel
     public function count_all()
     {
         $latestPosts = DB::table('attendances')
-        ->selectRaw('employee_id,MIN(id) as min_id,
-        MAX(id) as max_id,MIN(time_str_am_pm) as in_time_str,MAX(time_str_am_pm) as out_time_str,
-            MIN(time) as in_time,MAX(time) as out_time,date_time as date_time,date as date,time as time,am_pm as am_pm,time_str as time_str,time_str_am_pm as time_str_am_pm,deletable ')
-        ->where('date', '=',date('Y-m-d'))
-        ->groupBy('employee_id');
+        ->select('employee_id',
+        DB::raw("MIN(id) as min_id,MAX(id) as max_id,
+        MIN(time_str_am_pm) as in_time_str,
+        MAX(time_str_am_pm) as out_time_str,
+        MIN(time) as in_time,
+        MAX(time) as out_time
+        "),'time','date','date_time','am_pm','time_str','time_str_am_pm','deletable')
+        ->where('date', date('Y-m-d'))
+        ->groupBy('employee_id',
+        'date_time',
+        'date',
+        'time',
+        'am_pm',
+        'time_str',
+        'time_str_am_pm','deletable'
+    );
 
         return DB::table('employees')
         ->leftjoinSub($latestPosts, 'attendance', function ($join) {

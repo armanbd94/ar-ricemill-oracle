@@ -267,7 +267,7 @@ class EmployeeController extends BaseController
 
                         if (empty($request->update_id)) {
                             $coa_max_code      = ChartOfAccount::where('level', 3)->where('code', 'like', '50202%')->max('code');
-                            $code              = $coa_max_code ? ($coa_max_code + 1) : 502020001;
+                            $code              = $coa_max_code ? ($coa_max_code + 1) : 50202000001;
                             //$head_name         = $employee->id . '-' . $employee->name . '-' . $employee->wallet_number;
                             $head_name         = $employee->id . '-' . $employee->name . '-E';
                             $employee_coa_data = $this->employee_coa($code, $head_name);
@@ -308,7 +308,7 @@ class EmployeeController extends BaseController
             'parent_name'       => 'Employee Ledger',
             'level'             => 3,
             'type'              => 'L',
-            'transaction'       => 1,
+            'is_transaction'    => 1,
             'general_ledger'    => 2,
             'budget'            => 2,
             'depreciation'      => 2,
