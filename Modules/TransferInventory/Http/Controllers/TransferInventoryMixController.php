@@ -2,11 +2,13 @@
 
 namespace Modules\TransferInventory\Http\Controllers;
 
-use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use Modules\Setting\Entities\Site;
+use Modules\Setting\Entities\Batch;
+use Modules\Product\Entities\Product;
+use App\Http\Controllers\BaseController;
 
-class TransferInventoryMixController extends Controller
+class TransferInventoryMixController extends BaseController
 {
     public function create()
     {
@@ -15,7 +17,7 @@ class TransferInventoryMixController extends Controller
             $data = [
                 'batches' => Batch::allBatches(),
                 'sites'     => Site::allSites(),
-                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'products' => Product::with('category')->where('status',1)->get(),
             ];
             
             return view('transferinventory::transfer-inventory-mix.create',$data);

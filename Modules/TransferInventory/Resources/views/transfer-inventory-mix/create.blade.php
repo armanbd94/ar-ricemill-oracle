@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="css/jquery-ui.css" />
 <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
 <style>
-    .dropdown.bootstrap-select{width: 300px;}
+    .dropdown.bootstrap-select{width: 200px;}
 </style>
 @endpush
 
@@ -50,15 +50,9 @@
                                 <input type="text" class="form-control" name="memo_no" id="memo_no"  />
                             </div>
 
-                            <x-form.selectbox labelName="Transfer From" name="from_site_id" required="required" onchange="getLocations(this.value,1)"  class="selectpicker" col="col-md-3">
-                                @if(!$sites->isEmpty())  
-                                @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
-                                @endforeach
-                            @endif
+                            <x-form.selectbox labelName="Mix Item" name="to_site_id" required="required" class="selectpicker" col="col-md-3">
+                                
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="From Location" name="from_location_id" required="required"   class="selectpicker" col="col-md-3"/>
-
                             <x-form.selectbox labelName="Transfer To" name="to_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
                                 @if(!$sites->isEmpty())  
                                 @foreach ($sites as $site)
@@ -68,15 +62,12 @@
                             </x-form.selectbox>
                             <x-form.selectbox labelName="To Location" name="to_location_id"  required="required" class="selectpicker" col="col-md-3"/>
 
-                            {{-- <div class="form-group col-md-4">
-                                <label for="number">Number</label>
-                                <input type="text" class="form-control" name="number" id="number"  />
-                            </div> --}}
-                            
                             <div class="col-md-12 table-responsive" style="min-height: 500px;">
 
                                 <table class="table table-bordered" id="material_table">
                                     <thead class="bg-primary">
+                                        <th class="text-center">Transfer From</th>
+                                        <th class="text-center">Location</th>
                                         <th>Item</th>
                                         <th>Description</th>
                                         <th class="text-center">Class</th>
@@ -87,14 +78,25 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td style="width: 300px;">                     
-                                                <select name="materials[1][id]" id="materials_1_id"  style="width: 300px;" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(1)"  data-live-search="true" data-row="1">    
-                                                    <option value="">Select Please</option>                                        
-                                                    @if (!$materials->isEmpty())
-                                                        @foreach ($materials as $material)
-                                                            <option value="{{ $material->id }}" data-unitid={{ $material->unit_id }} data-unitname="{{ $material->unit->unit_name }}" data-category="{{ $material->category->name }}">{{ $material->material_name }}</option>
+                                            <td style="width: 300px;">                                                  
+                                                <select  style="width: 300px;" name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
+                                                    <option value="">Select Please</option>  
+                                                    @if(!$sites->isEmpty())  
+                                                        @foreach ($sites as $site)
+                                                            <option value="{{ $site->id }}">{{ $site->name }}</option>
                                                         @endforeach
                                                     @endif
+                                                </select>
+                                            </td>  
+                                            <td>                                                  
+                                                <select name="materials[1][location_id]" id="materials_1_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
+                                                    <option value="">Select Please</option>  
+                                                </select>
+                                            </td>  
+                                            <td>                     
+                                                <select name="materials[1][id]" id="materials_1_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(1)"  data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+
                                                 </select>
                                             </td>    
                                             <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
@@ -107,7 +109,7 @@
                                         </tr>
                                     </tbody>
                                     <tfoot class="bg-primary">
-                                        <th colspan="5" class="font-weight-bolder">Total</th>
+                                        <th colspan="7" class="font-weight-bolder">Total</th>
                                         <th id="total-qty" class="text-center font-weight-bolder">0</th>
                                         <th class="text-center"><button type="button" data-toggle="tooltip" data-theme="dark" title="Add More" class="btn btn-success btn-sm add-material"><i class="fas fa-plus"></i></button></th>
                                     </tfoot>
@@ -152,24 +154,35 @@ $(document).ready(function () {
 
     function material_row_add(count){
         var html = `<tr>
-                        <td style="width: 300px;">                     
-                            <select  style="width: 300px;" name="materials[${count}][id]" id="materials_${count}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(${count})"  data-live-search="true" data-row="${count}">    
-                                <option value="">Select Please</option>                                        
-                                @if (!$materials->isEmpty())
-                                    @foreach ($materials as $material)
-                                        <option value="{{ $material->id }}" data-unitid={{ $material->unit_id }} data-unitname="{{ $material->unit->unit_name }}" data-category="{{ $material->category->name }}">{{ $material->material_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </td>    
-                        <td style="width: 350px;"><input type="text" class="form-control"  style="width: 350px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
-                        <td class="category_name_${count} text-center" style="min-width: 120px;" id="category_name_${count}"  data-row="${count}"></td>
-                        <td class="unit_name_${count} text-center" style="min-width: 80px;" id="unit_name_${count}"  data-row="${count}"></td>
-                        <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" name="materials[${count}][available_qty]" id="materials_${count}_qty" readonly  data-row="${count}"></td>
-                        <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(${count})" name="materials[${count}][transfer_qty]" id="materials_${count}_qty"  data-row="${count}"></td>
-                        <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button></td>
-                        <input type="hidden" id="materials_${count}_transfer_unit_id" name="materials[${count}][transfer_unit_id]" data-row="${count}">
-                    </tr>`;
+                                            <td style="width: 300px;">                                                  
+                                                <select  style="width: 300px;" name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
+                                                    <option value="">Select Please</option>  
+                                                    @if(!$sites->isEmpty())  
+                                                        @foreach ($sites as $site)
+                                                            <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </td>  
+                                            <td>                                                  
+                                                <select name="materials[1][location_id]" id="materials_1_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
+                                                    <option value="">Select Please</option>  
+                                                </select>
+                                            </td>  
+                                            <td>                     
+                                                <select name="materials[1][id]" id="materials_1_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(1)"  data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+
+                                                </select>
+                                            </td>    
+                                            <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
+                                            <td class="category_name_1 text-center" style="width: 120px;" id="category_name_1"  data-row="1"></td>
+                                            <td class="unit_name_1 text-center" style="min-width: 80px;" id="unit_name_1"  data-row="1"></td>
+                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_qty" readonly  data-row="1"></td>
+                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][transfer_qty]" id="materials_1_qty"  data-row="1"></td>
+                                            <td class="text-center" data-row="1"></td>
+                                            <input type="hidden" id="materials_1_transfer_unit_id" name="materials[1][transfer_unit_id]" data-row="1">
+                                        </tr>`;
         $('#material_table tbody').append(html);
         $('#material_table .selectpicker').selectpicker();
     }
@@ -181,16 +194,15 @@ function setMaterialDetails(row){
 
     $(`.unit_name_${row}`).text(unit_name);
     $(`.category_name_${row}`).text(category_name);
-    $(`#materials_${row}_transfer_unit_id`).val(unit_id);
+    $(`#materials_${row}_purchase_unit_id`).val(unit_id);
 } 
-function checkQty(row)
+function calculateRowTotal(row)
 {
     let qty = $(`#materials_${row}_qty`).val() ? parseFloat($(`#materials_${row}_qty`).val()) : 0;
     if(qty < 0 || qty == ''){
         qty = 0;
         $(`#materials_${row}_qty`).val('');
     }
-
     $(`.subtotal_${row}`).text(parseFloat(qty * cost));
     $(`#materials_${row}_subtotal`).val(parseFloat(qty * cost));
     
@@ -214,28 +226,20 @@ function calculateTotal()
     var item = $('#material_table tbody tr:last').index()+1;
     $('input[name="item"]').val(item);
 }
-function getLocations(site_id,selector)
+function getLocations(site_id,row)
 {
     $.ajax({
         url:"{{ url('site-wise-location-list') }}/"+site_id,
         type:"GET",
         dataType:"JSON",
         success:function(data){
-            selector == 1 ? $(`#from_location_id`).empty() : $(`#to_location_id`).empty();
-            
+            $(`#materials_${row}_location_id`).empty();
             var html = '<option value="">Select Please</option>';
             $.each(data, function(key, value) {
                 html += '<option value="'+ key +'">'+ value +'</option>';
             });
-            if(selector == 1)
-            {
-                $(`#from_location_id`).append(html);
-                $(`#from_location_id.selectpicker`).selectpicker('refresh');
-            }else{
-                $(`#to_location_id`).append(html);
-                $(`#to_location_id.selectpicker`).selectpicker('refresh');
-            }
-            
+            $(`#materials_${row}_location_id`).append(html);
+            $(`#materials_${row}_location_id.selectpicker`).selectpicker('refresh');
         },
     });
 }
