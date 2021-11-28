@@ -1,0 +1,13 @@
+{
+    "name": "TransferInventory",
+    "alias": "transferinventory",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\TransferInventory\\Providers\\TransferInventoryServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

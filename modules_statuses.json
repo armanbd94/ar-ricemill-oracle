@@ -12,5 +12,6 @@
     "ViaCustomer": true,
     "Expense": true,
     "Product": true,
-    "HRM": true
+    "HRM": true,
+    "TransferInventory": true
 }
