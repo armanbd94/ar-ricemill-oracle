@@ -68,10 +68,10 @@
                             </x-form.selectbox>
                             <x-form.selectbox labelName="To Location" name="to_location_id"  required="required" class="selectpicker" col="col-md-3"/>
 
-                            {{-- <div class="form-group col-md-4">
+                            <div class="form-group col-md-3">
                                 <label for="number">Number</label>
                                 <input type="text" class="form-control" name="number" id="number"  />
-                            </div> --}}
+                            </div>
                             
                             <div class="col-md-12 table-responsive" style="min-height: 500px;">
 
