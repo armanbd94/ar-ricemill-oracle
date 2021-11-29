@@ -208,6 +208,16 @@ class MaterialController extends BaseController
         }
     }
 
+    public function material_stock_data(Request $request)
+    {
+        $material_stock = DB::table('site_material')->where([
+            'site_id'     => $request->site_id,
+            'location_id' => $request->location_id,
+            'material_id' => $request->material_id,
+        ])->first();
+
+        return $material_stock ? $material_stock->qty : 0;
+    }
 
 
 }

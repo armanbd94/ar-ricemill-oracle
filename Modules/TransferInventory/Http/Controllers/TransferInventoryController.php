@@ -2,12 +2,17 @@
 
 namespace Modules\TransferInventory\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
 use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
+use Modules\Material\Entities\SiteMaterial;
 use Modules\TransferInventory\Entities\TransferInventory;
+use Modules\TransferInventory\Entities\TransferInventoryItem;
+use Modules\TransferInventory\Http\Requests\TransferInventoryFormRequest;
 
 class TransferInventoryController extends BaseController
 {
@@ -73,8 +78,8 @@ class TransferInventoryController extends BaseController
                     $row[] = $value->item;
                     $row[] = $value->total_qty;
                     $row[] = date(config('settings.date_format'),strtotime($value->transfer_date));
-                    $row[] = $value->created_by;
                     $row[] = $value->transfer_number;
+                    $row[] = $value->created_by;
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
                 }
@@ -100,7 +105,106 @@ class TransferInventoryController extends BaseController
         }else{
             return $this->access_blocked();
         }
-        
+    }
+
+    public function store(TransferInventoryFormRequest $request)
+    {
+        if($request->ajax()){
+            if(permission('transfer-inventory-add')){
+                // dd($request->all());
+                DB::beginTransaction();
+                try {
+                    $transferData  = $this->model->create([
+                        'memo_no'          => $request->memo_no,
+                        'batch_id'         => $request->batch_id,
+                        'from_site_id'     => $request->from_site_id,
+                        'from_location_id' => $request->from_location_id,
+                        'to_site_id'       => $request->to_site_id,
+                        'to_location_id'   => $request->to_location_id,
+                        'item'             => $request->item,
+                        'total_qty'        => $request->total_qty,
+                        'transfer_date'    => $request->transfer_date,
+                        'transfer_number'  => $request->transfer_number,
+                        'created_by'       => auth()->user()->name
+                    ]);
+
+                    if($transferData){
+                        $materials = [];
+                        if($request->has('materials'))
+                        {                        
+                            foreach ($request->materials as $key => $value) {
+
+                                $materials[] = [
+                                    'transfer_id'      => $transferData->id,
+                                    'material_id'      => $value['id'],
+                                    'qty'              => $value['qty'],
+                                    'description'      => $value['description'],
+                                    'created_at'       => date('Y-m-d H:i:s')
+                                ];
+
+                                $from_site_material = SiteMaterial::where([
+                                    ['site_id',$request->from_site_id],
+                                    ['location_id',$request->from_location_id],
+                                    ['material_id',$value['id']],
+                                ])->first();
+                                
+                                if($from_site_material)
+                                {
+                                    $from_site_material->qty -= $value['qty'];
+                                    $from_site_material->update();
+                                }
+
+                                $to_site_material = SiteMaterial::where([
+                                    ['site_id',$request->to_site_id],
+                                    ['location_id',$request->to_location_id],
+                                    ['material_id',$value['id']],
+                                ])->first();
+                                
+                                if($to_site_material)
+                                {
+                                    $to_site_material->qty += $value['qty'];
+                                    $to_site_material->update();
+                                }else{
+                                    SiteMaterial::create([
+                                        'site_id'     => $request->to_site_id,
+                                        'location_id' => $request->to_location_id,
+                                        'material_id' => $value['id'],
+                                        'qty'         => $value['qty']
+                                    ]);
+                                }
+                            }
+                            if(!empty($materials) && count($materials))
+                            {
+                                TransferInventoryItem::insert($materials);
+                            }
+                        }
+                        $output = ['status'=>'success','message'=>'Data has been saved successfully','transfer_id'=>$transferData->id];
+                    }else{
+                        $output = ['status'=>'error','message'=>'Failed to save data','purchase_id'=>''];
+                    }
+                    DB::commit();
+                } catch (Exception $e) {
+                    DB::rollback();
+                    $output = ['status' => 'error','message' => $e->getMessage()];
+                }
+            }else{
+                $output       = $this->unauthorized();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->unauthorized());
+        }
+    }
+
+    public function show(int $id)
+    {
+        if(permission('transfer-inventory-view')){
+            $this->setPageData('Transfer Inventory Details','Transfer Inventory Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Transfer Inventory Details']]);
+            $transfer = $this->model->with('materials','batch','from_site','to_site','from_location','to_location')->find($id);
+            return view('transferinventory::transfer-inventory.details',compact('transfer'));
+        }else{
+            return $this->access_blocked();
+        }
     }
 
 }

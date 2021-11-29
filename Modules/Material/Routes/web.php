@@ -25,6 +25,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('bulk-delete', 'MaterialController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'MaterialController@change_status')->name('change.status');
         Route::get('generate-code', 'MaterialController@generateMaterialCode')->name('generate.code');
+        Route::post('stock-data', 'MaterialController@material_stock_data')->name('stock.data');
     });
 
 });
