@@ -2,12 +2,18 @@
 
 namespace Modules\TransferInventory\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
 use Modules\Product\Entities\Product;
 use App\Http\Controllers\BaseController;
+use App\Models\Category;
+use Modules\Material\Entities\SiteMaterial;
+use Modules\TransferInventory\Entities\TransferMixItem;
 use Modules\TransferInventory\Entities\TransferMixInventory;
+use Modules\TransferInventory\Http\Requests\TransferInventoryMixFormRequest;
 
 class TransferInventoryMixController extends BaseController
 {
@@ -93,12 +99,103 @@ class TransferInventoryMixController extends BaseController
                 'batches' => Batch::allBatches(),
                 'sites'     => Site::allSites(),
                 'products' => Product::with('category')->where('status',1)->get(),
+                'categories'     => Category::allProductCategories(),
             ];
             
             return view('transferinventory::transfer-inventory-mix.create',$data);
         }else{
             return $this->access_blocked();
         }
-        
+    }
+
+    public function store(TransferInventoryMixFormRequest $request)
+    {
+        if($request->ajax()){
+            if(permission('transfer-inventory-mix-add')){
+                dd($request->all());
+                DB::beginTransaction();
+                try {
+                    $transferData  = $this->model->create([
+                        'memo_no'         => $request->memo_no,
+                        'batch_id'        => $request->batch_id,
+                        'product_id'      => $request->product_id,
+                        'category_id'     => $request->category_id,
+                        'to_site_id'      => $request->to_site_id,
+                        'to_location_id'  => $request->to_location_id,
+                        'item'            => $request->item,
+                        'total_qty'       => $request->total_qty,
+                        'transfer_date'   => $request->transfer_date,
+                        'transfer_number' => $request->transfer_number,
+                        'created_by'      => auth()->user()->name
+                    ]);
+
+                    if($transferData){
+                        $materials = [];
+                        if($request->has('materials'))
+                        {                        
+                            foreach ($request->materials as $key => $value) {
+
+                                $materials[] = [
+                                    'transfer_id'      => $transferData->id,
+                                    'material_id'      => $value['id'],
+                                    'from_site_id'     => $value['from_site_id'],
+                                    'from_location_id' => $value['from_location_id'],
+                                    'qty'              => $value['qty'],
+                                    'description'      => $value['description'],
+                                    'created_at'       => date('Y-m-d H:i:s')
+                                ];
+
+                                $from_site_material = SiteMaterial::where([
+                                    ['site_id',$value['from_site_id']],
+                                    ['location_id',$value['from_location_id']],
+                                    ['material_id',$value['id']],
+                                ])->first();
+                                
+                                if($from_site_material)
+                                {
+                                    $from_site_material->qty -= $value['qty'];
+                                    $from_site_material->update();
+                                }
+
+                                $to_site_material = SiteMaterial::where([
+                                    ['site_id',$request->to_site_id],
+                                    ['location_id',$request->to_location_id],
+                                    ['material_id',$value['id']],
+                                ])->first();
+                                
+                                if($to_site_material)
+                                {
+                                    $to_site_material->qty += $value['qty'];
+                                    $to_site_material->update();
+                                }else{
+                                    SiteMaterial::create([
+                                        'site_id'     => $request->to_site_id,
+                                        'location_id' => $request->to_location_id,
+                                        'material_id' => $value['id'],
+                                        'qty'         => $value['qty']
+                                    ]);
+                                }
+                            }
+                            if(!empty($materials) && count($materials))
+                            {
+                                TransferMixItem::insert($materials);
+                            }
+                        }
+                        $output = ['status'=>'success','message'=>'Data has been saved successfully','transfer_id'=>$transferData->id];
+                    }else{
+                        $output = ['status'=>'error','message'=>'Failed to save data','purchase_id'=>''];
+                    }
+                    DB::commit();
+                } catch (Exception $e) {
+                    DB::rollback();
+                    $output = ['status' => 'error','message' => $e->getMessage()];
+                }
+            }else{
+                $output       = $this->unauthorized();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->unauthorized());
+        }
     }
 }

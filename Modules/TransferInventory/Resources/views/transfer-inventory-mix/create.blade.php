@@ -44,14 +44,19 @@
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
-
-                            <div class="form-group col-md-3">
-                                <label for="memo_no">Memo No.</label>
-                                <input type="text" class="form-control" name="memo_no" id="memo_no"  />
-                            </div>
-
-                            <x-form.selectbox labelName="Mix Item" name="to_site_id" required="required" class="selectpicker" col="col-md-3">
-                                
+                            <x-form.selectbox labelName="Mix Item" name="product_id" required="required" class="selectpicker" col="col-md-3">
+                                @if(!$products->isEmpty())  
+                                    @foreach ($products as $product)
+                                        <option value="{{ $product->id }}" data-category="{{ $product->category_id }}">{{ $product->name }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
+                            <x-form.selectbox labelName="Mix Class" name="category_id" required="required" class="selectpicker" col="col-md-3">
+                                @if(!$categories->isEmpty())  
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                @endif
                             </x-form.selectbox>
                             <x-form.selectbox labelName="Transfer To" name="to_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
                                 @if(!$sites->isEmpty())  
@@ -61,6 +66,15 @@
                             @endif
                             </x-form.selectbox>
                             <x-form.selectbox labelName="To Location" name="to_location_id"  required="required" class="selectpicker" col="col-md-3"/>
+                            <div class="form-group col-md-3">
+                                <label for="memo_no">Memo No.</label>
+                                <input type="text" class="form-control" name="memo_no" id="memo_no"  />
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="number">Number</label>
+                                <input type="text" class="form-control" name="number" id="number"  />
+                            </div>
 
                             <div class="col-md-12 table-responsive" style="min-height: 500px;">
 
@@ -79,7 +93,7 @@
                                     <tbody>
                                         <tr>
                                             <td style="width: 300px;">                                                  
-                                                <select  style="width: 300px;" name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
+                                                <select  style="width: 300px;" name="materials[1][from_site_id]" id="materials_1_from_site_id" class="fcs col-md-12 from_site_id form-control selectpicker" onchange="getLocations(this.value,1,1)"  data-live-search="true" data-row="1">                                            
                                                     <option value="">Select Please</option>  
                                                     @if(!$sites->isEmpty())  
                                                         @foreach ($sites as $site)
@@ -89,7 +103,7 @@
                                                 </select>
                                             </td>  
                                             <td>                                                  
-                                                <select name="materials[1][location_id]" id="materials_1_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
+                                                <select name="materials[1][from_location_id]" id="materials_1_from_location_id" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
                                                     <option value="">Select Please</option>  
                                                 </select>
                                             </td>  
@@ -102,8 +116,8 @@
                                             <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
                                             <td class="category_name_1 text-center" style="width: 120px;" id="category_name_1"  data-row="1"></td>
                                             <td class="unit_name_1 text-center" style="min-width: 80px;" id="unit_name_1"  data-row="1"></td>
-                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_qty" readonly  data-row="1"></td>
-                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][transfer_qty]" id="materials_1_qty"  data-row="1"></td>
+                                            <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_available_qty" readonly  data-row="1"></td>
+                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][qty]" id="materials_1_qty"  data-row="1"></td>
                                             <td class="text-center" data-row="1"></td>
                                             <input type="hidden" id="materials_1_transfer_unit_id" name="materials[1][transfer_unit_id]" data-row="1">
                                         </tr>
@@ -154,35 +168,35 @@ $(document).ready(function () {
 
     function material_row_add(count){
         var html = `<tr>
-                                            <td style="width: 300px;">                                                  
-                                                <select  style="width: 300px;" name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
-                                                    <option value="">Select Please</option>  
-                                                    @if(!$sites->isEmpty())  
-                                                        @foreach ($sites as $site)
-                                                            <option value="{{ $site->id }}">{{ $site->name }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </td>  
-                                            <td>                                                  
-                                                <select name="materials[1][location_id]" id="materials_1_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
-                                                    <option value="">Select Please</option>  
-                                                </select>
-                                            </td>  
-                                            <td>                     
-                                                <select name="materials[1][id]" id="materials_1_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(1)"  data-live-search="true" data-row="1">    
-                                                    <option value="">Select Please</option>                                        
+                        <td style="width: 300px;">                                                  
+                            <select  style="width: 300px;" name="materials[${count}][from_site_id]" id="materials_${count}_from_site_id" class="fcs col-md-12 from_site_id form-control selectpicker" onchange="getLocations(this.value,1,${count})"  data-live-search="true" data-row="${count}">                                            
+                                <option value="">Select Please</option>  
+                                @if(!$sites->isEmpty())  
+                                    @foreach ($sites as $site)
+                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>  
+                        <td>                                                  
+                            <select name="materials[${count}][from_location_id]" id="materials_${count}_from_location_id" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="${count}">                                            
+                                <option value="">Select Please</option>  
+                            </select>
+                        </td>  
+                        <td>                     
+                            <select name="materials[${count}][id]" id="materials_${count}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(${count})"  data-live-search="true" data-row="${count}">    
+                                <option value="">Select Please</option>                                        
 
-                                                </select>
-                                            </td>    
-                                            <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                            <td class="category_name_1 text-center" style="width: 120px;" id="category_name_1"  data-row="1"></td>
-                                            <td class="unit_name_1 text-center" style="min-width: 80px;" id="unit_name_1"  data-row="1"></td>
-                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_qty" readonly  data-row="1"></td>
-                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][transfer_qty]" id="materials_1_qty"  data-row="1"></td>
-                                            <td class="text-center" data-row="1"></td>
-                                            <input type="hidden" id="materials_1_transfer_unit_id" name="materials[1][transfer_unit_id]" data-row="1">
-                                        </tr>`;
+                            </select>
+                        </td>    
+                        <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
+                        <td class="category_name_${count} text-center" style="width: 120px;" id="category_name_${count}"  data-row="${count}"></td>
+                        <td class="unit_name_${count} text-center" style="min-width: 80px;" id="unit_name_${count}"  data-row="${count}"></td>
+                        <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[${count}][available_qty]" id="materials_${count}_available_qty" readonly  data-row="${count}"></td>
+                        <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
+                        <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button></td>
+                        <input type="hidden" id="materials_${count}_transfer_unit_id" name="materials[${count}][transfer_unit_id]" data-row="${count}">
+                    </tr>`;
         $('#material_table tbody').append(html);
         $('#material_table .selectpicker').selectpicker();
     }
@@ -226,22 +240,47 @@ function calculateTotal()
     var item = $('#material_table tbody tr:last').index()+1;
     $('input[name="item"]').val(item);
 }
-function getLocations(site_id,row)
+function getLocations(site_id,selector,row='')
 {
     $.ajax({
         url:"{{ url('site-wise-location-list') }}/"+site_id,
         type:"GET",
         dataType:"JSON",
         success:function(data){
-            $(`#materials_${row}_location_id`).empty();
             var html = '<option value="">Select Please</option>';
             $.each(data, function(key, value) {
                 html += '<option value="'+ key +'">'+ value +'</option>';
             });
-            $(`#materials_${row}_location_id`).append(html);
-            $(`#materials_${row}_location_id.selectpicker`).selectpicker('refresh');
+            if(selector == 1)
+            {
+                $(`#materials_${row}_location_id`).empty().append(html);
+                $(`#materials_${row}_location_id.selectpicker`).selectpicker('refresh');
+            }else{
+                $(`#to_location_id`).empty().append(html);
+                $(`#to_location_id.selectpicker`).selectpicker('refresh');
+            }
         },
     });
+}
+
+function material_list(row)
+{
+    const site_id       = $(`#materials_${row}_from_site_id option:selected`).val();
+    const location_id   = $(`#materials_${row}_from_location_id option:selected`).val();
+    if(site_id && location_id)
+    {
+        $.ajax({
+            url:"{{ route('material.list') }}",
+            type:"POST",
+            data:{
+                site_id:site_id,location_id:location_id,_token:_token
+            },
+            success:function(data){
+                $(`#materials_${row}_id`).empty().append(data);
+                $(`#materials_${row}_id.selectpicker`).selectpicker('refresh');
+            },
+        });
+    }
 }
 
 function store_data(){
