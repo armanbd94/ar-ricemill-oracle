@@ -5,7 +5,9 @@ namespace Modules\TransferInventory\Entities;
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
+use Modules\Setting\Entities\Batch;
 use Modules\Setting\Entities\Location;
+use Modules\Material\Entities\Material;
 
 class TransferInventory extends BaseModel
 {
@@ -15,6 +17,10 @@ class TransferInventory extends BaseModel
         'total_qty','transfer_date','transfer_number','created_by','modified_by',
     ];
 
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class,'batch_id','id');
+    }
     public function from_site()
     {
         return $this->belongsTo(Site::class,'from_site_id','id');
