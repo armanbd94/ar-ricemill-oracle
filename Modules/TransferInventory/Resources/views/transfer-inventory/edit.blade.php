@@ -136,8 +136,8 @@
 
             
                             <div class="col-md-12">
-                                <input type="hidden" name="item">
-                                <input type="hidden" name="total_qty">
+                                <input type="hidden" name="item" value="{{ $transfer->item }}">
+                                <input type="hidden" name="total_qty" value="{{ $transfer->total_qty }}">
                             </div>
 
                         </div>

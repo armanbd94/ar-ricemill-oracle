@@ -227,4 +227,122 @@ class TransferInventoryMixController extends BaseController
             return $this->access_blocked();
         }
     }
+
+    public function update(TransferInventoryMixFormRequest $request)
+    {
+        if($request->ajax()){
+            if(permission('transfer-inventory-mix-edit')){
+                // dd($request->all());
+                DB::beginTransaction();
+                try {
+                    $transferData = $this->model->with('materials')->find($request->transfer_id);
+
+                    $transfer_data = [
+                        'memo_no'         => $request->memo_no,
+                        'batch_id'        => $request->batch_id,
+                        'product_id'      => $request->product_id,
+                        'category_id'     => $request->category_id,
+                        'to_site_id'      => $request->to_site_id,
+                        'to_location_id'  => $request->to_location_id,
+                        'item'            => $request->item,
+                        'total_qty'       => $request->total_qty,
+                        'transfer_date'   => $request->transfer_date,
+                        'transfer_number' => $request->transfer_number,
+                        'modified_by'     => auth()->user()->name
+                    ];
+
+                    if(!$transferData->materials->isEmpty())
+                    {
+                        foreach ($transferData->materials as $transfer_material) {
+                            $transfer_qty = $transfer_material->pivot->qty;
+                            // dd($transfer_qty);
+                            $from_site_material = SiteMaterial::where([
+                                'site_id' => $transfer_material->pivot->from_site_id,
+                                'location_id' => $transfer_material->pivot->from_location_id,
+                                'material_id'  => $transfer_material->id
+                                ])->first();
+                            if($from_site_material){
+                                $from_site_material->qty += $transfer_qty;
+                                $from_site_material->update();
+                            }
+
+                            $to_site_material = SiteMaterial::where([
+                                'site_id' => $transferData->to_site_id,
+                                'location_id' => $transferData->to_location_id,
+                                'material_id'  => $transfer_material->id
+                                ])->first();
+                            if($to_site_material){
+                                $to_site_material->qty -= $transfer_qty;
+                                $to_site_material->update();
+                            }
+
+                        }
+                    }
+
+                    $materials = [];
+                    if($request->has('materials'))
+                    {                        
+                        foreach ($request->materials as $key => $value) {
+
+                            $materials[$value['id']] = [
+                                'from_site_id'     => $value['from_site_id'],
+                                'from_location_id' => $value['from_location_id'],
+                                'qty'              => $value['qty'],
+                                'description'      => $value['description'],
+                                'created_at'       => date('Y-m-d H:i:s')
+                            ];
+
+                            $from_site_material = SiteMaterial::where([
+                                ['site_id',$value['from_site_id']],
+                                ['location_id',$value['from_location_id']],
+                                ['material_id',$value['id']],
+                            ])->first();
+                            
+                            if($from_site_material)
+                            {
+                                $from_site_material->qty -= $value['qty'];
+                                $from_site_material->update();
+                            }
+
+                            $to_site_material = SiteMaterial::where([
+                                ['site_id',$request->to_site_id],
+                                ['location_id',$request->to_location_id],
+                                ['material_id',$value['id']],
+                            ])->first();
+                            
+                            if($to_site_material)
+                            {
+                                $to_site_material->qty += $value['qty'];
+                                $to_site_material->update();
+                            }else{
+                                SiteMaterial::create([
+                                    'site_id'     => $request->to_site_id,
+                                    'location_id' => $request->to_location_id,
+                                    'material_id' => $value['id'],
+                                    'qty'         => $value['qty']
+                                ]);
+                            }
+                        }
+                        if(!empty($materials) && count($materials))
+                        {
+                            $transferData->materials()->sync($materials);
+                        }
+                    }
+                    $transfer = $transferData->update($transfer_data);
+                    $output  = $this->store_message($transfer, $request->transfer_id);
+                    DB::commit();
+                    // return response()->json($output);
+                } catch (Exception $e) {
+                    DB::rollback();
+                    $output = ['status' => 'error','message' => $e->getMessage()];
+                    // return response()->json($output);
+                }
+            }else{
+                $output       = $this->unauthorized();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->unauthorized());
+        }
+    }
 }

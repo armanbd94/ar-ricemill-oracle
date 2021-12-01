@@ -279,9 +279,7 @@ class TransferInventoryController extends BaseController
                     {                        
                         foreach ($request->materials as $key => $value) {
 
-                            $materials[] = [
-                                'transfer_id'      => $transferData->id,
-                                'material_id'      => $value['id'],
+                            $materials[$value['id']] = [
                                 'qty'              => $value['qty'],
                                 'description'      => $value['description'],
                                 'created_at'       => date('Y-m-d H:i:s')

@@ -19,7 +19,7 @@
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     <a href="{{ route('transfer.inventory.mix') }}" type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-window-close"></i> Cancel</a>
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -179,8 +179,8 @@
 
             
                             <div class="col-md-12">
-                                <input type="hidden" name="item">
-                                <input type="hidden" name="total_qty">
+                                <input type="hidden" name="item" value="{{ $transfer->item }}">
+                                <input type="hidden" name="total_qty" value="{{ $transfer->total_qty }}">
                             </div>
 
                         </div>
