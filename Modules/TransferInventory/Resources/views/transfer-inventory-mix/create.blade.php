@@ -32,7 +32,7 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
 
 
-                    <form action="" id="cash_purchase_form" method="post" enctype="multipart/form-data">
+                    <form action="" id="transfer_inventory_form" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <x-form.textbox labelName="Transfer Date" name="transfer_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>
@@ -103,7 +103,7 @@
                                                 </select>
                                             </td>  
                                             <td>                                                  
-                                                <select name="materials[1][from_location_id]" id="materials_1_from_location_id" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
+                                                <select name="materials[1][from_location_id]" id="materials_1_from_location_id" onchange="material_list(1)" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
                                                     <option value="">Select Please</option>  
                                                 </select>
                                             </td>  
@@ -119,7 +119,6 @@
                                             <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_available_qty" readonly  data-row="1"></td>
                                             <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][qty]" id="materials_1_qty"  data-row="1"></td>
                                             <td class="text-center" data-row="1"></td>
-                                            <input type="hidden" id="materials_1_transfer_unit_id" name="materials[1][transfer_unit_id]" data-row="1">
                                         </tr>
                                     </tbody>
                                     <tfoot class="bg-primary">
@@ -179,7 +178,7 @@ $(document).ready(function () {
                             </select>
                         </td>  
                         <td>                                                  
-                            <select name="materials[${count}][from_location_id]" id="materials_${count}_from_location_id" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="${count}">                                            
+                            <select name="materials[${count}][from_location_id]" id="materials_${count}_from_location_id" onchange="material_list(${count})" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
                             </select>
                         </td>  
@@ -195,31 +194,33 @@ $(document).ready(function () {
                         <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[${count}][available_qty]" id="materials_${count}_available_qty" readonly  data-row="${count}"></td>
                         <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
                         <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button></td>
-                        <input type="hidden" id="materials_${count}_transfer_unit_id" name="materials[${count}][transfer_unit_id]" data-row="${count}">
                     </tr>`;
         $('#material_table tbody').append(html);
         $('#material_table .selectpicker').selectpicker();
     }
 });
 function setMaterialDetails(row){
-    let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
+    let stock_qty     = $(`#materials_${row}_id option:selected`).data('stockqty');
     let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
     let category_name = $(`#materials_${row}_id option:selected`).data('category');
 
     $(`.unit_name_${row}`).text(unit_name);
     $(`.category_name_${row}`).text(category_name);
-    $(`#materials_${row}_purchase_unit_id`).val(unit_id);
+    $(`#materials_${row}_available_qty`).val(stock_qty);
 } 
-function calculateRowTotal(row)
+function checkQty(row)
 {
-    let qty = $(`#materials_${row}_qty`).val() ? parseFloat($(`#materials_${row}_qty`).val()) : 0;
+    let available_qty = $(`#materials_${row}_available_qty`).val() ? parseFloat($(`#materials_${row}_available_qty`).val()) : 0;
+    let qty           = $(`#materials_${row}_qty`).val() ? parseFloat($(`#materials_${row}_qty`).val()) : 0;
     if(qty < 0 || qty == ''){
         qty = 0;
         $(`#materials_${row}_qty`).val('');
+    }else if(qty > available_qty)
+    {
+        qty = available_qty;
+        $(`#materials_${row}_qty`).val(available_qty);
+        notification('error','Transfer quantity must be less or equal than available stock quantity!');
     }
-    $(`.subtotal_${row}`).text(parseFloat(qty * cost));
-    $(`#materials_${row}_subtotal`).val(parseFloat(qty * cost));
-    
     calculateTotal();
 }
 
@@ -253,8 +254,8 @@ function getLocations(site_id,selector,row='')
             });
             if(selector == 1)
             {
-                $(`#materials_${row}_location_id`).empty().append(html);
-                $(`#materials_${row}_location_id.selectpicker`).selectpicker('refresh');
+                $(`#materials_${row}_from_location_id`).empty().append(html);
+                $(`#materials_${row}_from_location_id.selectpicker`).selectpicker('refresh');
             }else{
                 $(`#to_location_id`).empty().append(html);
                 $(`#to_location_id.selectpicker`).selectpicker('refresh');
@@ -288,9 +289,9 @@ function store_data(){
     if (rownumber < 0) {
         notification("error","Please insert material to order table!")
     }else{
-        let form = document.getElementById('cash_purchase_form');
+        let form = document.getElementById('transfer_inventory_form');
         let formData = new FormData(form);
-        let url = "{{route('purchase.cash.store')}}";
+        let url = "{{route('transfer.inventory.mix.store')}}";
         $.ajax({
             url: url,
             type: "POST",
@@ -306,23 +307,21 @@ function store_data(){
                 $('#save-btn').removeClass('spinner spinner-white spinner-right');
             },
             success: function (data) {
-                $('#cash_purchase_form').find('.is-invalid').removeClass('is-invalid');
-                $('#cash_purchase_form').find('.error').remove();
+                $('#transfer_inventory_form').find('.is-invalid').removeClass('is-invalid');
+                $('#transfer_inventory_form').find('.error').remove();
                 if (data.status == false) {
                     $.each(data.errors, function (key, value) {
                         var key = key.split('.').join('_');
-                        $('#cash_purchase_form input#' + key).addClass('is-invalid');
-                        $('#cash_purchase_form textarea#' + key).addClass('is-invalid');
-                        $('#cash_purchase_form select#' + key).parent().addClass('is-invalid');
-                        $('#cash_purchase_form #' + key).parent().append(
+                        $('#transfer_inventory_form input#' + key).addClass('is-invalid');
+                        $('#transfer_inventory_form textarea#' + key).addClass('is-invalid');
+                        $('#transfer_inventory_form select#' + key).parent().addClass('is-invalid');
+                        $('#transfer_inventory_form #' + key).parent().append(
                             '<small class="error text-danger">' + value + '</small>');
                     });
                 } else {
                     notification(data.status, data.message);
                     if (data.status == 'success') {
-                        window.location.replace("{{ url('purchase/cash/view') }}/"+data.purchase_id);
-                        
-                        
+                        window.location.replace("{{ url('transfer-inventory/mix/view') }}/"+data.transfer_id);
                     }
                 }
 

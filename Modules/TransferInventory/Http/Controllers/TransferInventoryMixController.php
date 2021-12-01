@@ -78,8 +78,8 @@ class TransferInventoryMixController extends BaseController
                     $row[] = $value->item;
                     $row[] = $value->total_qty;
                     $row[] = date(config('settings.date_format'),strtotime($value->transfer_date));
-                    $row[] = $value->created_by;
                     $row[] = $value->transfer_number;
+                    $row[] = $value->created_by;
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
                 }
@@ -112,7 +112,7 @@ class TransferInventoryMixController extends BaseController
     {
         if($request->ajax()){
             if(permission('transfer-inventory-mix-add')){
-                dd($request->all());
+                // dd($request->all());
                 DB::beginTransaction();
                 try {
                     $transferData  = $this->model->create([

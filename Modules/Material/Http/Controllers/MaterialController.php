@@ -224,7 +224,7 @@ class MaterialController extends BaseController
         $materials = DB::table('site_material as sm')
         ->select('m.id','m.material_name','c.name as category_name','u.unit_name','sm.qty')
         ->leftJoin('materials as m','sm.material_id','=','m.id')
-        ->leftJoin('categories as c','m.category_id','=','mc.id')
+        ->leftJoin('categories as c','m.category_id','=','c.id')
         ->leftJoin('units as u','m.unit_id','=','u.id')
         ->where([
             'sm.site_id'     => $request->site_id,
@@ -235,7 +235,7 @@ class MaterialController extends BaseController
         if(!$materials->isEmpty())
         {
             foreach ($materials as $value) {
-                $output .= '<option value="'.$value->id.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'">'.$value->material_name.'</option>';
+                $output .= '<option value="'.$value->id.'" data-stockqty="'.$value->qty.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'">'.$value->material_name.'</option>';
             }
         }
         return $output;

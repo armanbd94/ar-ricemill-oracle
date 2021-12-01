@@ -105,7 +105,6 @@
                                             <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_available_qty" readonly  data-row="1"></td>
                                             <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][qty]" id="materials_1_qty"  data-row="1"></td>
                                             <td class="text-center" data-row="1"></td>
-                                            <input type="hidden" id="materials_1_transfer_unit_id" name="materials[1][transfer_unit_id]" data-row="1">
                                         </tr>
                                     </tbody>
                                     <tfoot class="bg-primary">
@@ -172,7 +171,7 @@ $(document).ready(function () {
                         <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[${count}][available_qty]" id="materials_${count}_available_qty" readonly  data-row="${count}"></td>
                         <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
                         <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button></td>
-                        <input type="hidden" id="materials_${count}_transfer_unit_id" name="materials[${count}][transfer_unit_id]" data-row="${count}">
+                        
                     </tr>`;
         $('#material_table tbody').append(html);
         $('#material_table .selectpicker').selectpicker();
@@ -184,13 +183,11 @@ function setMaterialDetails(row){
         if($(`#from_location_id option:selected`).val())
         {
             let material_id   = $(`#materials_${row}_id option:selected`).val();
-            let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
             let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
             let category_name = $(`#materials_${row}_id option:selected`).data('category');
 
             $(`.unit_name_${row}`).text(unit_name);
             $(`.category_name_${row}`).text(category_name);
-            $(`#materials_${row}_transfer_unit_id`).val(unit_id);
 
             if(material_id)
             {

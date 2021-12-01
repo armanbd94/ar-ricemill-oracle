@@ -28,18 +28,18 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('delete', 'TransferInventoryController@delete')->name('delete');
             Route::post('bulk-delete', 'TransferInventoryController@bulk_delete')->name('bulk.delete');
 
-        //Received Route
-        Route::get('mix', 'TransferInventoryMixController@index')->name('mix');
-        Route::group(['prefix' => 'mix', 'as'=>'mix.'], function () {
-            Route::get('create', 'TransferInventoryMixController@create')->name('create');
-            Route::post('datatable-data', 'TransferInventoryMixController@get_datatable_data')->name('datatable.data');
-            Route::post('store', 'TransferInventoryMixController@store')->name('store');
-            Route::post('update', 'TransferInventoryMixController@update')->name('update');
-            Route::get('edit/{id}', 'TransferInventoryMixController@edit')->name('edit');
-            Route::get('view/{id}', 'TransferInventoryMixController@show')->name('view');
-            Route::post('delete', 'TransferInventoryMixController@delete')->name('delete');
-            Route::post('bulk-delete', 'TransferInventoryMixController@bulk_delete')->name('bulk.delete');
-        });
+            //Transfer Inventory Mix Route
+            Route::get('mix', 'TransferInventoryMixController@index')->name('mix');
+            Route::group(['prefix' => 'mix', 'as'=>'mix.'], function () {
+                Route::get('create', 'TransferInventoryMixController@create')->name('create');
+                Route::post('datatable-data', 'TransferInventoryMixController@get_datatable_data')->name('datatable.data');
+                Route::post('store', 'TransferInventoryMixController@store')->name('store');
+                Route::post('update', 'TransferInventoryMixController@update')->name('update');
+                Route::get('edit/{id}', 'TransferInventoryMixController@edit')->name('edit');
+                Route::get('view/{id}', 'TransferInventoryMixController@show')->name('view');
+                Route::post('delete', 'TransferInventoryMixController@delete')->name('delete');
+                Route::post('bulk-delete', 'TransferInventoryMixController@bulk_delete')->name('bulk.delete');
+            });
         });
 
 });
