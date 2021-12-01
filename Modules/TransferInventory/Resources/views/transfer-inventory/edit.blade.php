@@ -32,7 +32,7 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
 
 
-                    <form action="" id="transfer_inventory_form" method="post" enctype="multipart/form-data">
+                    <form id="transfer_inventory_form" method="post" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="transfer_id" value="{{ $transfer->id }}">
                         <div class="row">

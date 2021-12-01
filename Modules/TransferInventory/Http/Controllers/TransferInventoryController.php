@@ -404,7 +404,7 @@ class TransferInventoryController extends BaseController
                 DB::beginTransaction();
                 try {
                     foreach ($request->ids as $id) {
-                        $transferData = $this->model->with('materials')->find($request->transfer_id);
+                        $transferData = $this->model->with('materials')->find($id);
                         if(!$transferData->materials->isEmpty())
                         {
                             foreach ($transferData->materials as $transfer_material) {
@@ -440,17 +440,18 @@ class TransferInventoryController extends BaseController
                     }else{
                         $output = ['status' => 'error','message' => 'Failed to delete data'];
                     }
-                    DB::commit();
-                    } catch (Exception $e) {
-                        DB::rollBack();
-                        $output = ['status'=>'error','message'=>$e->getMessage()];
-                    }
-                }else{
-                    $output = $this->access_blocked();
+                DB::commit();
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    $output = ['status'=>'error','message'=>$e->getMessage()];
                 }
-                return response()->json($output);
             }else{
-                return response()->json($this->access_blocked());
+                $output = $this->access_blocked();
             }
+            return response()->json($output);
+        }else{
+            return response()->json($this->access_blocked());
         }
+    }
+
 }

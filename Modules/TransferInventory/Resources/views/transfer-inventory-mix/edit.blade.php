@@ -18,7 +18,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-sync-alt"></i> Reset</button>
+                    <a href="{{ route('transfer.inventory.mix') }}" type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-window-close"></i> Cancel</a>
                     <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
                 </div>
             </div>
@@ -34,46 +34,57 @@
 
                     <form id="transfer_inventory_form" method="post" enctype="multipart/form-data">
                         @csrf
+                        <input type="hidden" name="transfer_id" value="{{ $transfer->id }}">
                         <div class="row">
-                            <x-form.textbox labelName="Transfer Date" name="transfer_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>
+                            <x-form.textbox labelName="Transfer Date" name="transfer_date" value="{{ $transfer->transfer_date }}" required="required" class="date" col="col-md-3"/>
 
                             <x-form.selectbox labelName="WIP Batch" name="batch_id" required="required"  class="selectpicker" col="col-md-3">
                                 @if (!$batches->isEmpty())
                                     @foreach ($batches as $batch)
-                                        <option value="{{ $batch->id }}">{{ $batch->batch_no }}</option>
+                                        <option value="{{ $batch->id }}" {{ $transfer->batch_id == $batch->id ? 'selected' : '' }}>{{ $batch->batch_no }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
                             <x-form.selectbox labelName="Mix Item" name="product_id" onchange="setCategory()" required="required" class="selectpicker" col="col-md-3">
                                 @if(!$products->isEmpty())  
                                     @foreach ($products as $product)
-                                        <option value="{{ $product->id }}" data-category="{{ $product->category_id }}">{{ $product->name }}</option>
+                                        <option value="{{ $product->id }}" {{ $transfer->product_id == $product->id ? 'selected' : '' }} data-category="{{ $product->category_id }}">{{ $product->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
                             <x-form.selectbox labelName="Mix Class" name="category_id" required="required" class="selectpicker" col="col-md-3">
                                 @if(!$categories->isEmpty())  
                                     @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        <option value="{{ $category->id }}"  {{ $transfer->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
                             <x-form.selectbox labelName="Transfer To" name="to_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
                                 @if(!$sites->isEmpty())  
                                 @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                    <option value="{{ $site->id }}" {{ $transfer->to_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
                                 @endforeach
                             @endif
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="To Location" name="to_location_id"  required="required" class="selectpicker" col="col-md-3"/>
+                            @php 
+                                $locations = DB::table('locations')->where('site_id',$transfer->to_site_id)->get();
+                                @endphp
+                            <x-form.selectbox labelName="To Location" name="to_location_id"  required="required" class="selectpicker" col="col-md-3">
+                                
+                                @if(!$locations->isEmpty())  
+                                    @foreach ($locations as $location)
+                                        <option value="{{ $location->id }}" {{ $location->id == $transfer->to_location_id ? 'selected' : '' }}>{{ $location->name }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
                             <div class="form-group col-md-3">
                                 <label for="memo_no">Memo No.</label>
-                                <input type="text" class="form-control" name="memo_no" id="memo_no"  />
+                                <input type="text" class="form-control" name="memo_no" id="memo_no" value="{{ $transfer->memo_no }}" />
                             </div>
 
                             <div class="form-group col-md-3">
                                 <label for="number">Number</label>
-                                <input type="text" class="form-control" name="number" id="number"  />
+                                <input type="text" class="form-control" name="number" id="number"  value="{{ $transfer->number }}" />
                             </div>
 
                             <div class="col-md-12 table-responsive" style="min-height: 500px;">
@@ -91,35 +102,72 @@
                                         <th class="text-center"><i class="fas fa-trash text-white"></i></th>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td style="width: 300px;">                                                  
-                                                <select  style="width: 300px;" name="materials[1][from_site_id]" id="materials_1_from_site_id" class="fcs col-md-12 from_site_id form-control selectpicker" onchange="getLocations(this.value,1,1)"  data-live-search="true" data-row="1">                                            
-                                                    <option value="">Select Please</option>  
-                                                    @if(!$sites->isEmpty())  
-                                                        @foreach ($sites as $site)
-                                                            <option value="{{ $site->id }}">{{ $site->name }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </td>  
-                                            <td>                                                  
-                                                <select name="materials[1][from_location_id]" id="materials_1_from_location_id" onchange="material_list(1)" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
-                                                    <option value="">Select Please</option>  
-                                                </select>
-                                            </td>  
-                                            <td>                     
-                                                <select name="materials[1][id]" id="materials_1_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(1)"  data-live-search="true" data-row="1">    
-                                                    <option value="">Select Please</option>                                        
-
-                                                </select>
-                                            </td>    
-                                            <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                            <td class="category_name_1 text-center" style="width: 120px;" id="category_name_1"  data-row="1"></td>
-                                            <td class="unit_name_1 text-center" style="min-width: 80px;" id="unit_name_1"  data-row="1"></td>
-                                            <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_available_qty" readonly  data-row="1"></td>
-                                            <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][qty]" id="materials_1_qty"  data-row="1"></td>
-                                            <td class="text-center" data-row="1"></td>
-                                        </tr>
+                                        @if(!$transfer->materials->isEmpty())
+                                            @foreach ($transfer->materials as $key => $item)
+                                                @php
+                                                    $locations = DB::table('locations')->where('site_id',$item->pivot->from_site_id)->get();
+                                                    $materials = DB::table('site_material as sm')
+                                                                ->select('m.id','m.material_name','c.name as category_name','u.unit_name','sm.qty')
+                                                                ->leftJoin('materials as m','sm.material_id','=','m.id')
+                                                                ->leftJoin('categories as c','m.category_id','=','c.id')
+                                                                ->leftJoin('units as u','m.unit_id','=','u.id')
+                                                                ->where([
+                                                                    'sm.site_id'     => $item->pivot->from_site_id,
+                                                                    'sm.location_id' => $item->pivot->from_location_id
+                                                                ])->get();
+                                                    $stock_qty = 0;
+                                                @endphp 
+                                                <tr>
+                                                    <td style="width: 300px;">                                                  
+                                                        <select  style="width: 300px;" name="materials[{{ $key+1 }}][from_site_id]" id="materials_{{ $key+1 }}_from_site_id" class="fcs col-md-12 from_site_id form-control selectpicker" onchange="getLocations(this.value,1,'{{ $key+1 }}')"  data-live-search="true" data-row="{{ $key+1 }}">                                            
+                                                            <option value="">Select Please</option>  
+                                                            @if(!$sites->isEmpty())  
+                                                                @foreach ($sites as $site)
+                                                                    <option value="{{ $site->id }}" {{ $site->id == $item->pivot->from_site_id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </td>  
+                                                    <td>                                                  
+                                                        <select name="materials[{{ $key+1 }}][from_location_id]" id="materials_{{ $key+1 }}_from_location_id" onchange="material_list('{{ $key+1 }}')" class="fcs col-md-12 from_location_id form-control selectpicker"  data-live-search="true" data-row="{{ $key+1 }}">                                            
+                                                            <option value="">Select Please</option>  
+                                                            @if(!$locations->isEmpty())  
+                                                                @foreach ($locations as $location)
+                                                                    <option value="{{ $location->id }}" {{ $location->id == $item->pivot->from_location_id ? 'selected' : '' }}>{{ $location->name }}</option>
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </td>  
+                                                    <td>                     
+                                                        <select name="materials[{{ $key+1 }}][id]" id="materials_{{ $key+1 }}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails('{{ $key+1 }}')"  data-live-search="true" data-row="{{ $key+1 }}">    
+                                                            <option value="">Select Please</option>                                        
+                                                            @if(!$materials->isEmpty())
+                                                                @foreach ($materials as $value)
+                                                                @php
+                                                                    
+                                                                    if($value->id == $item->id)
+                                                                    {
+                                                                        $stock_qty = $value->qty ?? 0;
+                                                                    }
+                                                                @endphp
+                                                                <option value="{{ $value->id }}" {{ $value->id == $item->id ? 'selected' : '' }} data-stockqty="{{ $value->id == $item->id ? ($value->qty + $item->pivot->qty) : $value->qty }}" data-category="{{ $value->category_name }}" data-unitname="{{ $value->unit_name }}">{{ $value->material_name }}</option>
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </td>    
+                                                    <td style="width: 350px;"><input type="text" value="{{ $item->pivot->description }}" class="form-control" style="width: 350px;" name="materials[{{ $key+1 }}][description]" id="materials_{{ $key+1 }}_description" data-row="{{ $key+1 }}"></td>                                    
+                                                    <td class="category_name_{{ $key+1 }} text-center" style="width: 120px;" id="category_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $item->category->name }}</td>
+                                                    <td class="unit_name_{{ $key+1 }} text-center" style="min-width: 80px;" id="unit_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $item->unit->unit_name }}</td>
+                                                    <td style="width: 120px;"><input type="text" value="{{ $stock_qty + $item->pivot->qty }}" class="form-control text-center" style="width: 120px;" name="materials[{{ $key+1 }}][available_qty]" id="materials_{{ $key+1 }}_available_qty" readonly  data-row="{{ $key+1 }}"></td>
+                                                    <td style="width: 120px;"><input type="text" value="{{ $item->pivot->qty }}" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty({{ $key+1 }})" name="materials[{{ $key+1 }}][qty]" id="materials_{{ $key+1 }}_qty"  data-row="{{ $key+1 }}"></td>
+                                                    <td class="text-center" data-row="{{ $key+1 }}">
+                                                        @if($key != 0)
+                                                        <button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
                                     </tbody>
                                     <tfoot class="bg-primary">
                                         <th colspan="7" class="font-weight-bolder">Total</th>
@@ -160,6 +208,9 @@ $(document).ready(function () {
     });
 
     var count = 1;
+    @if(!$transfer->materials->isEmpty())
+    count = "{{ count($transfer->materials) }}";
+    @endif
     $('#material_table').on('click','.add-material',function(){
         count++;
         material_row_add(count);
@@ -295,7 +346,7 @@ function store_data(){
     }else{
         let form = document.getElementById('transfer_inventory_form');
         let formData = new FormData(form);
-        let url = "{{route('transfer.inventory.mix.store')}}";
+        let url = "{{route('transfer.inventory.mix.update')}}";
         $.ajax({
             url: url,
             type: "POST",
@@ -325,7 +376,7 @@ function store_data(){
                 } else {
                     notification(data.status, data.message);
                     if (data.status == 'success') {
-                        window.location.replace("{{ url('transfer-inventory/mix/view') }}/"+data.transfer_id);
+                        window.location.replace("{{ url('transfer-inventory/mix') }}");
                     }
                 }
 

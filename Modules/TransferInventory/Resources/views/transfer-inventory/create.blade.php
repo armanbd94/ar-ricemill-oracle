@@ -32,7 +32,7 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
 
 
-                    <form action="" id="transfer_inventory_form" method="post" enctype="multipart/form-data">
+                    <form  id="transfer_inventory_form" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <x-form.textbox labelName="Transfer Date" name="transfer_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>

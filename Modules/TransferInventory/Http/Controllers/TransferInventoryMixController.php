@@ -210,4 +210,21 @@ class TransferInventoryMixController extends BaseController
             return $this->access_blocked();
         }
     }
+
+    public function edit(int $id)
+    {
+        if(permission('transfer-inventory-mix-edit')){
+            $this->setPageData('Edit Transfer Inventory Mix','Edit Transfer Inventory Mix','fas fa-edit',[['name' => 'Edit Transfer Inventory Mix']]);
+            $data = [
+                'transfer'   => $this->model->with('materials')->find($id),
+                'batches'    => Batch::allBatches(),
+                'sites'      => Site::allSites(),
+                'products'   => Product::with('category')->where('status',1)->get(),
+                'categories' => Category::allProductCategories(),
+            ];
+            return view('transferinventory::transfer-inventory-mix.edit',$data);
+        }else{
+            return $this->access_blocked();
+        }
+    }
 }
