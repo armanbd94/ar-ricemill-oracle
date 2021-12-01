@@ -331,18 +331,132 @@ class TransferInventoryMixController extends BaseController
                     $transfer = $transferData->update($transfer_data);
                     $output  = $this->store_message($transfer, $request->transfer_id);
                     DB::commit();
-                    // return response()->json($output);
                 } catch (Exception $e) {
                     DB::rollback();
                     $output = ['status' => 'error','message' => $e->getMessage()];
-                    // return response()->json($output);
                 }
             }else{
+
                 $output       = $this->unauthorized();
             }
             return response()->json($output);
         }else{
             return response()->json($this->unauthorized());
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('transfer-inventory-delete')){
+                DB::beginTransaction();
+                try {
+                    $transferData = $this->model->with('materials')->find($request->id);
+                    if(!$transferData->materials->isEmpty())
+                    {
+                        foreach ($transferData->materials as $transfer_material) {
+                            $transfer_qty = $transfer_material->pivot->qty;
+
+                            $from_site_material = SiteMaterial::where([
+                                'site_id' => $transfer_material->pivot->from_site_id,
+                                'location_id' => $transfer_material->pivot->from_location_id,
+                                'material_id'  => $transfer_material->id
+                                ])->first();
+                            if($from_site_material){
+                                $from_site_material->qty += $transfer_qty;
+                                $from_site_material->update();
+                            }
+
+                            $to_site_material = SiteMaterial::where([
+                                'site_id' => $transferData->to_site_id,
+                                'location_id' => $transferData->to_location_id,
+                                'material_id'  => $transfer_material->id
+                                ])->first();
+                            if($to_site_material){
+                                $to_site_material->qty -= $transfer_qty;
+                                $to_site_material->update();
+                            }
+
+                        }
+                        $transferData->materials()->detach();
+                    }
+                    $result = $transferData->delete();
+                    if($result)
+                    {
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
+                    DB::commit();
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    $output = ['status'=>'error','message'=>$e->getMessage()];
+                }
+                return response()->json($output);
+            }else{
+                $output = $this->access_blocked();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->access_blocked());
+        }
+    }
+
+    public function bulk_delete(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('transfer-inventory-bulk-delete')){
+                DB::beginTransaction();
+                try {
+                    foreach ($request->ids as $id) {
+                        $transferData = $this->model->with('materials')->find($id);
+                        if(!$transferData->materials->isEmpty())
+                        {
+                            foreach ($transferData->materials as $transfer_material) {
+                                $transfer_qty = $transfer_material->pivot->qty;
+
+                                $from_site_material = SiteMaterial::where([
+                                    'site_id' => $transfer_material->pivot->from_site_id,
+                                    'location_id' => $transfer_material->pivot->from_location_id,
+                                    'material_id'  => $transfer_material->id
+                                    ])->first();
+                                if($from_site_material){
+                                    $from_site_material->qty += $transfer_qty;
+                                    $from_site_material->update();
+                                }
+
+                                $to_site_material = SiteMaterial::where([
+                                    'site_id' => $transferData->to_site_id,
+                                    'location_id' => $transferData->to_location_id,
+                                    'material_id'  => $transfer_material->id
+                                    ])->first();
+                                if($to_site_material){
+                                    $to_site_material->qty -= $transfer_qty;
+                                    $to_site_material->update();
+                                }
+
+                            }
+                            $transferData->materials()->detach();
+                        }
+                    }
+                    $result = $this->model->destroy($request->ids);
+                    if($result)
+                    {
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
+                DB::commit();
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    $output = ['status'=>'error','message'=>$e->getMessage()];
+                }
+            }else{
+                $output = $this->access_blocked();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->access_blocked());
         }
     }
 }

@@ -324,11 +324,9 @@ class TransferInventoryController extends BaseController
                     $transfer = $transferData->update($transfer_data);
                     $output  = $this->store_message($transfer, $request->transfer_id);
                     DB::commit();
-                    // return response()->json($output);
                 } catch (Exception $e) {
                     DB::rollback();
                     $output = ['status' => 'error','message' => $e->getMessage()];
-                    // return response()->json($output);
                 }
             }else{
                 $output       = $this->unauthorized();
