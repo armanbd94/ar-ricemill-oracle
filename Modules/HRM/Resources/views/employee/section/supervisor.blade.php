@@ -1,5 +1,5 @@
 <div class="row">
-    <x-form.selectbox labelName="Supervisor Name" name="supervisor_id" required="required" col="col-md-4" class="selectpicker">
+    <x-form.selectbox labelName="Supervisor Name" name="supervisor_id" required="required" col="col-md-6" class="selectpicker">
         <option value="0" @if(isset($employee)) {{ ($employee->supervisor_id == 0) ? 'selected' : '' }} @endif>Self</option>
         @if (!$employees->isEmpty())
         @foreach ($employees as $employee)
@@ -7,7 +7,7 @@
         @endforeach 
         @endif
     </x-form.selectbox>
-    <x-form.selectbox labelName="Is Supervisor" name="is_supervisor" required="required" col="col-md-4" class="selectpicker">
+    <x-form.selectbox labelName="Is Supervisor" name="is_supervisor" required="required" col="col-md-6" class="selectpicker">
         @foreach (IS_SUPERVISOR as $key => $value)
             <option value="{{ $key }}" @if(isset($employee)) {{ ($employee->is_supervisor == $key) ? 'selected' : '' }} @endif>{{ $value }}</option>
         @endforeach 
