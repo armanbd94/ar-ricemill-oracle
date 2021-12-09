@@ -2,17 +2,14 @@
 
 namespace Modules\BuildDisassembly\Entities;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\BaseModel;
 
-class SiloProduct extends Model
+class SiloProduct extends BaseModel
 {
-    use HasFactory;
+    protected $fillable = ['product_id','qty'];
 
-    protected $fillable = [];
-    
-    protected static function newFactory()
+    public function product()
     {
-        return \Modules\BuildDisassembly\Database\factories\SiloProductFactory::new();
+        return $this->belongsTo(Product::class,'product_id','id');
     }
 }
