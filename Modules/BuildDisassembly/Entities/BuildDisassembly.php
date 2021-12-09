@@ -22,30 +22,37 @@ class BuildDisassembly extends BaseModel
     {
         return $this->belongsTo(Batch::class,'batch_id','id');
     }
+
     public function from_site()
     {
         return $this->belongsTo(Site::class,'from_site_id','id');
     }
+
     public function bp_site()
     {
         return $this->belongsTo(Site::class,'bp_site_id','id');
     }
+
     public function from_location()
     {
         return $this->belongsTo(Location::class,'from_location_id','id');
     }
+
     public function bp_location()
     {
         return $this->belongsTo(Location::class,'bp_location_id','id');
     }
+
     public function material()
     {
         return $this->belongsTo(Material::class,'material_id','id');
     }
+
     public function product()
     {
         return $this->belongsTo(Product::class,'product_id','id');
     }
+    
     public function category()
     {
         return $this->belongsTo(Category::class,'category_id','id');
