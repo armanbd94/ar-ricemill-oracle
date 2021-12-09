@@ -310,11 +310,7 @@ class EmployeeController extends BaseController
             'parent_name'       => 'Employee Ledger',
             'level'             => 3,
             'type'              => 'L',
-<<<<<<< HEAD
             'is_transaction'    => 1,
-=======
-            'is_transaction'       => 1,
->>>>>>> a7863425f4139c723321ce7910cd679c3e456bb0
             'general_ledger'    => 2,
             'budget'            => 2,
             'depreciation'      => 2,
