@@ -23,9 +23,6 @@
         value="{{ isset($employee) ? $employee->employee_id : '' }}" col="col-md-4" required="required" />
     <x-form.textbox labelName="Finger/Device ID" name="finger_id"
         value="{{ isset($employee) ? $employee->finger_id : '' }}" col="col-md-4" required="required" />
-    <x-form.textbox labelName="Wallet Number" name="wallet_number"
-        value="{{ isset($employee) ? $employee->wallet_number : '' }}" col="col-md-4" required="required" />
-
     <x-form.selectbox labelName="Current Shift" name="shift_id" required="required" col="col-md-4" class="selectpicker">
         @if (!$shifts->isEmpty())
         @foreach ($shifts as $shift)
@@ -115,9 +112,9 @@
     <x-form.textbox labelName="Termination Date" name="termination_date"
         value="{{ isset($employee) ? $employee->termination_date : '' }}" class="date" col="col-md-4" />
 
-    <div class="form-group col-md-4">
-        <label for="contract_end">Holiday*</label>
-        <select name="holiday[]" required="required" class="selectpicker" multiple>
+    <div class="form-group col-md-4 required">
+        <label for="holiday">Holiday</label>
+        <select name="holiday[]" class="form-control selectpicker" id="holiday" required="required" multiple>
             @if (!$weeklyholiday->isEmpty())
             @foreach ($weeklyholiday as $weeklyh)
             <option value="{{ $weeklyh->id }}">{{ $weeklyh->name }}</option>
@@ -126,7 +123,7 @@
         </select>
     </div>
     <x-form.textarea labelName="Termination Reason" name="termination_reason"
-        value="{{ isset($employee) ? $employee->termination_reason : '' }}" col="col-md-8" />
+        value="{{ isset($employee) ? $employee->termination_reason : '' }}" col="col-md-12" />
 </div>
 <div class="d-flex justify-content-between border-top mt-5 pt-10">
     <div class="mr-2">
