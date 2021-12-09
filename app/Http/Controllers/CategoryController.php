@@ -49,15 +49,23 @@ class CategoryController extends BaseController
                     $no++;
                     $action = '';
                     if(permission('material-class-edit') || permission('product-class-edit')){
-                        $action .= ' <a class="dropdown-item edit_data" data-id="' . $value->id . '">'.self::ACTION_BUTTON['Edit'].'</a>';
+                        if($value->id != 3){
+                            $action .= ' <a class="dropdown-item edit_data" data-id="' . $value->id . '">'.self::ACTION_BUTTON['Edit'].'</a>';
+                        }
                     }
                     if(permission('material-class-delete') || permission('product-class-delete')){
-                        $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->name . '">'.self::ACTION_BUTTON['Delete'].'</a>';
+                        if($value->id != 3){
+                            $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->name . '">'.self::ACTION_BUTTON['Delete'].'</a>';
+                        }
                     }
 
                     $row = [];
                     if(permission('material-class-bulk-delete') || permission('product-class-bulk-delete')){
+                        if($value->id != 3){
                         $row[] = row_checkbox($value->id);//custom helper function to show the table each row checkbox
+                        }else{
+                            $row[] ='';
+                        }
                     }
                     $row[] = $no;
                     $row[] = $value->name;
@@ -66,7 +74,12 @@ class CategoryController extends BaseController
                     $row[] = $value->modified_by ?? '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">Not Modified Yet</span>';
                     $row[] = $value->created_at ? date(config('settings.date_format'),strtotime($value->created_at)) : '';
                     $row[] = $value->modified_by ? date(config('settings.date_format'),strtotime($value->updated_at)) : '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">No Update Date</span>';
-                    $row[] = action_button($action);//custom helper function for action button
+                    if($value->id != 3){
+                        $row[] = action_button($action);//custom helper function for action button
+                    }else{
+                        $row[] ='';
+                    }
+                    
                     $data[] = $row;
                 }
                 return $this->datatable_draw($request->input('draw'),$this->model->count_all(),

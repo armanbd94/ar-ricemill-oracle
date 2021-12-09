@@ -12,7 +12,7 @@ class BuildDisassembly extends BaseModel
 
     protected $fillable = [
         'memo_no', 'batch_id', 'from_site_id', 'from_location_id', 'material_id','product_id', 'build_ratio', 
-        'build_qty', 'required_qty','category_id','build_date','convertion_ratio','converted_qty','bp_site_id',
+        'build_qty', 'required_qty','category_id','build_date','convertion_ratio','converted_qty','total_milling_qty','total_milling_ratio','bp_site_id',
         'bp_location_id','created_by','modified_by',
     ];
     /****************************

@@ -34,6 +34,8 @@ class CreateBuildDisassembliesTable extends Migration
             $table->date('build_date');
             $table->float('convertion_ratio',8,0)->comment('Convertion Ration Of Fine Rice');
             $table->double('converted_qty',12,0)->comment('Total Converted Quantity Of Fine Rice');
+            $table->double('total_milling_qty',8,0);
+            $table->integer('total_milling_ratio');
             $table->unsignedBigInteger('bp_site_id')->comment('By Product Storage Site After Build Disassembly');
             $table->foreign('bp_site_id')->references('id')->on('sites');
             $table->unsignedBigInteger('bp_location_id')->comment('By Product Storage Site Location After Build Disassembly');

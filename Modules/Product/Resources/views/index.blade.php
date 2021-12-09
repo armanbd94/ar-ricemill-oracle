@@ -15,7 +15,7 @@
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('product-add'))
-                    <a href="javascript:void(0);" onclick="showNewFormModal('Add New Material','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="javascript:void(0);" onclick="showNewFormModal('Add New Product','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
                     <!--end::Button-->
