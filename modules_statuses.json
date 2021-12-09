@@ -13,5 +13,6 @@
     "Expense": true,
     "Product": true,
     "HRM": true,
-    "TransferInventory": true
+    "TransferInventory": true,
+    "BuildDisassembly": true
 }
