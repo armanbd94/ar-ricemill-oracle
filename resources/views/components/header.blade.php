@@ -1,7 +1,13 @@
 <div id="kt_header" class="header  header-fixed ">
     <div class="container-fluid d-flex align-items-center justify-content-between">
         <div class="header-menu-wrapper header-menu-wrapper-left" id="kt_header_menu_wrapper">
-
+            <button class="brand-toggle btn btn-sm px-0" id="kt_aside_toggle">
+                <span class="svg-icon d-flex flex-wrap">
+                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:30px;"></i>
+                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:30px;"></i>
+                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:30px;"></i>
+                </span>
+            </button>
         </div>
 
 
