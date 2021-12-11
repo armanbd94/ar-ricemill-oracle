@@ -126,7 +126,7 @@
                                                 <td class="text-center">{{ $by_product->pivot->ratio }}</td>
                                             @endforeach
                                         @endif
-                                        <td>{{ $data->total_milling_ratio }}</td>
+                                        <td class="text-center">{{ $data->total_milling_ratio }}</td>
                                     </tr>
                                     
                                 </tbody>

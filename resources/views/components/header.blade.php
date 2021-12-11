@@ -8,10 +8,10 @@
             align-items: center;
             margin: 0;
             padding: 5px;
-            width: 50px;">
-                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:30px;"></i>
-                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:30px;"></i>
-                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:30px;"></i>
+            width: 40px;">
+                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:25px;"></i>
+                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:25px;"></i>
+                    <i class="fas fa-ellipsis-v text-primary px-0" style="font-size:25px;"></i>
             </button>
         </div>
 
