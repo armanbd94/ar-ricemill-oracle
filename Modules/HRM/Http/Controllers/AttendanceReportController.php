@@ -103,11 +103,10 @@ class AttendanceReportController extends BaseController
                     $data['end_date'] = date('Y-m-31');
                  }
 
-                // $attendance = DB::raw("SELECT MIN(att.id),MAX(att.id),MIN(att.time_str_am_pm) as in_time_str,MAX(att.time_str_am_pm) as out_time_str,MIN(att.time) as in_time,MAX(att.time) as out_time,
-                // att.employee_id,att.date_time,att.date,att.time,att.am_pm,att.time_str,
-                // att.time_str_am_pm,reg.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name FROM `attendances` as att 
-                // LEFT JOIN employees as reg ON reg.id=att.employee_id JOIN shifts as shift ON shift.id=reg.shift_id WHERE att.date >='" . $data['start_date'] . "' 
-                // AND att.date <='" . $end_date . "' AND att.employee_id='" . $employee_id . "' 
+                // $attendance = DB::select("SELECT MIN(att.id),MAX(att.id),MIN(att.time_str_am_pm) as in_time_str,MAX(att.time_str_am_pm) as out_time_str,MIN(att.time) as in_time,MAX(att.time) as out_time,
+                // att.employee_id,att.date_time,att.date,att.time,att.am_pm,att.time_str,att.time_str_am_pm,reg.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name FROM `attendances` as att 
+                // LEFT JOIN `employees` as reg ON reg.id=att.employee_id JOIN `shifts` as shift ON shift.id=reg.shift_id WHERE att.date >= $start_date 
+                // AND att.date <= $end_date AND att.employee_id=$employee_id 
                 // group by att.date,att.employee_id"); 
 
                 // $attendance = DB::table('attendances as att')
@@ -119,19 +118,19 @@ class AttendanceReportController extends BaseController
                 // ->groupBy('att.date','att.employee_id')
                 // ->get();
 
-                $latestAttendance = DB::table('attendances as att')
-                    ->select('att.employee_id',DB::raw("MIN(att.id),MAX(att.id),MIN(att.time_str_am_pm) as in_time_str,MAX(att.time_str_am_pm) as out_time_str,MIN(att.time) as in_time,MAX(att.time) as out_time,att.date_time,att.time,att.am_pm,att.time_str,att.time_str_am_pm"),'att.date')
-                    ->where('att.date',$data['start_date'])->where('att.date',$end_date)
-                    ->groupBy('att.employee_id','att.date');
+                $latestAttendance = DB::table('attendances')
+                    ->select('employee_id',DB::raw("MIN(id),MAX(id),MIN(time_str_am_pm) as in_time_str,MAX(time_str_am_pm) as out_time_str,MIN(time) as in_time,MAX(time) as out_time,date_time,time,am_pm,time_str,time_str_am_pm"),'date')
+                    ->where('date',$data['start_date'])->where('date',$end_date)
+                    ->groupBy('employee_id','date');
 
-                    $attendance = DB::table('employees as reg')
-                    ->selectRaw("attendance.*,reg.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name")
-                    ->leftjoin('shifts as shift','shift.id','=','reg.shift_id')->where('reg.id',$employee_id)
+                    $attendancess = DB::table('employees')
+                    ->selectRaw("attendance.*,employees.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name")
+                    ->join('shifts as shift','shift.id','=','employees.shift_id')
                     ->leftjoinSub($latestAttendance, 'attendance', function ($join) {
-                        $join->on('reg.id', '=', 'attendance.employee_id');
-                    })->get();
+                        $join->on('employees.id', '=', 'attendance.employee_id');
+                    })->where('employees.id',$employee_id)->get();
 
-                dd($attendance);
+                dd($attendancess);
                 
                 $leave_data = DB::raw("SELECT employee_id,start_date,end_date,leave_id,leave_status FROM `leave_application_manages`
                 WHERE employee_id='" . $employee_id . "' AND start_date >='" . $data['start_date'] . "' 
