@@ -5,7 +5,11 @@ namespace Modules\BuildDisassembly\Entities;
 use App\Models\Category;
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
+use Modules\Setting\Entities\Site;
+use Modules\Setting\Entities\Batch;
 use Modules\Product\Entities\Product;
+use Modules\Setting\Entities\Location;
+use Modules\Material\Entities\Material;
 
 class BuildDisassembly extends BaseModel
 {

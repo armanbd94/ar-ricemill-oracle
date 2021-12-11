@@ -62,7 +62,7 @@
                             <x-form.selectbox labelName="Raw Material Item" required="required" name="material_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker"/>
 
                             
-                            <div class="form-group col-md-3 required">
+                            <div class="form-group col-md-3">
                                 <label for="memo_no">Availbale Qty <span class="material_unit"></span></label>
                                 <input type="text" class="form-control" name="available_qty" id="available_qty" readonly />
                             </div>
@@ -90,33 +90,46 @@
                             </x-form.selectbox>
                             <div class="col-md-12 pt-5">
                                 <div class="row">
-                                    <div class="col-md-9">
+                                    <div class="col-md-6">
                                         <div class="row" style="position: relative;border: 1px solid #E4E6EF;padding: 10px 0 0 0; margin: 0 0 40px 0;border-radius:5px;">
                                             <div style="width: 100px;background: #fa8c15;text-align: center;margin: 0 auto;color: white;padding: 5px 0;
                                                 position: absolute;top:-16px;left:10px;box-shadow: 1px 2px 5px 0px rgba(0,0,0,0.5);"><img src="images/rice.png" style="width: 20px;margin-right: 5px;"/>Fine Rice</div>
                                             <div class="col-md-12 pt-5 material_section">
                                                 <div class="row">
-                                                    <div class="form-group col-md-4 required">
+                                                    <div class="form-group col-md-6 required">
                                                         <label for="rice_convertion_ratio" class="form-control-label">Convertion Ratio(%)</label>
                                                         <input type="text" name="rice_convertion_ratio" id="rice_convertion_ratio" class="form-control ratio" onkeyup="calculateProductQty(1,1)">
                                                     </div>
-                                                    <div class="form-group col-md-4 required">
+                                                    <div class="form-group col-md-6 required">
                                                         <label for="fine_rice_qty" class="form-control-label">Converted Qunatity</label>
-                                                        <div class="input-group">
-                                                            <input type="text" name="fine_rice_qty" id="fine_rice_qty" class="form-control qty" readonly>
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text bg-primary text-white" style="border-top-right-radius: 0.42rem;border-bottom-right-radius: 0.42rem;border:0;">
-                                                                    KGs
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        
+                                                        <input type="text" name="fine_rice_qty" id="fine_rice_qty" class="form-control qty" readonly>
                                                     </div>
                                                     
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row mt-5" style="position: relative;border: 1px solid #E4E6EF;padding: 10px 0 0 0; margin: 0;border-radius:5px;">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row" style="position: relative;border: 1px solid #E4E6EF;padding: 10px 0 0 0; margin: 0 0 40px 0;border-radius:5px;">
+                                            <div style="width: 100px;background: #fa8c15;text-align: center;margin: 0 auto;color: white;padding: 5px 0;
+                                                position: absolute;top:-16px;left:10px;box-shadow: 1px 2px 5px 0px rgba(0,0,0,0.5);"><img src="images/mill.png" style="width: 20px;margin-right: 5px;"/>Total Milling</div>
+                                            <div class="col-md-12 pt-5 material_section">
+                                                <div class="row">
+                                                    <div class="form-group col-md-6 required">
+                                                        <label for="rice_convertion_ratio" class="form-control-label">Convertion Ratio(%)</label>
+                                                        <input type="text" name="milling_ratio" id="milling_ratio" class="form-control " readonly>
+                                                    </div>
+                                                    <div class="form-group col-md-6 required">
+                                                        <label for="rice_convertion_ratio" class="form-control-label">Convertion Quantity</label>
+                                                        <input type="text" name="milling_qty" id="milling_qty" class="form-control " readonly>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row" style="position: relative;border: 1px solid #E4E6EF;padding: 10px 0 0 0; margin: 0;border-radius:5px;">
                                             <div style="width: 120px;background: #fa8c15;text-align: center;margin: 0 auto;color: white;padding: 5px 0;
                                                 position: absolute;top:-16px;left:10px;box-shadow: 1px 2px 5px 0px rgba(0,0,0,0.5);"><img src="images/grain-sack.png" style="width: 20px;margin-right: 5px;"/>By Products</div>
                                             <div class="col-md-12 pt-5">
@@ -154,21 +167,14 @@
                                                     </div>
                                                     <div class="form-group col-md-3 required">
                                                         <label for="by_products[1][qty]" class="form-control-label">Converted Qunatity</label>
-                                                        <div class="input-group">
-                                                            <input type="text" name="by_products[1][qty]" id="by_products_1_qty" class="form-control qty" readonly>
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text bg-primary text-white" style="border-top-right-radius: 0.42rem;border-bottom-right-radius: 0.42rem;border:0;">
-                                                                    KGs
-                                                                </span>
-                                                            </div>
-                                                        </div>
+                                                        <input type="text" name="by_products[1][qty]" id="by_products_1_qty" class="form-control qty" readonly>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-12">
                                                 <div class="row">
                                                     <div class="form-group col-md-12">
-                                                        <button type="button" id="add-by-product" class="btn btn-success btn-sm" data-toggle="tooltip" 
+                                                        <button type="button" id="add-by-product" class="btn btn-success btn-md" data-toggle="tooltip" 
                                                             data-placement="top" data-original-title="Add More">
                                                             <i class="fas fa-plus-square"></i>
                                                             </button>
@@ -177,25 +183,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="row" style="position: relative;border: 1px solid #E4E6EF;padding: 10px 0 0 0; margin: 0 0 40px 0;border-radius:5px;">
-                                            <div style="width: 100px;background: #fa8c15;text-align: center;margin: 0 auto;color: white;padding: 5px 0;
-                                                position: absolute;top:-16px;left:10px;box-shadow: 1px 2px 5px 0px rgba(0,0,0,0.5);"><img src="images/mill.png" style="width: 20px;margin-right: 5px;"/>Total Milling</div>
-                                            <div class="col-md-12 pt-5 material_section">
-                                                <div class="row">
-                                                    <div class="form-group col-md-6 required">
-                                                        <label for="rice_convertion_ratio" class="form-control-label">Convertion Ratio(%)</label>
-                                                        <input type="text" name="milling_ratio" id="milling_ratio" class="form-control " readonly>
-                                                    </div>
-                                                    <div class="form-group col-md-6 required">
-                                                        <label for="rice_convertion_ratio" class="form-control-label">Convertion Quantity</label>
-                                                        <input type="text" name="milling_qty" id="milling_qty" class="form-control " readonly>
-                                                    </div>
-                                                    
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+
+                                        
+                                        
+                                   
                                 </div>
                             </div>
                         </div>
@@ -247,17 +238,10 @@ $(document).ready(function () {
                             <input type="text" name="by_products[${count}][ratio]" id="by_products_${count}_ratio" onkeyup="calculateProductQty(2,${count})"  class="form-control ratio">
                         </div>
                         <div class="form-group col-md-3 required">
-                            <div class="input-group">
-                                <input type="text" name="by_products[${count}][qty]" id="by_products_${count}_qty" class="form-control qty">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-primary text-white" style="border-top-right-radius: 0.42rem;border-bottom-right-radius: 0.42rem;border:0;">
-                                        KGs
-                                    </span>
-                                </div>
-                            </div>
+                            <input type="text" name="by_products[${count}][qty]" id="by_products_${count}_qty" class="form-control qty">
                         </div>
                         <div class="form-group col-md-3" style=""padding-top:28px;>
-                            <button type="button" class="btn btn-danger btn-sm remove-product" data-toggle="tooltip" 
+                            <button type="button" class="btn btn-danger btn-md remove-product" data-toggle="tooltip" 
                                 data-placement="top" data-original-title="Remove">
                                 <i class="fas fa-minus-square"></i>
                                 </button>
@@ -418,6 +402,7 @@ function store_data(){
                     $('#store_form select#' + key).parent().addClass('is-invalid');
                     $('#store_form #' + key).parent().append(
                         '<small class="error text-danger">' + value + '</small>');
+
                 });
             } else {
                 notification(data.status, data.message);

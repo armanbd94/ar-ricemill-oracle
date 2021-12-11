@@ -2,14 +2,6 @@
 
 @section('title', $page_title)
 
-@push('styles')
-<link rel="stylesheet" href="css/jquery-ui.css" />
-<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-<style>
-    .dropdown.bootstrap-select{width: 300px;}
-</style>
-@endpush
-
 @section('content')
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
