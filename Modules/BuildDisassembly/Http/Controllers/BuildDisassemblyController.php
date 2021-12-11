@@ -236,7 +236,7 @@ class BuildDisassemblyController extends BaseController
 
     public function show(int $id)
     {
-        if(permission('transfer-inventory-mix-view')){
+        if(permission('build-disassembly-view')){
             $this->setPageData('Transfer Inventory Mix Details','Transfer Inventory Mix Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Transfer Inventory Mix Details']]);
             $data = $this->model->with('by_products','batch','material','product','from_site','category','from_location','bp_site','bp_location')->find($id);
             return view('builddisassembly::details',compact('data'));
@@ -245,6 +245,153 @@ class BuildDisassemblyController extends BaseController
         }
     }
 
-    
+    public function delete(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('build-disassembly-delete')){
+                DB::beginTransaction();
+                try {
+                    $buildDisassemblyData = $this->model->with('by_products')->find($request->id);
+                    //Re Addition Material To Old Stock
+                    $material = Material::find($buildDisassemblyData->material_id);
+                    if($material)
+                    {
+                        $material->qty += $buildDisassemblyData->required_qty;
+                        $material->update();
+                    }
+                    $from_site_material = SiteMaterial::where([
+                        ['site_id',$buildDisassemblyData->from_site_id],
+                        ['location_id',$buildDisassemblyData->from_location_id],
+                        ['material_id',$buildDisassemblyData->material_id],
+                    ])->first();
+                    
+                    if($from_site_material)
+                    {
+                        $from_site_material->qty += $buildDisassemblyData->required_qty;
+                        $from_site_material->update();
+                    }
 
+                    //Subtract Product From Silo
+                    $silo_product = SiloProduct::where('product_id',$buildDisassemblyData->product_id)->first();
+                        
+                    if($silo_product)
+                    {
+                        $silo_product->qty -= $buildDisassemblyData->converted_qty;
+                        $silo_product->update();
+                    }
+
+                    if(!$buildDisassemblyData->by_products->isEmpty())
+                    {
+                        foreach ($buildDisassemblyData->by_products as $by_product) {
+                            $remove_qty = $by_product->pivot->qty;
+
+                            $site_by_product = SiteProduct::where([
+                                'site_id' => $buildDisassemblyData->bp_site_id,
+                                'location_id' => $buildDisassemblyData->bp_location_id,
+                                'product_id'  => $by_product->id
+                                ])->first();
+                            if($site_by_product){
+                                $site_by_product->qty -= $remove_qty;
+                                $site_by_product->update();
+                            }
+                        }
+                        $buildDisassemblyData->by_products()->detach();
+                    }
+                    $result = $buildDisassemblyData->delete();
+                    if($result)
+                    {
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
+                    DB::commit();
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    $output = ['status'=>'error','message'=>$e->getMessage()];
+                }
+                return response()->json($output);
+            }else{
+                $output = $this->access_blocked();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->access_blocked());
+        }
+    }
+
+    public function bulk_delete(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('build-disassembly-bulk-delete')){
+                DB::beginTransaction();
+                try {
+                    foreach ($request->ids as $id) {
+                        $buildDisassemblyData = $this->model->with('by_products')->find($id);
+                        //Re Addition Material To Old Stock
+                        $material = Material::find($buildDisassemblyData->material_id);
+                        if($material)
+                        {
+                            $material->qty += $buildDisassemblyData->required_qty;
+                            $material->update();
+                        }
+                        $from_site_material = SiteMaterial::where([
+                            ['site_id',$buildDisassemblyData->from_site_id],
+                            ['location_id',$buildDisassemblyData->from_location_id],
+                            ['material_id',$buildDisassemblyData->material_id],
+                        ])->first();
+                        
+                        if($from_site_material)
+                        {
+                            $from_site_material->qty += $buildDisassemblyData->required_qty;
+                            $from_site_material->update();
+                        }
+
+                        //Subtract Product From Silo
+                        $silo_product = SiloProduct::where('product_id',$buildDisassemblyData->product_id)->first();
+                            
+                        if($silo_product)
+                        {
+                            $silo_product->qty -= $buildDisassemblyData->converted_qty;
+                            $silo_product->update();
+                        }
+
+                        if(!$buildDisassemblyData->by_products->isEmpty())
+                        {
+                            foreach ($buildDisassemblyData->by_products as $by_product) {
+                                $remove_qty = $by_product->pivot->qty;
+
+                                $site_by_product = SiteProduct::where([
+                                    'site_id' => $buildDisassemblyData->bp_site_id,
+                                    'location_id' => $buildDisassemblyData->bp_location_id,
+                                    'product_id'  => $by_product->id
+                                    ])->first();
+                                if($site_by_product){
+                                    $site_by_product->qty -= $remove_qty;
+                                    $site_by_product->update();
+                                }
+                            }
+                            $buildDisassemblyData->by_products()->detach();
+                        }
+
+                    }
+                    $result = $this->model->destroy($request->ids);
+                    if($result)
+                    {
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
+                DB::commit();
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    $output = ['status'=>'error','message'=>$e->getMessage()];
+                }
+            }else{
+                $output = $this->access_blocked();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->access_blocked());
+        }
+    }
 }

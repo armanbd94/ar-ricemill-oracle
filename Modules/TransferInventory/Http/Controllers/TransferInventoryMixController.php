@@ -348,7 +348,7 @@ class TransferInventoryMixController extends BaseController
     public function delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('transfer-inventory-delete')){
+            if(permission('transfer-inventory-mix-delete')){
                 DB::beginTransaction();
                 try {
                     $transferData = $this->model->with('materials')->find($request->id);
@@ -405,7 +405,7 @@ class TransferInventoryMixController extends BaseController
     public function bulk_delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('transfer-inventory-bulk-delete')){
+            if(permission('transfer-inventory-mix-bulk-delete')){
                 DB::beginTransaction();
                 try {
                     foreach ($request->ids as $id) {
