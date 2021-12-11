@@ -14,5 +14,6 @@
     "Product": true,
     "HRM": true,
     "TransferInventory": true,
-    "BuildDisassembly": true
+    "BuildDisassembly": true,
+    "BOM": true
 }

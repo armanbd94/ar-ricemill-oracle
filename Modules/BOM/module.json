@@ -1,0 +1,13 @@
+{
+    "name": "BOM",
+    "alias": "bom",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\BOM\\Providers\\BOMServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
