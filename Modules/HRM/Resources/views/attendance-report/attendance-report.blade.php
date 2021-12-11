@@ -137,9 +137,9 @@
                                     $weekend = 0;
                                     $weekends = 0;
                                     $total_holyday = 0;
-                                    
+                                    //dd($daily_attendance);
                                     foreach ($daily_attendance as $rowp) {
-                                        if ($rowp->date == $current_date) {
+                                        if (date('Y-m-d', strtotime($rowp->date)) == $current_date) {
                                             $in_time_with_date = $rowp->in_time_str;
                                             $out_time_with_date = $rowp->out_time_str;
                                             $in_time_str = $rowp->in_time;
@@ -152,7 +152,7 @@
                                     }
 
                                     foreach ($daily_attendance as $rown) {
-                                        if ($rown->date == $next_day) {
+                                        if (date('Y-m-d', strtotime($rown->date)) == $next_day) {
                                             $out_time_with_next_date = $rown->in_time_str;// because next date 1st min is the previous day out time
                                             $in_time_with_next_date = $rown->out_time_str;// because next date max time is the current day in time
                                             $next_day_in_time_str = $rown->in_time;
@@ -164,7 +164,7 @@
                                         }
                                     }
                                     foreach ($daily_attendance as $rowpre) {
-                                        if ($rowpre->date == $previous_day) {
+                                        if (date('Y-m-d', strtotime($rowpre->date)) == $previous_day) {
                                             $out_time_with_previous_date = $rowpre->in_time_str;// because next date 1st min is the previous day out time
                                             $in_time_with_previous_date = $rowpre->out_time_str;// because next date max time is the current day in time
                                             $previous_day_in_time_str = $rowpre->in_time;
@@ -271,6 +271,7 @@
                                                     }
                                                 }
                                             } else {
+                                                //dd($in_time_with_date);
                                                 if (!empty($in_time_with_date))
                                                     $in_time = date('h:i:s a', $in_time_with_date);
                                                 else

@@ -103,47 +103,44 @@ class AttendanceReportController extends BaseController
                     $data['end_date'] = date('Y-m-31');
                  }
 
-                // $attendance = DB::select("SELECT MIN(att.id),MAX(att.id),MIN(att.time_str_am_pm) as in_time_str,MAX(att.time_str_am_pm) as out_time_str,MIN(att.time) as in_time,MAX(att.time) as out_time,
-                // att.employee_id,att.date_time,att.date,att.time,att.am_pm,att.time_str,att.time_str_am_pm,reg.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name FROM `attendances` as att 
-                // LEFT JOIN `employees` as reg ON reg.id=att.employee_id JOIN `shifts` as shift ON shift.id=reg.shift_id WHERE att.date >= $start_date 
-                // AND att.date <= $end_date AND att.employee_id=$employee_id 
-                // group by att.date,att.employee_id"); 
-
-                // $attendance = DB::table('attendances as att')
-                // ->selectRaw("MIN(att.id),MAX(att.id),MIN(att.time_str_am_pm) as in_time_str,MAX(att.time_str_am_pm) as out_time_str,MIN(att.time) as in_time,MAX(att.time) as out_time,
-                // att.employee_id,att.date_time,att.date,att.time,att.am_pm,att.time_str,att.time_str_am_pm,reg.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name")
-                // ->join('employees as reg','att.employee_id','=','reg.id')
-                // ->join('shifts as shift','shift.id','=','reg.shift_id')
-                // ->where('att.date',$data['start_date'])->where('att.date',$end_date)->where('att.employee_id',$employee_id)
-                // ->groupBy('att.date','att.employee_id')
-                // ->get();
 
                 $latestAttendance = DB::table('attendances')
-                    ->select('employee_id',DB::raw("MIN(id),MAX(id),MIN(time_str_am_pm) as in_time_str,MAX(time_str_am_pm) as out_time_str,MIN(time) as in_time,MAX(time) as out_time,date_time,time,am_pm,time_str,time_str_am_pm"),'date')
-                    ->where('date',$data['start_date'])->where('date',$end_date)
+                    ->select('employee_id',DB::raw("MIN(id) as min_id,MAX(id) as max_id,MIN(time_str_am_pm) as in_time_str,MAX(time_str_am_pm) as out_time_str,
+                    MIN(time) as in_time,MAX(time) as out_time"),'date')
+                    ->where('date','>=',$data['start_date'])
+                    ->where('date','<=',$end_date)
                     ->groupBy('employee_id','date');
+                    
+                $attendance = DB::table('employees')
+                ->selectRaw("employees.id,employees.name as employee_name,employees.phone,attendance.*,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name")
+                ->join('shifts as shift','employees.shift_id','=','shift.id')
+                ->leftjoinSub($latestAttendance, 'attendance', function ($join) {
+                    $join->on('employees.id', '=', 'attendance.employee_id');
+                })
+                ->where('employees.id',$employee_id)
+                ->get();
 
-                    $attendancess = DB::table('employees')
-                    ->selectRaw("attendance.*,employees.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name")
-                    ->join('shifts as shift','shift.id','=','employees.shift_id')
-                    ->leftjoinSub($latestAttendance, 'attendance', function ($join) {
-                        $join->on('employees.id', '=', 'attendance.employee_id');
-                    })->where('employees.id',$employee_id)->get();
+                $leave_data = DB::table('leave_application_manages')
+                ->selectRaw("employee_id,start_date,end_date,leave_id,leave_status")
+                ->where('employee_id',$employee_id)
+                ->where('start_date','>=',$data['start_date'])
+                ->where('end_date','<=',$end_date)
+                ->get();
 
-                dd($attendancess);
-                
-                $leave_data = DB::raw("SELECT employee_id,start_date,end_date,leave_id,leave_status FROM `leave_application_manages`
-                WHERE employee_id='" . $employee_id . "' AND start_date >='" . $data['start_date'] . "' 
-                AND end_date <='" . $end_date . "'");
-                
-                $shift_data = DB::raw("SELECT change_shift.shift_id,shift.start_time,shift.end_time,shift.night_status,change_shift.start_date,change_shift.end_date FROM `shift_manages` as change_shift 
-                JOIN `shifts` as shift on shift.id=change_shift.shift_id WHERE change_shift.employee_id='" . $employee_id . "' 
-                and change_shift.start_date >='" . $data['start_date'] . "' AND change_shift.end_date <='" . $end_date . "'");
+                $shift_data = DB::table('shift_manages as change_shift')
+                ->selectRaw("change_shift.shift_id,shift.start_time,shift.end_time,shift.night_status,change_shift.start_date,change_shift.end_date")
+                ->join('shifts as shift','change_shift.shift_id','=','shift.id')
+                ->where('change_shift.employee_id',$employee_id)
+                ->where('change_shift.start_date','>=',$data['start_date'])
+                ->where('change_shift.end_date','<=',$end_date)
+                ->get();
 
-                $holyday_data = DB::raw("SELECT total_holiday.name,total_holiday.short_name,total_holiday.start_date,total_holiday.end_date,
-                total_holiday.status FROM `holidays` as total_holiday 
-                WHERE total_holiday.start_date>='" . $data['start_date'] . "' 
-                and total_holiday.end_date <='" . $end_date . "'");
+                $holyday_data = DB::table('holidays as total_holiday')
+                ->selectRaw("total_holiday.name,total_holiday.short_name,total_holiday.start_date,total_holiday.end_date,total_holiday.status")
+                ->where('total_holiday.start_date','>=',$data['start_date'])
+                ->where('total_holiday.end_date','<=',$end_date)
+                ->get();
+
                 $orleaves=array();
                 $orleavesName=array();
                 $leaves = Leave::activeLeaves();
