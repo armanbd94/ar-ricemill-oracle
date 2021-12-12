@@ -18,8 +18,8 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-sync-alt"></i> Reset</button>
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-danger btn-sm mr-3 custom-btn"><i class="fas fa-sync-alt"></i> Reset</button>
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
                 </div>
             </div>
         </div>
@@ -170,7 +170,7 @@ $(document).ready(function () {
                         <td class="unit_name_${count} text-center" style="min-width: 80px;" id="unit_name_${count}"  data-row="${count}"></td>
                         <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[${count}][available_qty]" id="materials_${count}_available_qty" readonly  data-row="${count}"></td>
                         <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
-                        <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button></td>
+                        <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-material custom-btn"><i class="fas fa-trash"></i></button></td>
                         
                     </tr>`;
         $('#material_table tbody').append(html);

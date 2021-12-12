@@ -14,9 +14,9 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('menu') }}" type="button" class="btn btn-secondary btn-sm font-weight-bolder mr-2"> <i class="fas fa-arrow-circle-left"></i> Back</a>
+                    <a href="{{ route('menu') }}" type="button" class="btn btn-secondary btn-sm font-weight-bolder mr-2 custom-btn"> <i class="fas fa-arrow-circle-left"></i> Back</a>
                     @if (permission('menu-module-add'))
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Module','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Module','Save')" class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
                         <i class="fas fa-plus-circle"></i> Add New
                     </a>
                     @endif

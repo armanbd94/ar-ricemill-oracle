@@ -99,7 +99,7 @@ class CashPurchaseController extends BaseController
             $data = [
                 'job_types' => JobType::allJobTypes(),
                 'sites'     => Site::allSites(),
-                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'materials' => Material::with('category')->where([['status',1]])->get(),
             ];
             
             return view('purchase::cash-purchase.create',$data);

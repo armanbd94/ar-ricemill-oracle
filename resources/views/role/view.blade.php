@@ -10,7 +10,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('role') }}" class="btn btn-secondary btn-sm font-weight-bolder"> 
+                    <a href="{{ route('role') }}" class="btn btn-secondary btn-sm font-weight-bolder custom-btn"> 
                         <i class="fas fa-arrow-circle-left"></i> Back
                     </a>
                     <!--end::Button-->

@@ -14,7 +14,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     @if (permission('material-class-add') || permission('product-class-add') )
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Class','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Class','Save')" class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                     @endif
                 </div>
@@ -34,11 +34,11 @@
                         </x-form.selectbox>
                         <div class="col-md-4">
                             <div style="margin-top:28px;">     
-                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
                                 <i class="fas fa-undo-alt"></i></button>
 
-                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Search">
                                 <i class="fas fa-search"></i></button>
                             </div>

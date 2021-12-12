@@ -228,7 +228,30 @@ class MaterialController extends BaseController
         ->leftJoin('units as u','m.unit_id','=','u.id')
         ->where([
             'sm.site_id'     => $request->site_id,
-            'sm.location_id' => $request->location_id
+            'sm.location_id' => $request->location_id,
+            'm.type'         => 1
+        ])->get();
+
+        $output = '<option value="">Select Please</option>';
+        if(!$materials->isEmpty())
+        {
+            foreach ($materials as $value) {
+                $output .= '<option value="'.$value->id.'" data-stockqty="'.$value->qty.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'" data-unitcode="'.$value->unit_code.'">'.$value->material_name.'</option>';
+            }
+        }
+        return $output;
+    }
+    public function bag_list(Request $request)
+    {
+        $materials = DB::table('site_material as sm')
+        ->select('m.id','m.material_name','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
+        ->leftJoin('materials as m','sm.material_id','=','m.id')
+        ->leftJoin('categories as c','m.category_id','=','c.id')
+        ->leftJoin('units as u','m.unit_id','=','u.id')
+        ->where([
+            'sm.site_id'     => $request->site_id,
+            'sm.location_id' => $request->location_id,
+            'm.type'         => 2
         ])->get();
 
         $output = '<option value="">Select Please</option>';

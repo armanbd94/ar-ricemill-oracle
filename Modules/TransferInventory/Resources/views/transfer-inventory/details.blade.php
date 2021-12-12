@@ -18,7 +18,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('transfer.inventory') }}" class="btn btn-warning btn-sm font-weight-bolder">
+                    <a href="{{ route('transfer.inventory') }}" class="btn btn-warning btn-sm font-weight-bolder custom-btn">
                         <i class="fas fa-arrow-left"></i> Back</a>
                 </div>
             </div>

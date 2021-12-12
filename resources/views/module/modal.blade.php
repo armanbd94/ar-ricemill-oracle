@@ -47,8 +47,8 @@
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary btn-sm" id="save-btn"></button>
+            <button type="button" class="btn btn-danger btn-sm custom-btn" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary btn-sm custom-btn" id="save-btn"></button>
             </div>
             <!-- /modal footer -->
         </form>

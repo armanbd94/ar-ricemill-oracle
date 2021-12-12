@@ -3,13 +3,13 @@
         <li class="dd-item" data-id="{{ $item->id }}">
             <div class="pull-right item_action">
                 @if (permission('menu-module-delete'))
-                <button type="button" class="btn btn-danger btn-sm btn-elevate btn-icon float-right delete_data" 
+                <button type="button" class="btn btn-danger btn-sm btn-elevate btn-icon float-right delete_data custom-btn" 
                 data-id="{{ $item->id }}" data-name="{{ $item->type == 1 ? $item->divider_title : $item->module_name }}">
                     <i class="fas fa-trash"></i>
                 </button>
                 @endif
                 @if (permission('menu-module-edit'))
-                <button data-id="{{ $item->id }}" class="btn btn-primary btn-sm btn-elevate btn-icon float-right edit_data mr-2"><i class="fas fa-edit"></i></button>
+                <button data-id="{{ $item->id }}" class="btn btn-primary btn-sm btn-elevate btn-icon float-right edit_data mr-2 custom-btn"><i class="fas fa-edit"></i></button>
                 @endif
             </div>
             <div class="dd-handle">
@@ -25,13 +25,13 @@
                         <li class="dd-item" data-id="{{ $subitem->id }}">
                             <div class="pull-right item_action">
                                 @if (permission('menu-module-delete'))
-                                <button type="button" class="btn btn-danger btn-sm btn-elevate btn-icon float-right delete_data" 
+                                <button type="button" class="btn btn-danger btn-sm btn-elevate btn-icon float-right delete_data custom-btn" 
                                 data-id="{{ $subitem->id }}" data-name="{{ ($subitem->type == 1) ? $subitem->divider_title : $subitem->module_name }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                                 @endif
                                 @if (permission('menu-module-edit'))
-                                <button data-id="{{ $subitem->id }}" class="btn btn-primary btn-sm btn-elevate btn-icon float-right edit_data mr-2"><i class="fas fa-edit"></i></button>
+                                <button data-id="{{ $subitem->id }}" class="btn btn-primary btn-sm btn-elevate btn-icon float-right edit_data mr-2 custom-btn"><i class="fas fa-edit"></i></button>
                                 @endif
                             </div>
                             <div class="dd-handle">
@@ -47,13 +47,13 @@
                                     <li class="dd-item" data-id="{{ $sub_subitem->id }}">
                                         <div class="pull-right item_action">
                                             @if (permission('menu-module-delete'))
-                                            <button type="button" class="btn btn-danger btn-sm btn-elevate btn-icon float-right delete_data" 
+                                            <button type="button" class="btn btn-danger btn-sm btn-elevate btn-icon float-right delete_data custom-btn" 
                                             data-id="{{ $sub_subitem->id }}" data-name="{{ ($sub_subitem->type == 1) ? $sub_subitem->divider_title : $sub_subitem->module_name }}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                             @endif
                                             @if (permission('menu-module-edit'))
-                                            <button data-id="{{ $sub_subitem->id }}" class="btn btn-primary btn-sm btn-elevate btn-icon float-right edit_data mr-2"><i class="fas fa-edit"></i></button>
+                                            <button data-id="{{ $sub_subitem->id }}" class="btn btn-primary btn-sm btn-elevate btn-icon float-right edit_data mr-2 custom-btn"><i class="fas fa-edit"></i></button>
                                             @endif
                                         </div>
                                         <div class="dd-handle">

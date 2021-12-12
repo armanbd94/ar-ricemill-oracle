@@ -180,7 +180,7 @@ if (!function_exists('action_button')) {
 
     function action_button($action){
         return '<div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn btn-secondary dropdown-toggle custom-btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-th-list text-white"></i>
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">

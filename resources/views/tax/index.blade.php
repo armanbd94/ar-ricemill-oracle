@@ -15,7 +15,7 @@
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('tax-add'))
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Tax','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Tax','Save')" class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
                     <!--end::Button-->
@@ -32,11 +32,11 @@
                         <div class="col-md-8">
                             <div style="margin-top:28px;">    
                                 <div style="margin-top:28px;">    
-                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Reset">
                                     <i class="fas fa-undo-alt"></i></button>
     
-                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Search">
                                     <i class="fas fa-search"></i></button>
                                 </div>

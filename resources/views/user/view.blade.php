@@ -23,7 +23,7 @@
 
         <!-- Modal Footer -->
         <div class="modal-footer">
-        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger btn-sm custom-btn" data-dismiss="modal">Close</button>
         </div>
         <!-- /modal footer -->
       </div>
