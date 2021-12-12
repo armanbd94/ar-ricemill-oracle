@@ -15,5 +15,6 @@
     "HRM": true,
     "Loan": true,
     "TransferInventory": true,
-    "BuildDisassembly": true
+    "BuildDisassembly": true,
+    "BOM": true
 }

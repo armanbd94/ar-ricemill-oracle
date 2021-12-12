@@ -84,8 +84,8 @@
                                         <th>Product Name</th>
                                         <th>From Site</th>
                                         <th>From Location</th>
-                                        <th>Convertion Ratio</th>
-                                        <th>Converted Qty</th>
+                                        <th>Fine Rice Convrt. Ratio</th>
+                                        <th>Fine Rice Convrt. Qty</th>
                                         <th>Date</th>
                                         <th>Created By</th>
                                         <th>Action</th>
