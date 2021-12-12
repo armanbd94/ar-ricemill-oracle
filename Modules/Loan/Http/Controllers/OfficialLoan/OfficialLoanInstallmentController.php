@@ -128,7 +128,6 @@ class OfficialLoanInstallmentController extends BaseController
                 //Official Loan People which is Debit for the company
                 $debit_credit_voucher_transaction[] = array(
                     'chart_of_account_id' => $debit_account->id,
-                    'warehouse_id'        => 1,
                     'voucher_no'          => $collection['voucher_no'],
                     'voucher_type'        => self::VOUCHER_PREFIX,
                     'voucher_date'        => $collection['installment_date'],
@@ -145,7 +144,6 @@ class OfficialLoanInstallmentController extends BaseController
                 $credit_account = ChartOfAccount::find($collection['account_id']);
                 $debit_credit_voucher_transaction[] = array(
                     'chart_of_account_id' => $credit_account->id,
-                    'warehouse_id'        => 1,
                     'voucher_no'          => $collection['voucher_no'],
                     'voucher_type'        => self::VOUCHER_PREFIX,
                     'voucher_date'        => $collection['installment_date'],

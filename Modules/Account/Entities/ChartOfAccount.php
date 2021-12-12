@@ -12,7 +12,7 @@ use Modules\MobileBank\Entities\MobileBank;
 class ChartOfAccount extends BaseModel
 {
     protected $fillable = [ 'code', 'name', 'parent_name', 'level', 'type', 'is_transaction', 'general_ledger', 
-    'customer_id', 'vendor_id', 'bank_id','mobile_bank_id','budget', 'depreciation', 'depreciation_rate', 'status', 'created_by', 'modified_by'];
+    'customer_id', 'vendor_id', 'bank_id','mobile_bank_id','budget', 'depreciation', 'depreciation_rate', 'status', 'created_by', 'modified_by', 'loan_people_id', 'employee_id'];
 
     public function transactions()
     {

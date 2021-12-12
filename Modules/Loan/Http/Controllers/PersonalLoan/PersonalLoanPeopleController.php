@@ -96,7 +96,7 @@ class PersonalLoanPeopleController extends BaseController
                         $head_name         = $result->id . '-' . $request->name;
                         $parent_head_name  = 'Loan Payable Long Term';
                     }
-                    $person_coa_data = $this->person_coa($code, $head_name, $parent_head_name);
+                    $person_coa_data = $this->person_coa($code, $head_name, $parent_head_name, $result->id);
                     $person_coa      = ChartOfAccount::create($person_coa_data);
                 } else {
                     $old_head_name = $request->update_id . '-' . $request->old_name;
@@ -117,7 +117,7 @@ class PersonalLoanPeopleController extends BaseController
         }
     }    
     
-    private function person_coa(string $code, string $head_name, string $parent_head_name)
+    private function person_coa(string $code, string $head_name, string $parent_head_name, int $loan_people_id)
     {
         return [
             'code'              => $code,
@@ -131,7 +131,9 @@ class PersonalLoanPeopleController extends BaseController
             'depreciation'      => 2,
             'depreciation_rate' => '0',
             'status'            => 1,
-            'created_by'        => auth()->user()->name
+            'created_by'        => auth()->user()->name,
+            'loan_people_id'       => $loan_people_id,
+            'employee_id'       => null,
         ];
     }
 

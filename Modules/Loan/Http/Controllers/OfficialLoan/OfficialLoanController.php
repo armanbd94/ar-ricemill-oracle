@@ -96,20 +96,23 @@ class OfficialLoanController extends BaseController
     public function store_or_update_data(OfficialLoanFormRequest $request)
     {
         if($request->ajax()){
+            //dd($request->all());
             if(permission('official-loan-add')){
                 $collection   = collect($request->validated());
                 $collection['month_year'] = date('F-Y',strtotime($request->adjusted_date));
                 $collection['loan_type'] = 2;
+                $collection['loan_status'] = 2;
                 $collection   = $this->track_data($collection,$request->update_id);
+                //dd($collection->all());
                 $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());                
-                
+                //dd($result);
                 if (empty($request->update_id)) {
                     $coa_max_code      = ChartOfAccount::where('level', 4)->where('code', 'like', '1020202001%')->max('code');
                     $code              = $coa_max_code ? ($coa_max_code + 1) : 1020202001;
-                    //dd($collection);
                     $head_name         = $collection['employee_id'] . '-' . Employee::where('id',$collection['employee_id'])->first()->name. '-OLR';
                     if(empty(ChartOfAccount::where('name',$head_name)->first()->id)){
-                        $official_coa_data = $this->official_person_coa($code, $head_name);                    
+                        $official_coa_data = $this->official_person_coa($code, $head_name, $collection['employee_id']);   
+                        //dd($official_coa_data);                 
                         $official_coa      = ChartOfAccount::create($official_coa_data);
                     }
                     $this->official_loan_coa($result);
@@ -129,7 +132,7 @@ class OfficialLoanController extends BaseController
     }    
 
     
-    private function official_person_coa(string $code, string $head_name)
+    private function official_person_coa(string $code, string $head_name, int $employee_id)
     {
         return [
             'code'              => $code,
@@ -137,13 +140,14 @@ class OfficialLoanController extends BaseController
             'parent_name'       => 'Loan Receivable',
             'level'             => 4,
             'type'              => 'A',
-            'is_transaction'       => 2,
+            'is_transaction'     => 2,
             'general_ledger'    => 1,
             'budget'            => 2,
             'depreciation'      => 2,
             'depreciation_rate' => '0',
             'status'            => 1,
-            'created_by'        => auth()->user()->name
+            'created_by'        => auth()->user()->name,
+            'employee_id'       => $employee_id,
         ];
     }
 
