@@ -13,6 +13,7 @@
     "Expense": true,
     "Product": true,
     "HRM": true,
+    "Loan": true,
     "TransferInventory": true,
     "BuildDisassembly": true
 }
