@@ -2,16 +2,99 @@
 
 namespace Modules\BOM\Http\Controllers;
 
+use Exception;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
+use Modules\BOM\Entities\BomProcess;
 use Modules\Product\Entities\Product;
+use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
+use Modules\Product\Entities\SiteProduct;
+use Modules\Material\Entities\SiteMaterial;
+use Modules\BOM\Http\Requests\BOMProcessFormRequest;
 
 class BOMController extends BaseController
 {
+    public function __construct(BomProcess $model)
+    {
+        $this->model = $model;
+    }
+    
+    public function index()
+    {
+        if(permission('bom-process-access')){
+            $this->setPageData('BOM Process','BOM Process','fas fa-box',[['name' => 'BOM Process']]);
+            $batches = Batch::allBatches();
+            return view('bom::bom-process.index',compact('batches'));
+        }else{
+            return $this->access_blocked();
+        }
+    }
+
+    public function get_datatable_data(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('bom-process-access')){
+
+                if (!empty($request->process_type)) {
+                    $this->model->setProcessType($request->process_type);
+                }
+                if (!empty($request->batch_id)) {
+                    $this->model->setBatchID($request->batch_id);
+                }
+                if (!empty($request->from_date)) {
+                    $this->model->setFromDate($request->from_date);
+                }
+                if (!empty($request->to_date)) {
+                    $this->model->setToDate($request->to_date);
+                }
+
+
+                $this->set_datatable_default_properties($request);//set datatable default properties
+                $list = $this->model->getDatatableList();//get table data
+                $data = [];
+                $no = $request->input('start');
+                foreach ($list as $value) {
+                    $no++;
+                    $action = '';
+                    if(permission('bom-process-edit')){
+                        $action .= ' <a class="dropdown-item" href="'.route("bom.process.edit",$value->id).'">'.self::ACTION_BUTTON['Edit'].'</a>';
+                    }
+                    if(permission('bom-process-view')){
+                        $action .= ' <a class="dropdown-item view_data" href="'.route("bom.process.view",$value->id).'">'.self::ACTION_BUTTON['View'].'</a>';
+                    }
+                    if(permission('bom-process-delete')){
+                        $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->memo_no . '">'.self::ACTION_BUTTON['Delete'].'</a>';
+                    }
+                    
+                    $row = [];
+                    if(permission('bom-process-bulk-delete')){
+                        $row[] = row_checkbox($value->id);//custom helper function to show the table each row checkbox
+                    }
+                    $row[] = $no;
+                    $row[] = $value->batch_no;
+                    $row[] = $value->product_name;
+                    $row[] = $value->storage_site;
+                    $row[] = $value->storage_location;
+                    $row[] = $value->total_rice_qty;
+                    $row[] = $value->total_bag_qty;
+                    $row[] = date(config('settings.date_format'),strtotime($value->process_date));
+                    $row[] = $value->created_by;
+                    $row[] = action_button($action);//custom helper function for action button
+                    $data[] = $row;
+                }
+                return $this->datatable_draw($request->input('draw'),$this->model->count_all(),
+                $this->model->count_filtered(), $data);
+            }
+        }else{
+            return response()->json($this->unauthorized());
+        }
+    }
+
+
     public function create()
     {
         if(permission('bom-process-add')){
@@ -34,104 +117,74 @@ class BOMController extends BaseController
     public function store(BOMProcessFormRequest $request)
     {
         if($request->ajax()){
-            if(permission('build-disassembly-add')){
-                // dd($request->all());
+            if(permission('bom-process-add')){
+                dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $buildDisassemblyData  = $this->model->create([
-                        'memo_no'             => $request->memo_no,
-                        'batch_id'            => $request->batch_id,
-                        'from_site_id'        => $request->from_site_id,
-                        'from_location_id'    => $request->from_location_id,
-                        'material_id'         => $request->material_id,
-                        'product_id'          => $request->product_id,
-                        'build_ratio'         => $request->build_ratio,
-                        'build_qty'           => $request->build_qty,
-                        'required_qty'        => $request->required_qty,
-                        'category_id'         => $request->category_id,
-                        'build_date'          => $request->build_date,
-                        'convertion_ratio'    => $request->rice_convertion_ratio,
-                        'converted_qty'       => $request->fine_rice_qty,
-                        'total_milling_qty'   => $request->milling_qty,
-                        'total_milling_ratio' => $request->milling_ratio,
-                        'bp_site_id'          => $request->bp_site_id,
-                        'bp_location_id'      => $request->bp_location_id,
-                        'created_by'          => auth()->user()->name
+                    $bomProcessData  = $this->model->create([
+                        'memo_no'              => $request->memo_no,
+                        'batch_id'             => $request->batch_id,
+                        'process_number'       => $request->process_number,
+                        'to_product_id'        => $request->to_product_id,
+                        'to_site_id'           => $request->to_site_id,
+                        'to_location_id'       => $request->to_location_id,
+                        'from_product_id'      => $request->from_product_id,
+                        'product_particular'   => $request->product_particular,
+                        'product_per_unit_qty' => $request->product_per_unit_qty,
+                        'product_required_qty' => $request->product_required_qty,
+                        'bag_site_id'          => $request->bag_site_id,
+                        'bag_location_id'      => $request->bag_location_id,
+                        'bag_id'               => $request->bag_id,
+                        'bag_particular'       => $request->bag_particular,
+                        'bag_per_unit_qty'     => $request->bag_per_unit_qty,
+                        'bag_required_qty'     => $request->bag_required_qty,
+                        'total_rice_qty'       => $request->total_rice_qty,
+                        'total_bag_qty'        => $request->total_bag_qty,
+                        'process_date'         => $request->process_date,
+                        'created_by'           => auth()->user()->name
                     ]);
 
-                    if($buildDisassemblyData){
-                        //Subtract Material From Stock
-                        $material = Material::find($buildDisassemblyData->material_id);
-                        if($material)
+                    if($bomProcessData){
+                        //Subtract Bag From Stock
+                        $bag = Material::find($bomProcessData->bag_id);
+                        if($bag)
                         {
-                            $material->qty -= $buildDisassemblyData->required_qty;
-                            $material->update();
+                            $bag->qty -= $bomProcessData->required_qty;
+                            $bag->update();
                         }
-                        $from_site_material = SiteMaterial::where([
-                            ['site_id',$buildDisassemblyData->from_site_id],
-                            ['location_id',$buildDisassemblyData->from_location_id],
-                            ['material_id',$buildDisassemblyData->material_id],
+                        $from_site_bag = SiteMaterial::where([
+                            ['site_id',$bomProcessData->from_site_id],
+                            ['location_id',$bomProcessData->from_location_id],
+                            ['bag_id',$bomProcessData->bag_id],
                         ])->first();
                         
-                        if($from_site_material)
+                        if($from_site_bag)
                         {
-                            $from_site_material->qty -= $buildDisassemblyData->required_qty;
-                            $from_site_material->update();
+                            $from_site_bag->qty -= $bomProcessData->bag_required_qty;
+                            $from_site_bag->update();
                         }
 
-                        //Add Fine Rice Into Silo
-                        $silo_product = SiloProduct::where('product_id',$buildDisassemblyData->product_id)->first();
+                        //Add Packet Rice Into Stock
+                        $site_by_product = SiteProduct::where([
+                            ['site_id',$request->to_site_id],
+                            ['location_id',$request->to_location_id],
+                            ['product_id',$request->to_product_id],
+                        ])->first();
                         
-                        if($silo_product)
+                        if($site_by_product)
                         {
-                            $silo_product->qty += $buildDisassemblyData->converted_qty;
-                            $silo_product->update();
+                            $site_by_product->qty += $request->total_rice_qty;
+                            $site_by_product->update();
                         }else{
-                            SiloProduct::create([
-                                'product_id' => $buildDisassemblyData->product_id,
-                                'qty'        => $buildDisassemblyData->converted_qty
+                            SiteProduct::create([
+                                'site_id'     => $request->to_site_id,
+                                'location_id' => $request->to_location_id,
+                                'product_id' => $request->to_product_id,
+                                'qty'         => $request->total_rice_qty
                             ]);
                         }
 
-                        //Add By Products Into Stock
-                        $by_products = [];
-                        if($request->has('by_products'))
-                        {                        
-                            foreach ($request->by_products as $key => $value) {
-
-                                $by_products[] = [
-                                    'disassembly_id' => $buildDisassemblyData->id,
-                                    'product_id'     => $value['id'],
-                                    'ratio'          => $value['ratio'],
-                                    'qty'            => $value['qty'],
-                                    'created_at'     => date('Y-m-d H:i:s')
-                                ];
-
-                                $site_by_product = SiteProduct::where([
-                                    ['site_id',$request->bp_site_id],
-                                    ['location_id',$request->bp_location_id],
-                                    ['product_id',$value['id']],
-                                ])->first();
-                                
-                                if($site_by_product)
-                                {
-                                    $site_by_product->qty += $value['qty'];
-                                    $site_by_product->update();
-                                }else{
-                                    SiteProduct::create([
-                                        'site_id'     => $request->bp_site_id,
-                                        'location_id' => $request->bp_location_id,
-                                        'product_id' => $value['id'],
-                                        'qty'         => $value['qty']
-                                    ]);
-                                }
-                            }
-                            if(!empty($by_products) && count($by_products))
-                            {
-                                BuildDisassemblyByProduct::insert($by_products);
-                            }
-                        }
-                        $output = ['status'=>'success','message'=>'Data has been saved successfully','build_id'=>$buildDisassemblyData->id];
+                        $output = ['status'=>'success','message'=>'Data has been saved successfully','build_id'=>$bomProcessData->id];
                     }else{
                         $output = ['status'=>'error','message'=>'Failed to save data','purchase_id'=>''];
                     }
