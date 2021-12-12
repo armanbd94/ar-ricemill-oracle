@@ -23,7 +23,7 @@ class SalaryGeneratePaymentController extends BaseController
     {
         if($request->ajax())
         {           
-            
+            //dd($request->all());
             if(permission('salary-payment-access')){
                 DB::beginTransaction();
                 try {
@@ -101,7 +101,12 @@ class SalaryGeneratePaymentController extends BaseController
                         $salary_data->modified_by = auth()->user()->name;
                         $salary_data->update();
                         $result = $this->payment_balance_add($payment_data);
-                        SalaryGeneratePayment::insert($payment_data_insert);
+
+                        //dd($result);
+                        dd($payment_data_insert);
+                        if($result){
+                            SalaryGeneratePayment::insert($payment_data_insert);
+                        }
                         $output = $result ? ['status'=>'success','message'=> 'Payment Data Saved Successfully'] : ['status'=>'error','message'=> 'Failed to Save Payment Data'];
                         
                     }
@@ -119,12 +124,10 @@ class SalaryGeneratePaymentController extends BaseController
     }
 
     private function payment_balance_add(array $data) {
-        //dd($data);
         $voucher_type = 'Employee Salary';
         $employeeInfo = Employee::where('id',$data['supplier_debit_transaction_id'])->first();
-        //$debit_account = ChartOfAccount::where('name',$employeeInfo->id.'-'.$employeeInfo->name.'-'.$employeeInfo->wallet_number)->first();
         $debit_account = ChartOfAccount::where('name',$employeeInfo->id.'-'.$employeeInfo->name.'-E')->first();
-
+        //dd($debit_account);
         if($data['payment_type'] == 1){
             //Cah In Hand debit
             $payment = array(
@@ -188,7 +191,7 @@ class SalaryGeneratePaymentController extends BaseController
         );
         
         Transaction::insert($expense_acc);
-        $payment_transaction        = Transaction::updateOrCreate(['id'=> $data['transaction_id']],$payment);
+        $payment_transaction = Transaction::updateOrCreate(['id'=> $data['transaction_id']],$payment);
 
 
          if($payment_transaction){

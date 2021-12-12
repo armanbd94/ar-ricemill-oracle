@@ -131,6 +131,13 @@ define('PURCHASE_STATUS_LABEL',[
     '3'=>'<span class="label label-info label-pill label-inline" style="min-width:70px !important;">Ordered</span>',
 ]);
 
+define('SALARY_STATUS',['1'=>'Received','2'=>'Partial','3'=>'Pending']);
+define('SALARY_STATUS_LABEL',[
+    '1'=>'<span class="label label-success label-pill label-inline" style="min-width:70px !important;">Received</span>',
+    '2'=>'<span class="label label-warning label-pill label-inline" style="min-width:70px !important;">Partial</span>',
+    '3'=>'<span class="label label-info label-pill label-inline" style="min-width:70px !important;">Pending</span>',
+]);
+
 define('PAYMENT_STATUS',['1'=>'Paid','2'=>'Partial','3'=>'Due']);
 define('PAYMENT_STATUS_LABEL',[
     '1'=>'<span class="label label-success label-pill label-inline" style="min-width:70px !important;">Paid</span>',
