@@ -54,7 +54,7 @@ class LoanReport extends BaseModel
         $this->column_order = ['t.id', 't.voucher_no','t.voucher_date','t.descritpion','t.debit','t.credit','t.approve', 't.created_by',null];
         
         $query = DB::table('transactions as t')
-        ->selectRaw("t.*,sum(t.credit) as credit,sum(t.debit) as debit,name as cname")        
+        ->select("t.*,sum(t.credit) as credit,sum(t.debit) as debit,name as cname")        
         ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
         ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI']);
         //search query
@@ -100,7 +100,7 @@ class LoanReport extends BaseModel
     public function count_all()
     {
         $query =  DB::table('transactions as t')
-        ->selectRaw("t.*,sum(t.credit) as credit,sum(t.debit) as debit") 
+        ->select("t.*,sum(t.credit) as credit,sum(t.debit) as debit") 
         ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
         ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI'])
         ->groupBy('t.voucher_no');

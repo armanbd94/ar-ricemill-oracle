@@ -19,7 +19,7 @@
                 <div class="card-toolbar">
                     <!--begin::Button-->
                     @if (permission('official-loan-installment-add'))
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Personal Loan Installment','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Employee Loan Installment','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
                     <!--end::Button-->

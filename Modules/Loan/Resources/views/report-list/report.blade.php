@@ -40,7 +40,7 @@
                             @endforeach
                             @endif
                         </x-form.selectbox>
-                        <x-form.selectbox labelName="Person" name="person_id" required="required"  col="col-md-3" class="selectpicker">
+                        <x-form.selectbox labelName="Company" name="person_id" required="required"  col="col-md-3" class="selectpicker">
                             @if (!$person_list->isEmpty())
                             @foreach ($person_list as $person)
                                 <option value="{{ $person->id }}">{{ $person->name }}</option>
