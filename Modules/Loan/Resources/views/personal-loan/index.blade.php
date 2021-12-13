@@ -19,7 +19,7 @@
                 <div class="card-toolbar">
                     <!--begin::Button-->
                     @if (permission('personal-loan-add'))
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Person Loan','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Company Loan','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
                     <!--end::Button-->
@@ -32,7 +32,7 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
-                    <x-form.selectbox labelName="Person" name="person_id" required="required" col="col-md-4" class="selectpicker">
+                    <x-form.selectbox labelName="Company" name="person_id" required="required" col="col-md-4" class="selectpicker">
                         @if (!$person_employees->isEmpty())
                         @foreach ($person_employees as $pemployees)
                             <option value="{{ $pemployees->id }}">{{ $pemployees->name }}</option>
