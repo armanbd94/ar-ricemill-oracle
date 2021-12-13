@@ -17,7 +17,7 @@ use Modules\Material\Entities\SiteMaterial;
 use Modules\BuildDisassembly\Entities\SiloProduct;
 use Modules\BOM\Http\Requests\BOMProcessFormRequest;
 
-class BOMController extends BaseController
+class BOMReProcessController extends BaseController
 {
     public function __construct(BomProcess $model)
     {
@@ -26,10 +26,10 @@ class BOMController extends BaseController
     
     public function index()
     {
-        if(permission('bom-process-access')){
-            $this->setPageData('Manage BOM Process','Manage BOM Process','fas fa-box',[['name' => 'Manage BOM Process']]);
+        if(permission('bom-re-process-access')){
+            $this->setPageData('Manage BOM Re Process','Manage BOM Re Process','fas fa-box',[['name' => 'Manage BOM Re Process']]);
             $batches = Batch::allBatches();
-            return view('bom::bom-process.index',compact('batches'));
+            return view('bom::bom-re-process.index',compact('batches'));
         }else{
             return $this->access_blocked();
         }
@@ -38,7 +38,7 @@ class BOMController extends BaseController
     public function get_datatable_data(Request $request)
     {
         if($request->ajax()){
-            if(permission('bom-process-access')){
+            if(permission('bom-re-process-access')){
 
                 if (!empty($request->process_type)) {
                     $this->model->setProcessType($request->process_type);
@@ -61,18 +61,18 @@ class BOMController extends BaseController
                 foreach ($list as $value) {
                     $no++;
                     $action = '';
-                    if(permission('bom-process-edit')){
-                        $action .= ' <a class="dropdown-item" href="'.route("bom.process.edit",$value->id).'">'.self::ACTION_BUTTON['Edit'].'</a>';
+                    if(permission('bom-re-process-edit')){
+                        $action .= ' <a class="dropdown-item" href="'.route("bom.re.process.edit",$value->id).'">'.self::ACTION_BUTTON['Edit'].'</a>';
                     }
-                    if(permission('bom-process-view')){
-                        $action .= ' <a class="dropdown-item view_data" href="'.route("bom.process.view",$value->id).'">'.self::ACTION_BUTTON['View'].'</a>';
+                    if(permission('bom-re-process-view')){
+                        $action .= ' <a class="dropdown-item view_data" href="'.route("bom.re.process.view",$value->id).'">'.self::ACTION_BUTTON['View'].'</a>';
                     }
-                    if(permission('bom-process-delete')){
+                    if(permission('bom-re-process-delete')){
                         $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->id . '">'.self::ACTION_BUTTON['Delete'].'</a>';
                     }
                     
                     $row = [];
-                    if(permission('bom-process-bulk-delete')){
+                    if(permission('bom-re-process-bulk-delete')){
                         $row[] = row_checkbox($value->id);//custom helper function to show the table each row checkbox
                     }
                     $row[] = $no;
@@ -98,8 +98,8 @@ class BOMController extends BaseController
 
     public function create()
     {
-        if(permission('bom-process-add')){
-            $this->setPageData('BOM Process Form','BOM Process Form','fas fa-box',[['name' => 'BOM Process Form']]);
+        if(permission('bom-re-process-add')){
+            $this->setPageData('BOM Re Process Form','BOM Re Process Form','fas fa-box',[['name' => 'BOM Re Process Form']]);
             $data = [
                 'batches'    => Batch::allBatches(),
                 'sites'      => Site::allSites(),
@@ -109,7 +109,7 @@ class BOMController extends BaseController
                 ->join('products as p','sp.product_id','=','p.id')->get(),
                 'categories' => Category::allProductCategories(),
             ];
-            return view('bom::bom-process.create',$data);
+            return view('bom::bom-re-process.create',$data);
         }else{
             return $this->access_blocked();
         }
@@ -118,12 +118,12 @@ class BOMController extends BaseController
     public function store(BOMProcessFormRequest $request)
     {
         if($request->ajax()){
-            if(permission('bom-process-add')){
+            if(permission('bom-re-process-add')){
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
                     $bomProcessData  = $this->model->create([
-                        'process_type'         => 1,
+                        'process_type'         => 2,
                         'memo_no'              => $request->memo_no,
                         'batch_id'             => $request->batch_id,
                         'process_number'       => $request->process_number,
@@ -212,10 +212,10 @@ class BOMController extends BaseController
 
     public function show(int $id)
     {
-        if(permission('bom-process-view')){
-            $this->setPageData('BOM Process Details','BOM Process Details','fas fa-file',[['name'=>'BOM','link' => 'javascript::void();'],['name' => 'BOM Process Details']]);
+        if(permission('bom-re-process-view')){
+            $this->setPageData('BOM Re Process Details','BOM Re Process Details','fas fa-file',[['name'=>'BOM','link' => 'javascript::void();'],['name' => 'BOM Re Process Details']]);
             $data = $this->model->with('batch','to_site','to_location','bag_site','bag_location','bag','from_product','to_product')->find($id);
-            return view('bom::bom-process.details',compact('data'));
+            return view('bom::bom-re-process.details',compact('data'));
         }else{
             return $this->access_blocked();
         }
@@ -223,8 +223,8 @@ class BOMController extends BaseController
 
     public function edit(int $id)
     {
-        if(permission('bom-process-edit')){
-            $this->setPageData('BOM Process Edit Form','BOM Process Edit Form','fas fa-edit',[['name' => 'BOM Process Edit Form']]);
+        if(permission('bom-re-process-edit')){
+            $this->setPageData('BOM Re Process Edit Form','BOM Re Process Edit Form','fas fa-edit',[['name' => 'BOM Re Process Edit Form']]);
             $bom_process = $this->model->find($id);
             $data = [
                 'data'       => $bom_process,
@@ -246,7 +246,7 @@ class BOMController extends BaseController
                     'm.type'         => 2
                 ])->get()
             ];
-            return view('bom::bom-process.edit',$data);
+            return view('bom::bom-re-process.edit',$data);
         }else{
             return $this->access_blocked();
         }
@@ -255,14 +255,14 @@ class BOMController extends BaseController
     public function update(BOMProcessFormRequest $request)
     {
         if($request->ajax()){
-            if(permission('bom-process-edit')){
+            if(permission('bom-re-process-edit')){
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
                     $bomProcessData = $this->model->find($request->process_id);
 
                     $bom_process_data = [
-                        'process_type'         => 1,
+                        'process_type'         => 2,
                         'memo_no'              => $request->memo_no,
                         'batch_id'             => $request->batch_id,
                         'process_number'       => $request->process_number,
@@ -392,7 +392,7 @@ class BOMController extends BaseController
     public function delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('bom-process-delete')){
+            if(permission('bom-re-process-delete')){
                 DB::beginTransaction();
                 try {
                     $bomProcessData = $this->model->find($request->id);
@@ -460,7 +460,7 @@ class BOMController extends BaseController
     public function bulk_delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('bom-process-bulk-delete')){
+            if(permission('bom-re-process-bulk-delete')){
                 DB::beginTransaction();
                 try {
                     foreach ($request->ids as $id) {
