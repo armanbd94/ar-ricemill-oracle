@@ -26,7 +26,7 @@ class OfficialLoanInstallmentController extends BaseController
     public function index()
     {
         if(permission('official-loan-installment-access')){
-            $this->setPageData('Manage Office Loan Installment','Manage Office Loan Installment','far fa-money-bill-alt',[['name'=>'Loan','link'=>'javascript::void();'],['name' => 'Manage Office Loan Installment']]);
+            $this->setPageData('Manage Employee Loan Installment','Manage Employee Loan Installment','far fa-money-bill-alt',[['name'=>'Loan','link'=>'javascript::void();'],['name' => 'Manage Employee Loan Installment']]);
             $data = [
                 'voucher_no'             => self::VOUCHER_PREFIX.'-'.date('Ymd').rand(1,999),
                 'employees'        =>  Employee::toBase()->where('status', 1)->get()

@@ -1,8 +1,3 @@
-@php
-    use Modules\HRM\Entities\SalaryGenerate;
-    use Illuminate\Support\Facades\DB;
-    use Modules\HRM\Entities\AllowanceDeductionManage;
-@endphp
 @extends('layouts.app')
 
 @section('title', $page_title)
@@ -24,8 +19,8 @@
                 <div class="card-toolbar">
                     <!--begin::Button-->
                     <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
-                    
-                    <a href="{{ route('purchase') }}" class="btn btn-warning btn-sm font-weight-bolder"> 
+
+                    <a href="{{ route('salary.generate') }}" class="btn btn-warning btn-sm font-weight-bolder">
                         <i class="fas fa-arrow-left"></i> Back</a>
                     <!--end::Button-->
                 </div>
@@ -35,10 +30,11 @@
         <!--begin::Card-->
         <div class="card card-custom" style="padding-bottom: 100px !important;">
             <div class="card-body" style="padding-bottom: 100px !important;">
-                <div class="col-md-12 col-lg-12"  style="width: 100%;">
+                <div class="col-md-12 col-lg-12" style="width: 100%;">
                     <div id="invoice">
                         <style>
-                            body,html {
+                            body,
+                            html {
                                 background: #fff !important;
                                 -webkit-print-color-adjust: exact !important;
                             }
@@ -222,17 +218,39 @@
                             .page {
                                 page-break-after: always;
                             }
-                            .dashed-border{
-                                width:180px;height:2px;margin:0 auto;padding:0;border-top:1px dashed #454d55 !important;
+
+                            .dashed-border {
+                                width: 180px;
+                                height: 2px;
+                                margin: 0 auto;
+                                padding: 0;
+                                border-top: 1px dashed #454d55 !important;
                             }
 
                             @media screen {
-                                .no_screen {display: none;}
-                                .no_print {display: block;}
-                                thead {display: table-header-group;} 
-                                tfoot {display: table-footer-group;}
-                                button {display: none;}
-                                body {margin: 0;}
+                                .no_screen {
+                                    display: none;
+                                }
+
+                                .no_print {
+                                    display: block;
+                                }
+
+                                thead {
+                                    display: table-header-group;
+                                }
+
+                                tfoot {
+                                    display: table-footer-group;
+                                }
+
+                                button {
+                                    display: none;
+                                }
+
+                                body {
+                                    margin: 0;
+                                }
                             }
 
                             @media print {
@@ -317,8 +335,13 @@
                                 .hidden-print {
                                     display: none !important;
                                 }
-                                .dashed-border{
-                                    width:180px;height:2px;margin:0 auto;padding:0;border-top:1px dashed #454d55 !important;
+
+                                .dashed-border {
+                                    width: 180px;
+                                    height: 2px;
+                                    margin: 0 auto;
+                                    padding: 0;
+                                    border-top: 1px dashed #454d55 !important;
                                 }
                             }
 
@@ -328,7 +351,7 @@
 
                             }
                         </style>
-                        <div class="invoice overflow-auto">
+                        <div class="invoice">
                             <div>
                                 <table>
                                     <tr>
@@ -342,24 +365,25 @@
                                 </table>
                                 <div style="width: 100%;height:3px;border-top:1px solid #036;border-bottom:1px solid #036;"></div>
                                 <div class="row" style="border: 1px solid #ddd;padding: 26px 9px">
-							        <div class="col-md-6">
+                                    <div class="col-md-6">
                                         <table>
                                             <tr>
                                                 <td width="50%"><b>Name :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php $employee = SalaryGenerate::getAnyRowInfos('employees','id',$payslip->employee_id);echo $employee->name?>
+                                                    <?php $employee = Modules\HRM\Entities\SalaryGenerate::getAnyRowInfos('employees', 'id', $payslip->employee_id);
+                                                    echo $employee->name ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Department :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    {{SalaryGenerate::getAnyRowInfos('departments','id',$payslip->department_id)->name}}
+                                                    {{Modules\HRM\Entities\SalaryGenerate::getAnyRowInfos('departments','id',$payslip->department_id)->name}}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Designation :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    {{SalaryGenerate::getAnyRowInfos('designations','id',$payslip->designation_id)->name}}
+                                                    {{Modules\HRM\Entities\SalaryGenerate::getAnyRowInfos('designations','id',$payslip->designation_id)->name}}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -374,107 +398,111 @@
                                                     {{$payslip->basic_salary}}
                                                 </td>
                                             </tr>
-                                            <?php                                           
-
-                                            $allallowance = DB::select(DB::raw("SELECT allowAmount.amount as amount,allowAmount.employee_id,allow.id,allow.name as aname,allow.short_name as asname,allow.type as atype FROM `allowance_deduction_manages` as allowAmount 
-                                            JOIN `allowance_deductions` as allow ON allow.id=allowAmount.allowance_deduction_id WHERE allowAmount.employee_id='" . $payslip->employee_id . "' 
-                                            group by allowAmount.allowance_deduction_id"));
+                                            <?php
+                                            $allallowance = Illuminate\Support\Facades\DB::table('allowance_deduction_manages as allowAmount')
+                                                ->select('allowAmount.employee_id', Illuminate\Support\Facades\DB::raw("SUM(allowAmount.amount) as amount,allowAmount.employee_id,allow.id,allow.name as aname,allow.short_name as asname,allow.type as atype"), 'allow.type')
+                                                ->join('allowance_deductions as allow', 'allowAmount.allowance_deduction_id', '=', 'allow.id')
+                                                ->where('allowAmount.employee_id', $payslip->employee_id)
+                                                ->groupBy('allowAmount.employee_id', 'allow.type', 'allow.id', 'allowAmount.amount', 'allow.name', 'allow.short_name')
+                                                ->get();
                                             $allowanceArray = array();
                                             $deducteArray = array();
-                                            $tallow=0;
-                                            $tdeduct=0;
-                                            foreach($allallowance as $allowance):
-                                                if($allowance->atype == 1){
+                                            $tallow = 0;
+                                            $tdeduct = 0;
+                                            foreach ($allallowance as $allowance) :
+                                                if ($allowance->atype == 1) {
                                                     $allowanceAmount = $allowance->amount;
                                                     $allowanceArray[$allowance->aname] = $allowance->amount;
-                                                }else if($allowance->atype == 2){
+                                                } else if ($allowance->atype == 2) {
                                                     $deducteArray[$allowance->aname] = $allowance->amount;
                                                 }
-                                            endforeach; ?>   
-                                            <?php foreach($allowanceArray  as $key => $allow):?>                                         
-                                            <tr>
-                                                <td width="50%"><b>{{$key}} :</b></td>
-                                                <td width="50%" class="text-left">
-                                                    <?php $tallow +=$allow; echo $allow;?>
-                                                </td>
-                                            </tr>
-                                            <?php  endforeach;?>                                            
+                                            endforeach; ?>
+                                            <?php foreach ($allowanceArray  as $key => $allow) : ?>
+                                                <tr>
+                                                    <td width="50%"><b>{{$key}} :</b></td>
+                                                    <td width="50%" class="text-left">
+                                                        <?php $tallow += $allow;
+                                                        echo $allow; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
                                             <tr>
                                                 <td width="50%"><b>Net salary :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo $netSalary = ($payslip->basic_salary+$tallow);?>
+                                                    <?php echo $netSalary = ($payslip->basic_salary + $tallow); ?>
                                                 </td>
                                             </tr>
-                                            <?php foreach($deducteArray  as $key => $deduct):?>                                         
-                                            <tr>
-                                                <td width="50%"><b>{{$key}} :</b></td>
-                                                <td width="50%" class="text-left">
-                                                    <?php $tdeduct +=$deduct; echo $deduct;?>
-                                                </td>
-                                            </tr>
-                                            <?php  endforeach;?>                                           
+                                            <?php foreach ($deducteArray  as $key => $deduct) : ?>
+                                                <tr>
+                                                    <td width="50%"><b>{{$key}} :</b></td>
+                                                    <td width="50%" class="text-left">
+                                                        <?php $tdeduct += $deduct;
+                                                        echo $deduct; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
                                             <tr>
                                                 <td width="50%"><b>Absent Amount :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo $payslip->absent_amount;?>
+                                                    <?php echo $payslip->absent_amount; ?>
                                                 </td>
-                                            </tr>                                            
+                                            </tr>
                                             <tr>
                                                 <td width="50%"><b>Leave Amount :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo $payslip->leave_amount;?>
+                                                    <?php echo $payslip->leave_amount; ?>
                                                 </td>
-                                            </tr>                                         
+                                            </tr>
                                             <tr>
                                                 <td width="50%"><b>Net salary to be paid :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo $netSalaryPay = ($netSalary-($tdeduct + $payslip->absent_amount+$payslip->leave_amount));?>
+                                                    <?php echo $netSalaryPay = ($netSalary - ($tdeduct + $payslip->absent_amount + $payslip->leave_amount)); ?>
                                                 </td>
                                             </tr>
                                         </table>
                                     </div>
-							        <div class="col-md-6">
+                                    <div class="col-md-6">
                                         <table>
                                             <tr>
                                                 <td width="50%"><b>No :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo $employee->id?>
+                                                    <?php echo $employee->id ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Month :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo date('F Y',strtotime($payslip->salary_month))?>
+                                                    <?php echo date('F Y', strtotime($payslip->salary_month)) ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Date :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo date('d-F-Y',strtotime($payslip->salary_month))?>
+                                                    <?php echo date('d-F-Y', strtotime($payslip->salary_month)) ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Number of working days :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo "26";?>
+                                                    <?php echo "26"; ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Number of day worked in the month :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo $present = (26-$payslip->absent);?>
+                                                    <?php echo $present = (26 - $payslip->absent); ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Unjustified absence :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo $payslip->absent;?>
+                                                    <?php echo $payslip->absent; ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%"><b>Per day salary :</b></td>
                                                 <td width="50%" class="text-left">
-                                                    <?php echo number_format(($payslip->basic_salary/$present),2);?>
+                                                    <?php echo number_format(($payslip->basic_salary / $present), 2); ?>
                                                 </td>
                                             </tr>
                                         </table>
@@ -495,18 +523,17 @@
 @push('scripts')
 <script src="js/jquery.printarea.js"></script>
 <script>
-$(document).ready(function () {
-    //QR Code Print
-    $(document).on('click','#print-invoice',function(){
-        var mode = 'iframe'; // popup
-        var close = mode == "popup";
-        var options = {
-            mode: mode,
-            popClose: close
-        };
-        $("#invoice").printArea(options);
+    $(document).ready(function() {
+        //QR Code Print
+        $(document).on('click', '#print-invoice', function() {
+            var mode = 'iframe'; // popup
+            var close = mode == "popup";
+            var options = {
+                mode: mode,
+                popClose: close
+            };
+            $("#invoice").printArea(options);
+        });
     });
-});
-
 </script>
 @endpush
