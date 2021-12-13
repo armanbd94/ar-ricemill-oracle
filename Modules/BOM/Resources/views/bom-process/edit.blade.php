@@ -14,8 +14,8 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-danger btn-sm mr-3 custom-btn"><i class="fas fa-sync-alt"></i> Reset</button>
-                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
+                    <a  href="{{ route('bom.process') }}" class="btn btn-danger btn-sm mr-3 custom-btn"><i class="fas fa-window-close"></i> Cancel</a>
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -30,44 +30,45 @@
 
                     <form  id="store_form" method="post" enctype="multipart/form-data">
                         @csrf
+                        <input type="hidden" name="process_id" value="{{ $data->id }}"/>
                         <div class="row">
-                            <x-form.textbox labelName="Date" name="process_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>
+                            <x-form.textbox labelName="Date" name="process_date" value="{{ $data->process_date }}" required="required" class="date" col="col-md-3"/>
 
                             <x-form.selectbox labelName="WIP Batch" name="batch_id" required="required"  class="selectpicker" col="col-md-3">
                                 @if (!$batches->isEmpty())
                                     @foreach ($batches as $batch)
-                                        <option value="{{ $batch->id }}">{{ $batch->batch_no }}</option>
+                                        <option value="{{ $batch->id }}" {{ $data->batch_id == $batch->id ? 'selected' : '' }}>{{ $batch->batch_no }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
 
                             <div class="form-group col-md-6 required">
                                 <label for="chalan_no">Memo No.</label>
-                                <input type="text" class="form-control" name="memo_no" id="memo_no" onkeyup="setParticularText(this.value)" />
+                                <input type="text" class="form-control" name="memo_no" id="memo_no" value="{{ $data->memo_no }}" onkeyup="setParticularText(this.value)" />
                             </div>
 
-                            <x-form.textbox labelName="Assemble From Site" name="assemble_from" required="required" value="Bulk Rice in Silo" readonly  col="col-md-3"/>
+                            <x-form.textbox labelName="Assemble From Site" name="assemble_from" required="required"  value="Bulk Rice in Silo" readonly  col="col-md-3"/>
 
                             <x-form.selectbox labelName="Assemble To Site" name="to_site_id" required="required" onchange="getLocations(this.value,1)" class="selectpicker"  col="col-md-3">
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
-                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                        <option value="{{ $site->id }}" {{ $data->to_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
                             <x-form.selectbox labelName="Assemble To Location" name="to_location_id" required="required" col="col-md-3" class="selectpicker" />
-                            <x-form.textbox labelName="Number" name="process_number" required="required"  col="col-md-3"/>
+                            <x-form.textbox labelName="Number" name="process_number" required="required" value="{{ $data->process_number }}" col="col-md-3"/>
                             <x-form.selectbox labelName="Converted To" name="to_product_id" required="required"  col="col-md-3" class="selectpicker">
                                 @if (!$products->isEmpty())
                                     @foreach ($products as $product)
-                                        <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                        <option value="{{ $product->id }}" {{ $data->to_product_id == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
                             <x-form.selectbox labelName="Bag Inventory Site" name="bag_site_id" onchange="getLocations(this.value,2)"  required="required" col="col-md-3" class="selectpicker">
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
-                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                        <option value="{{ $site->id }}" {{ $data->bag_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
@@ -89,56 +90,79 @@
                                             </thead>
                                             <tbody>
                                                 <tr>
+                                                    @php
+                                                        $product_stock = $data->product_required_qty;
+                                                    @endphp
                                                     <td  style="width: 300px;">
                                                         <select name="from_product_id" id="from_product_id" class="form-control selectpicker" style="width: 300px;" data-live-search="true" onchange="setMaterialData(1)" data-live-search-placeholder="Search">
                                                             <option value="">Select Please</option>
                                                             @if (!$silo_products->isEmpty())
                                                                 @foreach ($silo_products as $product)
-                                                                    <option value="{{ $product->id }}" data-stockqty="{{ $product->qty }}">{{ $product->name }}</option>
+                                                                    <?php 
+                                                                        if($data->from_product_id == $product->id)
+                                                                        {
+                                                                            $product_stock += $product->qty ? $product->qty : 0;
+                                                                        }
+                                                                    ?>
+                                                                    <option value="{{ $product->id }}" {{ $data->from_product_id == $product->id ? 'selected' : '' }} data-stockqty="{{ $product->qty }}">{{ $product->name }}</option>
                                                                 @endforeach
                                                             @endif
                                                         </select>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="product_stock_qty" id="product_stock_qty"  class="form-control text-right bg-secondary" readonly>
+                                                        <input type="text" name="product_stock_qty" id="product_stock_qty" value="{{ $product_stock }}" class="form-control text-right bg-secondary" readonly>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="product_particular" id="product_particular"  class="form-control">
+                                                        <input type="text" name="product_particular" id="product_particular" value="{{ $data->product_particular }}"  class="form-control">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="product_per_unit_qty" id="product_per_unit_qty" onkeyup="packetRiceCalculation()" class="form-control text-right">
+                                                        <input type="text" name="product_per_unit_qty" id="product_per_unit_qty" value="{{ $data->product_per_unit_qty }}" onkeyup="packetRiceCalculation()" class="form-control text-right">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="product_required_qty" id="product_required_qty"  class="form-control text-right bg-secondary" readonly>
+                                                        <input type="text" name="product_required_qty" id="product_required_qty" value="{{ $data->product_required_qty }}"  class="form-control text-right bg-secondary" readonly>
                                                     </td>
                                                 </tr>
                                                 <tr>
+                                                    @php
+                                                        $bag_stock = $data->bag_required_qty;
+                                                    @endphp
                                                     <td  style="width: 300px;">
                                                         <select  style="width: 300px;" name="bag_id" id="bag_id" class="form-control selectpicker" data-live-search="true" onchange="setMaterialData(2)" data-live-search-placeholder="Search">
                                                             <option value="">Select Please</option>
-                                                        
+                                                            @if (!$bags->isEmpty())
+                                                            @foreach($bags as $value)
+                                                            <?php 
+                                                                        if($data->bag_id == $value->id)
+                                                                        {
+                                                                            $bag_stock += $value->qty ? $value->qty : 0;
+                                                                        }
+                                                                    ?>
+                                                            <option value="{{ $value->id }}" {{ $data->bag_id == $value->id ? 'selected' : '' }} data-stockqty="{{ $value->qty }}" data-category="{{ $value->category_name }}" 
+                                                                data-unitname="{{ $value->unit_name }}" data-unitcode="{{ $value->unit_code }}">{{ $value->material_name }}</option>
+                                                            @endforeach
+                                                            @endif
                                                         </select>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="bag_stock_qty" id="bag_stock_qty"  class="form-control text-right bg-secondary" readonly>
+                                                        <input type="text" name="bag_stock_qty" id="bag_stock_qty" value="{{ $bag_stock }}"  class="form-control text-right bg-secondary" readonly>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="bag_particular" id="bag_particular"  class="form-control">
+                                                        <input type="text" name="bag_particular" id="bag_particular" value="{{ $data->bag_particular }}"  class="form-control">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="bag_per_unit_qty" id="bag_per_unit_qty" onkeyup="packetRiceCalculation()" class="form-control text-right">
+                                                        <input type="text" name="bag_per_unit_qty" id="bag_per_unit_qty" value="{{ $data->bag_per_unit_qty }}" onkeyup="packetRiceCalculation()" class="form-control text-right">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="bag_required_qty" id="bag_required_qty"  class="form-control text-right bg-secondary" readonly>
+                                                        <input type="text" name="bag_required_qty" id="bag_required_qty" value="{{ $data->bag_required_qty }}"  class="form-control text-right bg-secondary" readonly>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Fine Rice Quantity to Build</td>
-                                                    <td><input type="text" name="total_rice_qty" id="total_rice_qty" onkeyup="packetRiceCalculation()" class="form-control text-right"></td>
+                                                    <td><input type="text" name="total_rice_qty" id="total_rice_qty" value="{{ $data->total_rice_qty }}" onkeyup="packetRiceCalculation()" class="form-control text-right"></td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Total Bag Used Quantity</td>
-                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty"  class="form-control text-right bg-secondary" readonly></td>
+                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty" value="{{ $data->total_bag_qty }}"  class="form-control text-right bg-secondary" readonly></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -164,7 +188,10 @@
 $(document).ready(function () {
     $('.date').datetimepicker({format: 'YYYY-MM-DD'});
 });
-function bag_list()
+getLocations("{{ $data->to_site_id }}",1,"{{ $data->to_location_id }}");
+getLocations("{{ $data->bag_site_id }}",2,"{{ $data->bag_location_id }}");
+
+function bag_list(bag_id='')
 {
     const site_id       = $(`#bag_site_id option:selected`).val();
     const location_id   = $(`#bag_location_id option:selected`).val();
@@ -179,6 +206,11 @@ function bag_list()
             success:function(data){
                 $(`#bag_id`).empty().append(data);
                 $(`#bag_id.selectpicker`).selectpicker('refresh');
+                if(bag_id)
+                {
+                    $(`#bag_id`).val(bag_id);
+                    $(`#bag_id.selectpicker`).selectpicker('refresh');
+                }
             },
         });
         $('#available_qty').val('');
@@ -229,7 +261,7 @@ function packetRiceCalculation()
     }
 }
 
-function getLocations(site_id,selector)
+function getLocations(site_id,selector,location_id='')
 {
     $.ajax({
         url:"{{ url('site-wise-location-list') }}/"+site_id,
@@ -245,9 +277,19 @@ function getLocations(site_id,selector)
             {
                 $(`#to_location_id`).empty().append(html);
                 $(`#to_location_id.selectpicker`).selectpicker('refresh');
+                if(location_id)
+                {
+                    $(`#to_location_id`).val(location_id);
+                    $(`#to_location_id.selectpicker`).selectpicker('refresh');
+                }
             }else{
                 $(`#bag_location_id`).empty().append(html);
                 $(`#bag_location_id.selectpicker`).selectpicker('refresh');
+                if(location_id)
+                {
+                    $(`#bag_location_id`).val(location_id);
+                    $(`#bag_location_id.selectpicker`).selectpicker('refresh');
+                }
             }
             
         },
@@ -256,7 +298,7 @@ function getLocations(site_id,selector)
 function store_data(){
     let form = document.getElementById('store_form');
     let formData = new FormData(form);
-    let url = "{{route('bom.process.store')}}";
+    let url = "{{route('bom.process.update')}}";
     $.ajax({
         url: url,
         type: "POST",
@@ -287,7 +329,7 @@ function store_data(){
             } else {
                 notification(data.status, data.message);
                 if (data.status == 'success') {
-                    window.location.replace("{{ url('bom/process/view') }}/"+data.process_id);
+                    window.location.replace("{{ url('bom/process') }}");
                 }
             }
 
