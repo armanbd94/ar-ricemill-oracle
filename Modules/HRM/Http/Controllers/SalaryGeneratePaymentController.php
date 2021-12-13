@@ -51,7 +51,7 @@ class SalaryGeneratePaymentController extends BaseController
                             'salary_generated_id' => $salary_data->id,
                             'account_id'      => $request->account_id,
                             'transaction_id' => $expense_salary_coa_id,
-                            'employee_transaction_id' => $expense_salary_coa_id,
+                            'employee_transaction_id' => '',
                             'voucher_no'     => $salary_data->voucher_no,
                             'voucher_date'   => date('Y-m-d'),
                             'month'     => $salary_data->salary_month,
@@ -100,13 +100,10 @@ class SalaryGeneratePaymentController extends BaseController
                        
                         $salary_data->modified_by = auth()->user()->name;
                         $salary_data->update();
-                        $result = $this->payment_balance_add($payment_data);
+                        $result = $this->payment_balance_add($payment_data,$payment_data_insert);
 
                         //dd($result);
-                        dd($payment_data_insert);
-                        if($result){
-                            SalaryGeneratePayment::insert($payment_data_insert);
-                        }
+                        //dd($payment_data_insert);
                         $output = $result ? ['status'=>'success','message'=> 'Payment Data Saved Successfully'] : ['status'=>'error','message'=> 'Failed to Save Payment Data'];
                         
                     }
@@ -123,94 +120,84 @@ class SalaryGeneratePaymentController extends BaseController
         }
     }
 
-    private function payment_balance_add(array $data) {
+    private function payment_balance_add(array $data, array $payment_data_insert) {
+        
         $voucher_type = 'Employee Salary';
         $employeeInfo = Employee::where('id',$data['supplier_debit_transaction_id'])->first();
         $debit_account = ChartOfAccount::where('name',$employeeInfo->id.'-'.$employeeInfo->name.'-E')->first();
-        //dd($debit_account);
-        if($data['payment_type'] == 1){
-            //Cah In Hand debit
-            $payment = array(
-                'chart_of_account_id' => $data['account_id'],
+
+        $payment_data_insert['employee_transaction_id'] = $debit_account->id;
+        // dd($payment_data_insert);
+        $result = SalaryGeneratePayment::create($payment_data_insert);
+        if($result){
+            //dd($debit_account);
+            if($data['payment_type'] == 1){
+                //Cah In Hand debit
+                $payment = array(
+                    'chart_of_account_id' => $data['account_id'],
+                    'voucher_no'          => $data['voucher_no'],
+                    'voucher_type'        => self::VOUCHER_PREFIX,
+                    'voucher_date'        => $data['voucher_date'],
+                    'description'         => $data['employee_name'].' Salary Expense '.$data['voucher_no'],
+                    'debit'               => 0,
+                    'credit'              => $data['amount'],
+                    'posted'              => 1,
+                    'approve'             => 1,
+                    'created_by'          => auth()->user()->name,
+                    'created_at'          => date('Y-m-d H:i:s')
+                    
+                );
+            }else{
+                // Bank Ledger
+                $payment = array(
+                    'chart_of_account_id' => $data['account_id'],
+                    'voucher_no'          => $data['voucher_no'],
+                    'voucher_type'        => self::VOUCHER_PREFIX,
+                    'voucher_date'        => $data['voucher_date'],
+                    'description'         => DB::table('chart_of_accounts')->where('id',$data['account_id'])->value('name').' Salary Expense '.$data['voucher_no'],
+                    'debit'               => 0,
+                    'credit'              => $data['amount'],
+                    'posted'              => 1,
+                    'approve'             => 1,
+                    'created_by'          => auth()->user()->name,
+                    'created_at'          => date('Y-m-d H:i:s')
+                );
+            }
+            
+            // company expense Debit
+            $expense_acc = array(
+                'chart_of_account_id' => $debit_account->id,
                 'voucher_no'          => $data['voucher_no'],
                 'voucher_type'        => self::VOUCHER_PREFIX,
                 'voucher_date'        => $data['voucher_date'],
-                'description'         => $data['employee_name'].' Salary Expense '.$data['voucher_no'],
-                'debit'               => 0,
-                'credit'              => $data['amount'],
+                'description'         => $data['employee_name'].' Expense '.$data['voucher_no'],
+                'debit'               => $data['amount'],
+                'credit'              => 0,
                 'posted'              => 1,
                 'approve'             => 1,
                 'created_by'          => auth()->user()->name,
                 'created_at'          => date('Y-m-d H:i:s')
-                
-            );
-        }else{
-            // Bank Ledger
-            $payment = array(
-                'chart_of_account_id' => $data['account_id'],
+            ); 
+    
+            $expense_acc = array(
+                'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', $this->coa_head_code('employee_salary'))->value('id'),
                 'voucher_no'          => $data['voucher_no'],
-                'voucher_type'        => self::VOUCHER_PREFIX,
+                'voucher_type'        => $voucher_type,
                 'voucher_date'        => $data['voucher_date'],
-                'description'         => DB::table('chart_of_accounts')->where('id',$data['account_id'])->value('name').' Salary Expense '.$data['voucher_no'],
-                'debit'               => 0,
-                'credit'              => $data['amount'],
+                'description'         => 'Company Debit For Employee ' . $data['employee_name'],
+                'debit'               => $data['amount'],
+                'credit'              => 0,
                 'posted'              => 1,
                 'approve'             => 1,
                 'created_by'          => auth()->user()->name,
                 'created_at'          => date('Y-m-d H:i:s')
             );
+            
+            Transaction::insert($expense_acc);
+            $payment_transaction = Transaction::updateOrCreate(['id'=> $data['transaction_id']],$payment);
+
+            return 1;
         }
-        
-        // company expense Debit
-        $expense_acc = array(
-            'chart_of_account_id' => $debit_account->id,
-            'voucher_no'          => $data['voucher_no'],
-            'voucher_type'        => self::VOUCHER_PREFIX,
-            'voucher_date'        => $data['voucher_date'],
-            'description'         => $data['employee_name'].' Expense '.$data['voucher_no'],
-            'debit'               => $data['amount'],
-            'credit'              => 0,
-            'posted'              => 1,
-            'approve'             => 1,
-            'created_by'          => auth()->user()->name,
-            'created_at'          => date('Y-m-d H:i:s')
-        ); 
-
-        $expense_acc = array(
-            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', $this->coa_head_code('employee_salary'))->value('id'),
-            'voucher_no'          => $data['voucher_no'],
-            'voucher_type'        => $voucher_type,
-            'voucher_date'        => $data['voucher_date'],
-            'description'         => 'Company Debit For Employee ' . $data['employee_name'],
-            'debit'               => $data['amount'],
-            'credit'              => 0,
-            'posted'              => 1,
-            'approve'             => 1,
-            'created_by'          => auth()->user()->name,
-            'created_at'          => date('Y-m-d H:i:s')
-        );
-        
-        Transaction::insert($expense_acc);
-        $payment_transaction = Transaction::updateOrCreate(['id'=> $data['transaction_id']],$payment);
-
-
-         if($payment_transaction){
-             $payment_data = [
-                 'salary_generated_id'          => $data['salary_id'],
-                 'account_id'                    => $data['account_id'],
-                 'transaction_id'                => $payment_transaction->id,
-                 'amount'                        => $data['amount'],
-                 'payment_method'                => $data['payment_type'],
-                 'cheque_no'                     => $data['cheque_no'],
-             ];
-             if($data['payment_id']){
-                 $payment_data['modified_by'] = auth()->user()->name;
-             }else{
-                 $payment_data['created_by'] = auth()->user()->name;
-             }
-            $result = 1;
-            return $result;
-         }
 
     }
 }
