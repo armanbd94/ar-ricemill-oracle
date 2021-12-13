@@ -237,7 +237,7 @@ class BuildDisassemblyController extends BaseController
     public function show(int $id)
     {
         if(permission('build-disassembly-view')){
-            $this->setPageData('Build Disassembly Details','Build Disassembly Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Build Disassembly Details']]);
+            $this->setPageData('Build Disassembly Details','Build Disassembly Details','fas fa-file',[['name' => 'Build Disassembly Details']]);
             $data = $this->model->with('by_products','batch','material','product','from_site','category','from_location','bp_site','bp_location')->find($id);
             return view('builddisassembly::details',compact('data'));
         }else{

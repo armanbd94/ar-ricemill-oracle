@@ -202,7 +202,7 @@ class TransferInventoryMixController extends BaseController
     public function show(int $id)
     {
         if(permission('transfer-inventory-mix-view')){
-            $this->setPageData('Transfer Inventory Mix Details','Transfer Inventory Mix Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Transfer Inventory Mix Details']]);
+            $this->setPageData('Transfer Inventory Mix Details','Transfer Inventory Mix Details','fas fa-file',[['name' => 'Transfer Inventory Mix Details']]);
             $transfer = $this->model->with('materials','batch','product','to_site','category','to_location')->find($id);
             $materials = TransferMixItem::with('from_site','material','from_location')->where('transfer_id',$id)->get();
             return view('transferinventory::transfer-inventory-mix.details',compact('transfer','materials'));

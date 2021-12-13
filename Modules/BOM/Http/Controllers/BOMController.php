@@ -118,10 +118,11 @@ class BOMController extends BaseController
     {
         if($request->ajax()){
             if(permission('bom-process-add')){
-                dd($request->all());
+                // dd($request->all());
                 DB::beginTransaction();
                 try {
                     $bomProcessData  = $this->model->create([
+                        'process_type'         => 1,
                         'memo_no'              => $request->memo_no,
                         'batch_id'             => $request->batch_id,
                         'process_number'       => $request->process_number,
@@ -153,9 +154,9 @@ class BOMController extends BaseController
                             $bag->update();
                         }
                         $from_site_bag = SiteMaterial::where([
-                            ['site_id',$bomProcessData->from_site_id],
-                            ['location_id',$bomProcessData->from_location_id],
-                            ['bag_id',$bomProcessData->bag_id],
+                            ['site_id',$bomProcessData->bag_site_id],
+                            ['location_id',$bomProcessData->bag_location_id],
+                            ['material_id',$bomProcessData->bag_id],
                         ])->first();
                         
                         if($from_site_bag)
@@ -166,24 +167,23 @@ class BOMController extends BaseController
 
                         //Add Packet Rice Into Stock
                         $site_by_product = SiteProduct::where([
-                            ['site_id',$request->to_site_id],
-                            ['location_id',$request->to_location_id],
-                            ['product_id',$request->to_product_id],
+                            ['site_id',$bomProcessData->to_site_id],
+                            ['location_id',$bomProcessData->to_location_id],
+                            ['product_id',$bomProcessData->to_product_id],
                         ])->first();
                         
                         if($site_by_product)
                         {
-                            $site_by_product->qty += $request->total_rice_qty;
+                            $site_by_product->qty += $bomProcessData->total_rice_qty;
                             $site_by_product->update();
                         }else{
                             SiteProduct::create([
-                                'site_id'     => $request->to_site_id,
-                                'location_id' => $request->to_location_id,
-                                'product_id' => $request->to_product_id,
-                                'qty'         => $request->total_rice_qty
+                                'site_id'     => $bomProcessData->to_site_id,
+                                'location_id' => $bomProcessData->to_location_id,
+                                'product_id'  => $bomProcessData->to_product_id,
+                                'qty'         => $bomProcessData->total_rice_qty
                             ]);
                         }
-
                         $output = ['status'=>'success','message'=>'Data has been saved successfully','build_id'=>$bomProcessData->id];
                     }else{
                         $output = ['status'=>'error','message'=>'Failed to save data','purchase_id'=>''];
@@ -194,11 +194,22 @@ class BOMController extends BaseController
                     $output = ['status' => 'error','message' => $e->getMessage()];
                 }
             }else{
-                $output       = $this->unauthorized();
+                $output     = $this->unauthorized();
             }
             return response()->json($output);
         }else{
             return response()->json($this->unauthorized());
+        }
+    }
+
+    public function show(int $id)
+    {
+        if(permission('bom-process-view')){
+            $this->setPageData('BOM Process Details','BOM Process Details','fas fa-file',[['name'=>'BOM','link' => 'javascript::void();'],['name' => 'BOM Process Details']]);
+            $data = $this->model->with('batch','to_site','to_location','bag_site','bag_location','bag','from_product','to_product')->find($id);
+            return view('bom::bom-process.details',compact('data'));
+        }else{
+            return $this->access_blocked();
         }
     }
 }

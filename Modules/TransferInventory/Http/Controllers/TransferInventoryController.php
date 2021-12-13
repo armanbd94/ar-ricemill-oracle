@@ -199,7 +199,7 @@ class TransferInventoryController extends BaseController
     public function show(int $id)
     {
         if(permission('transfer-inventory-view')){
-            $this->setPageData('Transfer Inventory Details','Transfer Inventory Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Transfer Inventory Details']]);
+            $this->setPageData('Transfer Inventory Details','Transfer Inventory Details','fas fa-file',[['name' => 'Transfer Inventory Details']]);
             $transfer = $this->model->with('materials','batch','from_site','to_site','from_location','to_location')->find($id);
             return view('transferinventory::transfer-inventory.details',compact('transfer'));
         }else{

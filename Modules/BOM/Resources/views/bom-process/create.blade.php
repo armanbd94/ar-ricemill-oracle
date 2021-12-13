@@ -28,7 +28,7 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
 
 
-                    <form action="" id="purchase_store_form" method="post" enctype="multipart/form-data">
+                    <form  id="store_form" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <x-form.textbox labelName="Date" name="process_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>
@@ -48,14 +48,14 @@
 
                             <x-form.textbox labelName="Assemble From Site" name="assemble_from" required="required" value="Bulk Rice in Silo" readonly  col="col-md-3"/>
 
-                            <x-form.selectbox labelName="Assemble To Site" name="assemble_site_id" required="required" onchange="getLocations(this.value,1)" class="selectpicker"  col="col-md-3">
+                            <x-form.selectbox labelName="Assemble To Site" name="to_site_id" required="required" onchange="getLocations(this.value,1)" class="selectpicker"  col="col-md-3">
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
                                         <option value="{{ $site->id }}">{{ $site->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="Assemble To Location" name="assemble_location_id" required="required" col="col-md-3" class="selectpicker" />
+                            <x-form.selectbox labelName="Assemble To Location" name="to_location_id" required="required" col="col-md-3" class="selectpicker" />
                             <x-form.textbox labelName="Number" name="process_number" required="required"  col="col-md-3"/>
                             <x-form.selectbox labelName="Converted To" name="to_product_id" required="required"  col="col-md-3" class="selectpicker">
                                 @if (!$products->isEmpty())
@@ -126,7 +126,7 @@
                                                         <input type="text" name="bag_particular" id="bag_particular"  class="form-control">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="total_rice_qty" id="bag_per_unit_qty" onkeyup="packetRiceCalculation()" class="form-control text-right">
+                                                        <input type="text" name="bag_per_unit_qty" id="bag_per_unit_qty" onkeyup="packetRiceCalculation()" class="form-control text-right">
                                                     </td>
                                                     <td class="text-center">
                                                         <input type="text" name="bag_required_qty" id="bag_required_qty"  class="form-control text-right bg-secondary" readonly>
