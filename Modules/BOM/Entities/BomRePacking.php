@@ -5,28 +5,29 @@ namespace Modules\BOM\Entities;
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
-use Modules\Setting\Entities\Batch;
 use Modules\Product\Entities\Product;
 use Modules\Setting\Entities\Location;
 use Modules\Material\Entities\Material;
 
-class BomProcess extends BaseModel
+class BomRePacking extends BaseModel
 {
     protected $fillable = [
-        'memo_no','batch_id','process_number','to_product_id',
-        'to_site_id', 'to_location_id','from_product_id','product_particular','product_per_unit_qty',
-        'product_required_qty','bag_site_id','bag_location_id','bag_id','bag_particular','bag_per_unit_qty',
-        'bag_required_qty','total_rice_qty','total_bag_qty','process_date','created_by','modified_by','process_type'
+        'memo_no','packing_number','from_site_id','from_location_id','from_product_id',
+        'to_site_id','to_location_id','to_product_id','bag_site_id','bag_location_id','bag_id',
+        'product_description','bag_description','product_qty','bag_qty','packing_date','created_by','modified_by',
     ];
-
     /****************************
     * Start :: Model Relation *
     ****************************/
-    public function batch()
+    public function from_site()
     {
-        return $this->belongsTo(Batch::class,'batch_id','id');
+        return $this->belongsTo(Site::class,'from_site_id','id');
     }
 
+    public function from_location()
+    {
+        return $this->belongsTo(Location::class,'from_location_id','id');
+    }
     public function to_site()
     {
         return $this->belongsTo(Site::class,'to_site_id','id');
@@ -65,21 +66,19 @@ class BomProcess extends BaseModel
     * End :: Model Relation *
     ****************************/
 
-
-    /******************************************
+     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     protected $order = ['bp.id' => 'desc'];
     //custom search column property
-    protected $_batch_id; 
+    protected $_memo_no; 
     protected $_from_date; 
     protected $_to_date; 
-    protected $_process_type; 
 
     //methods to set custom search property value
-    public function setBatchID($batch_id)
+    public function setMemoNo($memo_no)
     {
-        $this->_batch_id = $batch_id;
+        $this->_memo_no = $memo_no;
     }
 
     public function setFromDate($from_date)
@@ -92,39 +91,36 @@ class BomProcess extends BaseModel
         $this->_to_date = $to_date;
     }
 
-    public function setProcessType($process_type)
-    {
-        $this->_process_type = $process_type;
-    }
-
 
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
-        if (permission('bom-process-bulk-delete') || permission('bom-re-process-bulk-delete')){
-            $this->column_order = ['bp.id', 'bp.id','bp.batch_id', 'bp.to_product_id','bp.to_site_id', 'bp.to_location_id','bp.total_rice_qty','bp.total_bag_qty','bp.process_date','bp.created_by', null];
+        if (permission('bom-re-packing-bulk-delete')){
+            $this->column_order = ['bp.id', 'bp.id','bp.memo_no', 'bp.from_product_id','bp.from_site_id', 'bp.from_location_id','bp.to_product_id','bp.to_site_id', 'bp.to_location_id','bp.product_qty','bp.bag_id','bp.bag_qty','bp.process_date','bp.created_by', null];
         }else{
-            $this->column_order = ['bp.id','bp.batch_id', 'bp.to_product_id','bp.to_site_id', 'bp.to_location_id','bp.total_rice_qty','bp.total_bag_qty','bp.process_date','bp.created_by', null];
+            $this->column_order = ['bp.id','bp.memo_no', 'bp.from_product_id','bp.from_site_id', 'bp.from_location_id','bp.to_product_id','bp.to_site_id', 'bp.to_location_id','bp.product_qty','bp.bag_id','bp.bag_qty','bp.process_date','bp.created_by', null];
         }
         
-        $query = DB::table('bom_processes as bp')
-        ->leftJoin('batches as b','bp.batch_id','=','b.id')
-        ->leftJoin('products as p','bp.to_product_id','=','p.id')
-        ->leftJoin('sites as s','bp.to_site_id','=','s.id')
-        ->leftJoin('locations as l','bp.to_location_id','=','l.id')
-        ->select('bp.*','b.batch_no','p.name as product_name','s.name as storage_site','l.name as storage_location')
-        ->where('bp.process_type',$this->_process_type);
+        $query = DB::table('bom_re_packings as bp')
+        ->leftJoin('products as fp','bp.from_product_id','=','fp.id')
+        ->leftJoin('products as tp','bp.to_product_id','=','tp.id')
+        ->leftJoin('sites as fs','bp.from_site_id','=','fs.id')
+        ->leftJoin('sites as ts','bp.to_site_id','=','ts.id')
+        ->leftJoin('locations as fl','bp.to_location_id','=','fl.id')
+        ->leftJoin('locations as tl','bp.to_location_id','=','fl.id')
+        ->leftJoin('materials as m','bp.bag_id','=','m.id')
+        ->select('bp.*','fp.name as from_product','tp.name as to_product','fs.name as from_site','ts.name as to_site',
+        'fl.name as from_location','tl.name as to_location','m.material_name as bag_name');
 
         //search query
-        if (!empty($this->_batch_id)) {
-            $query->where('bp.batch_id', $this->_batch_id);
+        if (!empty($this->_memo_no)) {
+            $query->where('bp.memo_no', $this->_memo_no);
         }
         if (!empty($this->_from_date)) {
-            $query->where('bp.process_date', '>=',$this->_from_date);
+            $query->where('bp.packing_date', '>=',$this->_from_date);
         }
-
         if (!empty($this->_to_date)) {
-            $query->where('bp.process_date', '<=',$this->_to_date);
+            $query->where('bp.packing_date', '<=',$this->_to_date);
         }
 
 
@@ -153,10 +149,11 @@ class BomProcess extends BaseModel
     }
 
     public function count_all()
-    {
-        return DB::table('bom_processes')->where('process_type',$this->_process_type)->count();
+    { 
+        return DB::table('bom_re_packings')->count();
     }
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
+
 }
