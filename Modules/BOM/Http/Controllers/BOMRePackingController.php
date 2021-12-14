@@ -2,11 +2,17 @@
 
 namespace Modules\BOM\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Product\Entities\Product;
 use Modules\BOM\Entities\BomRePacking;
+use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
+use Modules\Product\Entities\SiteProduct;
+use Modules\Material\Entities\SiteMaterial;
+use Modules\BOM\Http\Requests\BOMRePackingFormRequest;
 
 class BOMRePackingController extends BaseController
 {
@@ -29,12 +35,8 @@ class BOMRePackingController extends BaseController
     {
         if($request->ajax()){
             if(permission('bom-re-packing-access')){
-
-                if (!empty($request->process_type)) {
-                    $this->model->setProcessType($request->process_type);
-                }
-                if (!empty($request->batch_id)) {
-                    $this->model->setBatchID($request->batch_id);
+                if (!empty($request->memo_no)) {
+                    $this->model->setMemoNo($request->memo_no);
                 }
                 if (!empty($request->from_date)) {
                     $this->model->setFromDate($request->from_date);
@@ -102,4 +104,257 @@ class BOMRePackingController extends BaseController
             return $this->access_blocked();
         }
     } 
+
+    public function store(BOMRePackingFormRequest $request)
+    {
+        if($request->ajax()){
+            if(permission('bom-re-packing-add')){
+                // dd($request->all());
+                DB::beginTransaction();
+                try {
+                    $bomRePackingData  = $this->model->create([
+                        'memo_no'             => $request->memo_no,
+                        'packing_number'      => $request->packing_number,
+                        'from_site_id'        => $request->from_site_id,
+                        'from_location_id'    => $request->from_location_id,
+                        'from_product_id'     => $request->from_product_id,
+                        'to_site_id'          => $request->to_site_id,
+                        'to_location_id'      => $request->to_location_id,
+                        'to_product_id'       => $request->to_product_id,
+                        'bag_site_id'         => $request->bag_site_id,
+                        'bag_location_id'     => $request->bag_location_id,
+                        'bag_id'              => $request->bag_id,
+                        'product_description' => $request->product_description,
+                        'bag_description'     => $request->bag_description,
+                        'product_qty'         => $request->product_qty,
+                        'bag_qty'             => $request->bag_qty,
+                        'packing_date'        => $request->packing_date,
+                        'created_by'          => auth()->user()->name
+                    ]);
+
+                    if($bomRePackingData){
+                        //Subtract Bag From Stock
+                        $bag = Material::find($bomRePackingData->bag_id);
+                        if($bag)
+                        {
+                            $bag->qty -= $bomRePackingData->bag_qty;
+                            $bag->update();
+                        }
+                        $from_site_bag = SiteMaterial::where([
+                            ['site_id',$bomRePackingData->bag_site_id],
+                            ['location_id',$bomRePackingData->bag_location_id],
+                            ['material_id',$bomRePackingData->bag_id],
+                        ])->first();
+                        
+                        if($from_site_bag)
+                        {
+                            $from_site_bag->qty -= $bomRePackingData->bag_qty;
+                            $from_site_bag->update();
+                        }
+                        //Subtract Product From Silo
+                        $from_site_product = SiteProduct::where([
+                            ['site_id',$bomRePackingData->from_site_id],
+                            ['location_id',$bomRePackingData->from_location_id],
+                            ['product_id',$bomRePackingData->from_product_id],
+                        ])->first();
+                        
+                        if($from_site_product)
+                        {
+                            $from_site_product->qty -= $bomRePackingData->product_qty;
+                            $from_site_product->update();
+                        }
+
+                        //Add Packet Rice Into Stock
+                        $to_site_product = SiteProduct::where([
+                            ['site_id',$bomRePackingData->to_site_id],
+                            ['location_id',$bomRePackingData->to_location_id],
+                            ['product_id',$bomRePackingData->to_product_id],
+                        ])->first();
+                        
+                        if($to_site_product)
+                        {
+                            $to_site_product->qty += $bomRePackingData->product_qty;
+                            $to_site_product->update();
+                        }else{
+                            SiteProduct::create([
+                                'site_id'     => $bomRePackingData->to_site_id,
+                                'location_id' => $bomRePackingData->to_location_id,
+                                'product_id'  => $bomRePackingData->to_product_id,
+                                'qty'         => $bomRePackingData->product_qty
+                            ]);
+                        }
+                        $output = ['status'=>'success','message'=>'Data has been saved successfully','packing_id'=>$bomRePackingData->id];
+                    }else{
+                        $output = ['status'=>'error','message'=>'Failed to save data','purchase_id'=>''];
+                    }
+                    DB::commit();
+                } catch (Exception $e) {
+                    DB::rollback();
+                    $output = ['status' => 'error','message' => $e->getMessage()];
+                }
+            }else{
+                $output     = $this->unauthorized();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->unauthorized());
+        }
+    }
+
+    public function show(int $id)
+    {
+        if(permission('bom-re-packing-view')){
+            $this->setPageData('BOM Re Packing Details','BOM Re Packing Details','fas fa-file',[['name'=>'BOM','link' => 'javascript::void();'],['name' => 'BOM Re Packing Details']]);
+            $data = $this->model->with('from_site','from_location','from_product','to_site','to_location','to_product','bag_site','bag_location','bag')->find($id);
+            return view('bom::bom-re-packing.details',compact('data'));
+        }else{
+            return $this->access_blocked();
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('bom-re-packing-delete')){
+                DB::beginTransaction();
+                try {
+                    $bomRePackingData = $this->model->find($request->id);
+                    //Subtract Bag From Stock
+                    $bag = Material::find($bomRePackingData->bag_id);
+                    if($bag)
+                    {
+                        $bag->qty += $bomRePackingData->bag_qty;
+                        $bag->update();
+                    }
+                    $from_site_bag = SiteMaterial::where([
+                        ['site_id',$bomRePackingData->bag_site_id],
+                        ['location_id',$bomRePackingData->bag_location_id],
+                        ['material_id',$bomRePackingData->bag_id],
+                    ])->first();
+                    
+                    if($from_site_bag)
+                    {
+                        $from_site_bag->qty += $bomRePackingData->bag_qty;
+                        $from_site_bag->update();
+                    }
+                    //Subtract Product From Silo
+                    $from_site_product = SiteProduct::where([
+                        ['site_id',$bomRePackingData->from_site_id],
+                        ['location_id',$bomRePackingData->from_location_id],
+                        ['product_id',$bomRePackingData->from_product_id],
+                    ])->first();
+                    
+                    if($from_site_product)
+                    {
+                        $from_site_product->qty += $bomRePackingData->product_qty;
+                        $from_site_product->update();
+                    }
+
+                    //Add Packet Rice Into Stock
+                    $to_site_product = SiteProduct::where([
+                        ['site_id',$bomRePackingData->to_site_id],
+                        ['location_id',$bomRePackingData->to_location_id],
+                        ['product_id',$bomRePackingData->to_product_id],
+                    ])->first();
+                    
+                    if($to_site_product)
+                    {
+                        $to_site_product->qty -= $bomRePackingData->product_qty;
+                        $to_site_product->update();
+                    }
+                    $result = $bomRePackingData->delete();
+                    if($result)
+                    {
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
+                    DB::commit();
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    $output = ['status'=>'error','message'=>$e->getMessage()];
+                }
+                return response()->json($output);
+            }else{
+                $output = $this->access_blocked();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->access_blocked());
+        }
+    }
+
+    public function bulk_delete(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('bom-re-packing-bulk-delete')){
+                DB::beginTransaction();
+                try {
+                    foreach ($request->ids as $id) {
+                        $bomRePackingData = $this->model->find($id);
+                        //Subtract Bag From Stock
+                        $bag = Material::find($bomRePackingData->bag_id);
+                        if($bag)
+                        {
+                            $bag->qty += $bomRePackingData->bag_qty;
+                            $bag->update();
+                        }
+                        $from_site_bag = SiteMaterial::where([
+                            ['site_id',$bomRePackingData->bag_site_id],
+                            ['location_id',$bomRePackingData->bag_location_id],
+                            ['material_id',$bomRePackingData->bag_id],
+                        ])->first();
+                        
+                        if($from_site_bag)
+                        {
+                            $from_site_bag->qty += $bomRePackingData->bag_qty;
+                            $from_site_bag->update();
+                        }
+                        //Subtract Product From Silo
+                        $from_site_product = SiteProduct::where([
+                            ['site_id',$bomRePackingData->from_site_id],
+                            ['location_id',$bomRePackingData->from_location_id],
+                            ['product_id',$bomRePackingData->from_product_id],
+                        ])->first();
+                        
+                        if($from_site_product)
+                        {
+                            $from_site_product->qty += $bomRePackingData->product_qty;
+                            $from_site_product->update();
+                        }
+
+                        //Add Packet Rice Into Stock
+                        $to_site_product = SiteProduct::where([
+                            ['site_id',$bomRePackingData->to_site_id],
+                            ['location_id',$bomRePackingData->to_location_id],
+                            ['product_id',$bomRePackingData->to_product_id],
+                        ])->first();
+                        
+                        if($to_site_product)
+                        {
+                            $to_site_product->qty -= $bomRePackingData->product_qty;
+                            $to_site_product->update();
+                        }
+                    }
+                    $result = $this->model->destroy($request->ids);
+                    if($result)
+                    {
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
+                DB::commit();
+                } catch (Exception $e) {
+                    DB::rollBack();
+                    $output = ['status'=>'error','message'=>$e->getMessage()];
+                }
+            }else{
+                $output = $this->access_blocked();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->access_blocked());
+        }
+    }
+
 }

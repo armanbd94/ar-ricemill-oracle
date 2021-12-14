@@ -106,8 +106,8 @@ class BomRePacking extends BaseModel
         ->leftJoin('products as tp','bp.to_product_id','=','tp.id')
         ->leftJoin('sites as fs','bp.from_site_id','=','fs.id')
         ->leftJoin('sites as ts','bp.to_site_id','=','ts.id')
-        ->leftJoin('locations as fl','bp.to_location_id','=','fl.id')
-        ->leftJoin('locations as tl','bp.to_location_id','=','fl.id')
+        ->leftJoin('locations as fl','bp.from_location_id','=','fl.id')
+        ->leftJoin('locations as tl','bp.to_location_id','=','tl.id')
         ->leftJoin('materials as m','bp.bag_id','=','m.id')
         ->select('bp.*','fp.name as from_product','tp.name as to_product','fs.name as from_site','ts.name as to_site',
         'fl.name as from_location','tl.name as to_location','m.material_name as bag_name');

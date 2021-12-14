@@ -181,7 +181,7 @@ function bag_list()
                 $(`#bag_id.selectpicker`).selectpicker('refresh');
             },
         });
-        $('#available_qty').val('');
+        $('#bag_stock_qty').val('');
     }
 }
 function setMaterialData(row)

@@ -208,4 +208,33 @@ class ProductController extends BaseController
             return response()->json($code);
         }
     }
+
+    public function product_list(Request $request)
+    {
+        $category_id = $request->category_id;
+        $products = DB::table('site_product as sp')
+        ->select('p.id','p.name as product_name','c.name as category_name','u.unit_name','u.unit_code','sp.qty')
+        ->leftJoin('products as p','sp.product_id','=','p.id')
+        ->leftJoin('categories as c','p.category_id','=','c.id')
+        ->leftJoin('units as u','p.unit_id','=','u.id')
+        ->where([
+            'sp.site_id'     => $request->site_id,
+            'sp.location_id' => $request->location_id,
+        ])
+        ->when( $category_id,function($q) use ($category_id){
+            $q->where('p.category_id','!=',$category_id);
+        })
+        ->get();
+
+        $output = '<option value="">Select Please</option>';
+        if(!$products->isEmpty())
+        {
+            foreach ($products as $value) {
+                $output .= '<option value="'.$value->id.'" data-stockqty="'.$value->qty.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'" data-unitcode="'.$value->unit_code.'">'.$value->product_name.'</option>';
+            }
+        }
+        return $output;
+    }
+
+    
 }
