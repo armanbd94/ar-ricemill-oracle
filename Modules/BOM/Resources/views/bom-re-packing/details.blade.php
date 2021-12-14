@@ -10,7 +10,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('bom.re.process') }}" class="btn btn-warning btn-sm font-weight-bolder custom-btn">
+                    <a href="{{ route('bom.re.packing') }}" class="btn btn-warning btn-sm font-weight-bolder custom-btn">
                         <i class="fas fa-arrow-left"></i> Back</a>
                 </div>
             </div>

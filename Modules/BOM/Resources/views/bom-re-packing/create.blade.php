@@ -102,7 +102,7 @@
                                                 <input type="text" name="product_description" id="product_description"  class="form-control text-left">
                                             </td>
                                             <td class="text-center">
-                                                <input type="text" name="product_qty" id="product_per_unit_qty" class="form-control text-right">
+                                                <input type="text" name="product_qty" id="product_qty" class="form-control text-right">
                                             </td>
                                         </tr>
                                         <tr>
