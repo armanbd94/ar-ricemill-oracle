@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBuildDisassembliesTable extends Migration
+class CreateBuildReProcessesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateBuildDisassembliesTable extends Migration
      */
     public function up()
     {
-        Schema::create('build_disassemblies', function (Blueprint $table) {
+        Schema::create('build_re_processes', function (Blueprint $table) {
             $table->id();
             $table->string('memo_no')->nullable();
             $table->unsignedBigInteger('batch_id');
@@ -22,10 +22,10 @@ class CreateBuildDisassembliesTable extends Migration
             $table->foreign('from_site_id')->references('id')->on('sites');
             $table->unsignedBigInteger('from_location_id');
             $table->foreign('from_location_id')->references('id')->on('locations');
-            $table->unsignedBigInteger('material_id');
-            $table->foreign('material_id')->references('id')->on('materials');
-            $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedBigInteger('from_product_id');
+            $table->foreign('from_product_id')->references('id')->on('products');
+            $table->unsignedBigInteger('to_product_id');
+            $table->foreign('to_product_id')->references('id')->on('products');
             $table->float('build_ratio',8,0);
             $table->double('build_qty',12,0);
             $table->double('required_qty',12,0);
@@ -53,6 +53,6 @@ class CreateBuildDisassembliesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('build_disassemblies');
+        Schema::dropIfExists('build_re_processes');
     }
 }

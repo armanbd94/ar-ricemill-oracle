@@ -56,22 +56,34 @@
                                 @endif
                             </x-form.selectbox>
 
-                            <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="material_list()" class="selectpicker" col="col-md-3"/>
-                            
-                            <x-form.textbox labelName="To Location (Storage)" name="to_location" value="Silo" property="readonly" required="required"  col="col-md-3"/>
-
-                            <x-form.selectbox labelName="Raw Material Item" required="required" name="material_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker"/>
+                            <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="product_list()" class="selectpicker" col="col-md-3"/>
+                            @php
+                            $product_stock = $data->required_qty;
+                        @endphp
+                            <x-form.selectbox labelName="Packet Item" required="required" name="from_product_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker">
+                                @if (!$site_products->isEmpty())
+                                @foreach ($site_products as $product)
+                                    <?php 
+                                        if($data->from_product_id == $product->id)
+                                        {
+                                            $product_stock += $product->qty ? $product->qty : 0;
+                                        }
+                                    ?>
+                                    <option value="{{ $product->id }}" {{ $data->from_product_id == $product->id ? 'selected' : '' }} data-stockqty="{{ $product->qty }}" data-unitcode="{{ $product->unit_code }}">{{ $product->product_name }}</option>
+                                @endforeach
+                            @endif
+                            </x-form.selectbox>
 
                             
                             <div class="form-group col-md-3">
                                 <label for="memo_no">Availbale Qty <span class="material_unit"></span></label>
-                                <input type="text" class="form-control" name="available_qty" id="available_qty" readonly />
+                                <input type="text" class="form-control" name="available_qty" id="available_qty" value="{{ $product_stock }}" readonly />
                             </div>
-                            <x-form.selectbox labelName="Converted Item" name="product_id" onchange="setCategory()" col="col-md-3" class="selectpicker" required="required">
+                            <x-form.selectbox labelName="Converted Item" name="to_product_id" onchange="setCategory()" col="col-md-3" class="selectpicker" required="required">
                                 @if (!$products->isEmpty())
                                     @foreach ($products as $product)
                                         @if ($product->category_id != 3)
-                                        <option value="{{ $product->id }}"  {{ $data->product_id == $product->id ? 'selected' : '' }} data-category="{{ $product->category_id }}">{{ $product->name }}</option>
+                                        <option value="{{ $product->id }}"  {{ $data->to_product_id == $product->id ? 'selected' : '' }} data-category="{{ $product->category_id }}">{{ $product->name }}</option>
                                         @endif
                                     @endforeach
                                 @endif
@@ -270,33 +282,26 @@ $(document).ready(function () {
 });
 getLocations("{{ $data->from_site_id }}",1,"{{ $data->from_location_id }}");
 getLocations("{{ $data->bp_site_id }}",2,"{{ $data->bp_location_id }}");
-setTimeout(() => {
-    material_list("{{ $data->material_id }}");
-}, 2000);
-setTimeout(() => {
-    setMaterialData();
-}, 3500);
 
-
-function material_list(material_id='')
+function product_list(product_id='')
 {
     const site_id       = $(`#from_site_id option:selected`).val();
     const location_id   = $(`#from_location_id option:selected`).val();
     if(site_id && location_id)
     {
         $.ajax({
-            url:"{{ route('material.list') }}",
+            url:"{{ route('product.list') }}",
             type:"POST",
             data:{
                 site_id:site_id,location_id:location_id,_token:_token
             },
             success:function(data){
-                $(`#material_id`).empty().append(data);
-                $(`#material_id.selectpicker`).selectpicker('refresh');
-                if(material_id)
+                $(`#from_product_id`).empty().append(data);
+                $(`#from_product_id.selectpicker`).selectpicker('refresh');
+                if(product_id)
                 {
-                    $(`#material_id`).val(material_id);
-                    $(`#material_id.selectpicker`).selectpicker('refresh');
+                    $(`#from_product_id`).val(product_id);
+                    $(`#from_product_id.selectpicker`).selectpicker('refresh');
                 }
             },
         });
@@ -306,10 +311,10 @@ function material_list(material_id='')
 function setMaterialData()
 {
     
-    const unitname = $('#material_id option:selected').data('unitcode');
-    const qty = $('#material_id option:selected').data('stockqty');
+    const unitname = $('#from_product_id option:selected').data('unitcode');
+    const qty = $('#from_product_id option:selected').data('stockqty');
     $('#available_qty').val(parseFloat(qty));
-    $('.material_unit').text(`(${unitname})`);
+    $('.product_unit').text(`(${unitname})`);
 
 }
 function calculateMaterialNeededQty()
@@ -419,7 +424,7 @@ function getLocations(site_id,selector,location_id='')
 function store_data(){
     let form = document.getElementById('update_form');
     let formData = new FormData(form);
-    let url = "{{route('build.disassembly.update')}}";
+    let url = "{{route('build.re.process.update')}}";
     $.ajax({
         url: url,
         type: "POST",
@@ -450,7 +455,7 @@ function store_data(){
             } else {
                 notification(data.status, data.message);
                 if (data.status == 'success') {
-                    window.location.replace("{{ url('build-disassembly') }}");
+                    window.location.replace("{{ url('build-re-process') }}");
                 }
             }
 

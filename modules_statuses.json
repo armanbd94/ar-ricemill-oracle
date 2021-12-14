@@ -16,5 +16,6 @@
     "Loan": true,
     "TransferInventory": true,
     "BuildDisassembly": true,
-    "BOM": true
+    "BOM": true,
+    "BuildReProcess": true
 }

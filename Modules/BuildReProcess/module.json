@@ -1,0 +1,13 @@
+{
+    "name": "BuildReProcess",
+    "alias": "buildreprocess",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\BuildReProcess\\Providers\\BuildReProcessServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

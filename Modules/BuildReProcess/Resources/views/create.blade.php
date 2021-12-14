@@ -15,8 +15,8 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('build.disassembly') }}" type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-window-close"></i> Cancel</a>
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
+                    <button type="button" class="btn btn-danger btn-sm mr-3 custom-btn"><i class="fas fa-sync-alt"></i> Reset</button>
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
                 </div>
             </div>
         </div>
@@ -29,63 +29,59 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
 
 
-                    <form action="" id="update_form" method="post" enctype="multipart/form-data" style="margin-bottom: 150px;">
+                    <form action="" id="store_form" method="post" enctype="multipart/form-data" style="margin-bottom: 150px;">
                         @csrf
-                        <input type="hidden" name="build_id" value="{{ $data->id }}">
                         <div class="row">
-                            <x-form.textbox labelName="Date" name="build_date" value="{{ $data->build_date }}" required="required" class="date" col="col-md-3"/>
+                            <x-form.textbox labelName="Date" name="build_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-3"/>
 
                             <x-form.selectbox labelName="WIP Batch" name="batch_id" required="required"  class="selectpicker" col="col-md-3">
                                 @if (!$batches->isEmpty())
                                     @foreach ($batches as $batch)
-                                        <option value="{{ $batch->id }}" {{ $data->batch_id == $batch->id ? 'selected' : '' }}>{{ $batch->batch_no }}</option>
+                                        <option value="{{ $batch->id }}">{{ $batch->batch_no }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
 
                             <div class="form-group col-md-3">
                                 <label for="memo_no">Memo No.</label>
-                                <input type="text" class="form-control" name="memo_no" id="memo_no"  value="{{ $data->memo_no }}" />
+                                <input type="text" class="form-control" name="memo_no" id="memo_no"  />
                             </div>
 
                             <x-form.selectbox labelName="Transfer From" name="from_site_id" required="required" onchange="getLocations(this.value,1)"  class="selectpicker" col="col-md-3">
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
-                                        <option value="{{ $site->id }}"  {{ $data->from_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
 
-                            <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="material_list()" class="selectpicker" col="col-md-3"/>
-                            
-                            <x-form.textbox labelName="To Location (Storage)" name="to_location" value="Silo" property="readonly" required="required"  col="col-md-3"/>
+                            <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="product_list()" class="selectpicker" col="col-md-3"/>
+   
+                            <x-form.selectbox labelName="Packet Item" required="required" name="from_product_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker"/>
 
-                            <x-form.selectbox labelName="Raw Material Item" required="required" name="material_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker"/>
-
-                            
                             <div class="form-group col-md-3">
-                                <label for="memo_no">Availbale Qty <span class="material_unit"></span></label>
+                                <label for="memo_no">Availbale Qty <span class="product_unit"></span></label>
                                 <input type="text" class="form-control" name="available_qty" id="available_qty" readonly />
                             </div>
-                            <x-form.selectbox labelName="Converted Item" name="product_id" onchange="setCategory()" col="col-md-3" class="selectpicker" required="required">
+                            <x-form.selectbox labelName="Converted Item" name="to_product_id" onchange="setCategory()" col="col-md-3" class="selectpicker" required="required">
                                 @if (!$products->isEmpty())
                                     @foreach ($products as $product)
                                         @if ($product->category_id != 3)
-                                        <option value="{{ $product->id }}"  {{ $data->product_id == $product->id ? 'selected' : '' }} data-category="{{ $product->category_id }}">{{ $product->name }}</option>
+                                        <option value="{{ $product->id }}" data-category="{{ $product->category_id }}">{{ $product->name }}</option>
                                         @endif
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
-                            <x-form.textbox labelName="Approx. Main Product Ratio" name="build_ratio" value="{{ $data->build_ratio }}" onkeyup="calculateMaterialNeededQty()" required="required" required="required" col="col-md-3"/>
-                            <x-form.textbox labelName="Quantity To Build (KGs)" name="build_qty" value="{{ $data->build_qty }}" onkeyup="calculateMaterialNeededQty()" required="required" required="required" col="col-md-3"/>
+                            <x-form.textbox labelName="Approx. Main Product Ratio" name="build_ratio" onkeyup="calculateMaterialNeededQty()" required="required" required="required" col="col-md-3"/>
+                            <x-form.textbox labelName="Quantity To Build (KGs)" name="build_qty" onkeyup="calculateMaterialNeededQty()" required="required" required="required" col="col-md-3"/>
                             <div class="form-group col-md-3 required">
-                                <label for="memo_no">RM Needed <span class="material_unit"></span></label>
-                                <input type="text" class="form-control" name="required_qty" id="required_qty"  value="{{ $data->required_qty }}" readonly />
+                                <label for="memo_no">RM Needed <span class="product_unit"></span></label>
+                                <input type="text" class="form-control" name="required_qty" id="required_qty" readonly />
                             </div>
                             <x-form.selectbox labelName="Class" name="category_id" required="required" class="selectpicker" col="col-md-3">
                                 @if(!$categories->isEmpty())  
                                     @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}" {{ $data->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
@@ -99,11 +95,11 @@
                                                 <div class="row">
                                                     <div class="form-group col-md-6 required">
                                                         <label for="rice_convertion_ratio" class="form-control-label">Convertion Ratio(%)</label>
-                                                        <input type="text" name="rice_convertion_ratio" id="rice_convertion_ratio" value="{{ $data->convertion_ratio }}" class="form-control ratio" onkeyup="calculateProductQty(1,1)">
+                                                        <input type="text" name="rice_convertion_ratio" id="rice_convertion_ratio" class="form-control ratio" onkeyup="calculateProductQty(1,1)">
                                                     </div>
                                                     <div class="form-group col-md-6 required">
                                                         <label for="fine_rice_qty" class="form-control-label">Converted Qunatity</label>
-                                                        <input type="text" name="fine_rice_qty" id="fine_rice_qty" value="{{ $data->converted_qty }}" class="form-control qty" readonly>
+                                                        <input type="text" name="fine_rice_qty" id="fine_rice_qty" class="form-control qty" readonly>
                                                     </div>
                                                     
                                                 </div>
@@ -118,11 +114,11 @@
                                                 <div class="row">
                                                     <div class="form-group col-md-6 required">
                                                         <label for="rice_convertion_ratio" class="form-control-label">Convertion Ratio(%)</label>
-                                                        <input type="text" name="milling_ratio" id="milling_ratio" value="{{ $data->total_milling_ratio }}" class="form-control " readonly>
+                                                        <input type="text" name="milling_ratio" id="milling_ratio" class="form-control " readonly>
                                                     </div>
                                                     <div class="form-group col-md-6 required">
                                                         <label for="rice_convertion_ratio" class="form-control-label">Convertion Quantity</label>
-                                                        <input type="text" name="milling_qty" id="milling_qty" value="{{ $data->total_milling_qty }}" class="form-control " readonly>
+                                                        <input type="text" name="milling_qty" id="milling_qty" class="form-control " readonly>
                                                     </div>
                                                     
                                                 </div>
@@ -138,7 +134,7 @@
                                                     <x-form.selectbox labelName="By Product Inventory Site" name="bp_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
                                                         @if(!$sites->isEmpty())  
                                                             @foreach ($sites as $site)
-                                                                <option value="{{ $site->id }}" {{ $data->bp_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                                                <option value="{{ $site->id }}">{{ $site->name }}</option>
                                                             @endforeach
                                                         @endif
                                                     </x-form.selectbox>
@@ -147,43 +143,30 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-12 by_product_section">
-                                                @if (!$data->by_products->isEmpty())
-                                                    @foreach ($data->by_products as $key => $item)
-                                                    <div class="row {{ $key != 0 ? 'remove_row' : '' }}">
-                                                        <div class="form-group col-md-3 required">
-                                                            @if($key == 0)<label for="by_products_{{ $key+1 }}_id" class="form-control-label">By Product Name</label>@endif
-                                                            <select name="by_products[{{ $key+1 }}][id]" id="by_products_{{ $key+1 }}_id" required="required" class="form-control selectpicker" data-live-search="true" 
-                                                            data-live-search-placeholder="Search">
-                                                                <option value="">Select Please</option>
-                                                                @if (!$products->isEmpty())
-                                                                    @foreach ($products as $product)
-                                                                        @if ($product->category_id == 3)
-                                                                        <option value="{{ $product->id }}" {{ $item->id == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
-                                                                        @endif
-                                                                    @endforeach
-                                                                @endif
-                                                            </select>
-                                                        </div>
-                                                        <div class="form-group col-md-3 required">
-                                                            @if($key == 0)<label for="by_products[{{ $key+1 }}][ratio]" class="form-control-label">Convertion Ratio(%)</label>@endif
-                                                            <input type="text" name="by_products[{{ $key+1 }}][ratio]" id="by_products_{{ $key+1 }}_ratio" value="{{ $item->pivot->ratio }}" onkeyup="calculateProductQty(2,{{ $key+1 }})" class="form-control ratio">
-                                                        </div>
-                                                        <div class="form-group col-md-3 required">
-                                                            @if($key == 0)<label for="by_products[{{ $key+1 }}][qty]" class="form-control-label">Converted Qunatity</label>@endif
-                                                            <input type="text" name="by_products[{{ $key+1 }}][qty]" id="by_products_{{ $key+1 }}_qty" value="{{ $item->pivot->qty }}" class="form-control qty" readonly>
-                                                        </div>
-                                                        @if($key != 0)
-                                                        <div class="form-group col-md-3" style=""padding-top:28px;>
-                                                            <button type="button" class="btn btn-danger btn-md remove-product" data-toggle="tooltip" 
-                                                                data-placement="top" data-original-title="Remove">
-                                                                <i class="fas fa-minus-square"></i>
-                                                                </button>
-                                                        </div>
-                                                        @endif
+                                                <div class="row">
+                                                    <div class="form-group col-md-3 required">
+                                                        <label for="by_products_1_id" class="form-control-label">By Product Name</label>
+                                                        <select name="by_products[1][id]" id="by_products_1_id" required="required" class="form-control selectpicker" data-live-search="true" 
+                                                        data-live-search-placeholder="Search">
+                                                            <option value="">Select Please</option>
+                                                            @if (!$products->isEmpty())
+                                                                @foreach ($products as $product)
+                                                                    @if ($product->category_id == 3)
+                                                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                                                    @endif
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
                                                     </div>
-                                                    @endforeach
-                                                @endif
-                                                
+                                                    <div class="form-group col-md-3 required">
+                                                        <label for="by_products[1][ratio]" class="form-control-label">Convertion Ratio(%)</label>
+                                                        <input type="text" name="by_products[1][ratio]" id="by_products_1_ratio" onkeyup="calculateProductQty(2,1)" class="form-control ratio">
+                                                    </div>
+                                                    <div class="form-group col-md-3 required">
+                                                        <label for="by_products[1][qty]" class="form-control-label">Converted Qunatity</label>
+                                                        <input type="text" name="by_products[1][qty]" id="by_products_1_qty" class="form-control qty" readonly>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="col-md-12">
                                                 <div class="row">
@@ -228,9 +211,6 @@ $(document).ready(function () {
     });
 
     var count = 1;
-    @if (!$data->by_products->isEmpty())
-    count = "{{ count($data->by_products) }}";
-    @endif
     $(document).on('click','#add-by-product',function(){
         count++;
         by_product_row_add(count);
@@ -268,36 +248,22 @@ $(document).ready(function () {
         $('.by_product_section .selectpicker').selectpicker();
     }
 });
-getLocations("{{ $data->from_site_id }}",1,"{{ $data->from_location_id }}");
-getLocations("{{ $data->bp_site_id }}",2,"{{ $data->bp_location_id }}");
-setTimeout(() => {
-    material_list("{{ $data->material_id }}");
-}, 2000);
-setTimeout(() => {
-    setMaterialData();
-}, 3500);
-
-
-function material_list(material_id='')
+function product_list()
 {
     const site_id       = $(`#from_site_id option:selected`).val();
     const location_id   = $(`#from_location_id option:selected`).val();
+    const category_id   = 3;
     if(site_id && location_id)
     {
         $.ajax({
-            url:"{{ route('material.list') }}",
+            url:"{{ route('product.list') }}",
             type:"POST",
             data:{
-                site_id:site_id,location_id:location_id,_token:_token
+                site_id:site_id,location_id:location_id,category_id:category_id,_token:_token
             },
             success:function(data){
-                $(`#material_id`).empty().append(data);
-                $(`#material_id.selectpicker`).selectpicker('refresh');
-                if(material_id)
-                {
-                    $(`#material_id`).val(material_id);
-                    $(`#material_id.selectpicker`).selectpicker('refresh');
-                }
+                $(`#from_product_id`).empty().append(data);
+                $(`#from_product_id.selectpicker`).selectpicker('refresh');
             },
         });
         $('#available_qty').val('');
@@ -305,11 +271,10 @@ function material_list(material_id='')
 }
 function setMaterialData()
 {
-    
-    const unitname = $('#material_id option:selected').data('unitcode');
-    const qty = $('#material_id option:selected').data('stockqty');
+    const unitname = $('#from_product_id option:selected').data('unitcode');
+    const qty = $('#from_product_id option:selected').data('stockqty');
     $('#available_qty').val(parseFloat(qty));
-    $('.material_unit').text(`(${unitname})`);
+    $('.product_unit').text(`(${unitname})`);
 
 }
 function calculateMaterialNeededQty()
@@ -382,7 +347,7 @@ function calculateTotal()
     });
     $('#milling_ratio').val(total_ratio);
 }
-function getLocations(site_id,selector,location_id='')
+function getLocations(site_id,selector)
 {
     $.ajax({
         url:"{{ url('site-wise-location-list') }}/"+site_id,
@@ -398,28 +363,18 @@ function getLocations(site_id,selector,location_id='')
             {
                 $(`#from_location_id`).empty().append(html);
                 $(`#from_location_id.selectpicker`).selectpicker('refresh');
-                if(location_id)
-                {
-                    $(`#from_location_id`).val(location_id);
-                    $(`#from_location_id.selectpicker`).selectpicker('refresh');
-                }
             }else{
                 $(`#bp_location_id`).empty().append(html);
                 $(`#bp_location_id.selectpicker`).selectpicker('refresh');
-                if(location_id)
-                {
-                    $(`#bp_location_id`).val(location_id);
-                    $(`#bp_location_id.selectpicker`).selectpicker('refresh');
-                }
             }
             
         },
     });
 }
 function store_data(){
-    let form = document.getElementById('update_form');
+    let form = document.getElementById('store_form');
     let formData = new FormData(form);
-    let url = "{{route('build.disassembly.update')}}";
+    let url = "{{route('build.re.process.store')}}";
     $.ajax({
         url: url,
         type: "POST",
@@ -435,25 +390,23 @@ function store_data(){
             $('#save-btn').removeClass('spinner spinner-white spinner-right');
         },
         success: function (data) {
-            $('#update_form').find('.is-invalid').removeClass('is-invalid');
-            $('#update_form').find('.error').remove();
+            $('#store_form').find('.is-invalid').removeClass('is-invalid');
+            $('#store_form').find('.error').remove();
             if (data.status == false) {
                 $.each(data.errors, function (key, value) {
                     var key = key.split('.').join('_');
-                    $('#update_form input#' + key).addClass('is-invalid');
-                    $('#update_form textarea#' + key).addClass('is-invalid');
-                    $('#update_form select#' + key).parent().addClass('is-invalid');
-                    $('#update_form #' + key).parent().append(
+                    $('#store_form input#' + key).addClass('is-invalid');
+                    $('#store_form textarea#' + key).addClass('is-invalid');
+                    $('#store_form select#' + key).parent().addClass('is-invalid');
+                    $('#store_form #' + key).parent().append(
                         '<small class="error text-danger">' + value + '</small>');
-
                 });
             } else {
                 notification(data.status, data.message);
                 if (data.status == 'success') {
-                    window.location.replace("{{ url('build-disassembly') }}");
+                    window.location.replace("{{ url('build-re-process/view') }}/"+data.build_id);
                 }
             }
-
         },
         error: function (xhr, ajaxOption, thrownError) {
             console.log(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);
