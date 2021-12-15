@@ -17,5 +17,6 @@
     "TransferInventory": true,
     "BuildDisassembly": true,
     "BOM": true,
-    "BuildReProcess": true
+    "BuildReProcess": true,
+    "Sale": true
 }
