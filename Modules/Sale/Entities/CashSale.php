@@ -3,38 +3,39 @@
 namespace Modules\Sale\Entities;
 
 use App\Models\BaseModel;
+use Illuminate\Support\Facades\DB;
+use Modules\Account\Entities\ChartOfAccount;
 
 class CashSale extends BaseModel
 {
     protected $fillable = [
-        'memo_no','customer_name','do_number','account_id','account_id','item','total_qty', 'grand_total','sale_date','delivery_date','created_by','modified_by',
+        'memo_no','customer_name','do_number','account_id','item','total_qty', 'grand_total','sale_date','delivery_date','created_by','modified_by',
     ];
 
-    public function materials()
+    public function product()
     {
-        return $this->belongsToMany(Material::class,'cash_purchase_materials','cash_id','material_id','id','id')
-        ->withPivot('id', 'site_id', 'location_id','qty','purchase_unit_id','net_unit_cost','old_cost','total','description')
+        return $this->belongsToMany(Product::class,'cash_sale_products','sale_id','product_id','id','id')
+        ->withPivot('id', 'site_id', 'location_id','qty','net_unit_price','total','description')
         ->withTimeStamps(); 
     }
 
-    public function jobType()
+    public function coa()
     {
-        return $this->belongsTo(JobType::class,'job_type_id','id')->withDefault(['job_type'=>'']);
+        return $this->belongsTo(ChartOfAccount::class,'account_id','id');
     }
-
-     /******************************************
+    /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
-    protected $order = ['cp.id' => 'desc'];
+    protected $order = ['cs.id' => 'desc'];
     //custom search column property
-    protected $_challan_no; 
+    protected $_memo_no; 
     protected $_from_date; 
     protected $_to_date; 
 
     //methods to set custom search property value
-    public function setChallanNo($challan_no)
+    public function setMemoNo($memo_no)
     {
-        $this->_challan_no = $challan_no;
+        $this->_memo_no = $memo_no;
     }
 
     public function setFromDate($from_date)
@@ -50,29 +51,28 @@ class CashSale extends BaseModel
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
-        if (permission('cash-purchase-bulk-delete')){
-            $this->column_order = ['cp.id', 'cp.id', 'cp.challan_no','cp.memo_no','cp.vendor_name','cp.job_type_id','cp.name','cp.account_id', 'cp.item','cp.total_qty','cp.grand_total','cp.receive_date','cp.created_by', null];
+        if (permission('cash-sale-bulk-delete')){
+            $this->column_order = ['cs.id', 'cs.id', 'cs.memo_no','cs.customer_name', 'cs.item','cs.total_qty','cs.grand_total','cs.account_id','cs.sale_date','cs.delivery_date','cs.created_by', null];
         }else{
-            $this->column_order = ['cp.id', 'cp.challan_no','cp.memo_no','cp.vendor_name','cp.job_type_id','cp.name','cp.account_id', 'cp.item','cp.total_qty','cp.grand_total','cp.receive_date','cp.created_by', null];
+            $this->column_order = ['cs.id', 'cs.memo_no','cs.customer_name', 'cs.item','cs.total_qty','cs.grand_total','cs.account_id','cs.sale_date','cs.delivery_date','cs.created_by', null];
         }
         
-        $query = DB::table('cash_purchases as cp')
-        ->leftJoin('job_types as jt','cp.job_type_id','=','jt.id')
-        ->leftJoin('chart_of_accounts as coa','cp.account_id','=','coa.id')
-        ->select('cp.id', 'cp.challan_no','cp.memo_no','cp.vendor_name','cp.job_type_id','jt.job_type','cp.name',
-        'cp.account_id', 'coa.name as account_name','cp.item','cp.total_qty','cp.grand_total','cp.receive_date','cp.created_by');
+        $query = DB::table('cash_sales as cs')
+        ->leftJoin('chart_of_accounts as coa','cs.account_id','=','coa.id')
+        ->select('cs.id','cs.memo_no','cs.customer_name','cs.account_id', 'coa.name as account_name','cs.item',
+        'cs.total_qty','cs.grand_total','cs.sale_date','cs.created_by');
 
 
-        if (!empty($this->_challan_no)) {
-            $query->where('cp.challan_no', 'like', '%' . $this->_challan_no . '%');
+        if (!empty($this->_memo_no)) {
+            $query->where('cs.memo_no', 'like', '%' . $this->_memo_no . '%');
         }
 
         if (!empty($this->_from_date)) {
-            $query->where('cp.receive_date', '>=',$this->_from_date);
+            $query->where('cs.sale_date', '>=',$this->_from_date);
         }
 
         if (!empty($this->_to_date)) {
-            $query->where('cp.receive_date', '<=',$this->_to_date);
+            $query->where('cs.sale_date', '<=',$this->_to_date);
         }
 
 
@@ -102,7 +102,7 @@ class CashSale extends BaseModel
 
     public function count_all()
     {
-        return DB::table('cash_purchases')->count();
+        return DB::table('cash_sales')->count();
     }
     /******************************************
      * * * End :: Custom Datatable Code * * *
@@ -142,7 +142,7 @@ class CashSale extends BaseModel
         ); 
 
         $payment = array(
-            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '1020101')->value('id'),
+            'chart_of_account_id' => $data['account_id'],
             'voucher_no'          => $data['challan_no'],
             'voucher_type'        => 'Purchase',
             'voucher_date'        => $data['receive_date'],
@@ -156,6 +156,6 @@ class CashSale extends BaseModel
             
         );
 
-        return [$inventory,$expense];
+        return [$inventory,$expense,$payment];
     } 
 }

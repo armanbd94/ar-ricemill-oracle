@@ -160,6 +160,6 @@ class CashPurchase extends BaseModel
             
         );
 
-        return [$inventory,$expense];
+        return [$inventory,$expense,$payment];
     } 
 }
