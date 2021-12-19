@@ -12,7 +12,7 @@ class CashSale extends BaseModel
         'memo_no','customer_name','do_number','account_id','item','total_qty', 'grand_total','sale_date','delivery_date','created_by','modified_by',
     ];
 
-    public function product()
+    public function products()
     {
         return $this->belongsToMany(Product::class,'cash_sale_products','sale_id','product_id','id','id')
         ->withPivot('id', 'site_id', 'location_id','qty','net_unit_price','total','description')
@@ -114,12 +114,12 @@ class CashSale extends BaseModel
         //Inventory Debit
         $inventory = array(
             'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
-            'voucher_no'          => $data['challan_no'],
-            'voucher_type'        => 'Purchase',
-            'voucher_date'        => $data['receive_date'],
-            'description'         => 'Inventory debit '.$data['grand_total'].'Tk for material purchase from vendor '.$data['vendor_name'],
-            'debit'               => $data['grand_total'],
-            'credit'              => 0,
+            'voucher_no'          => $data['memo_no'],
+            'voucher_type'        => 'INVOICE',
+            'voucher_date'        => $data['sale_date'],
+            'description'         => 'Inventory credit '.$data['grand_total'].'Tk for cash sale Invoice No. - '.$data['memo_no'],
+            'debit'               => 0,
+            'credit'              => $data['grand_total'],
             'posted'              => 1,
             'approve'             => 1,
             'created_by'          => auth()->user()->name,
@@ -127,14 +127,14 @@ class CashSale extends BaseModel
         ); 
 
          // Expense for company
-        $expense = array(
-            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '402')->value('id'),
-            'voucher_no'          => $data['challan_no'],
-            'voucher_type'        => 'Purchase',
-            'voucher_date'        => $data['receive_date'],
-            'description'         => 'Company expense '.$data['grand_total'].'Tk for material purchase from vendor '.$data['vendor_name'],
-            'debit'               => $data['grand_total'],
-            'credit'              => 0,
+        $income = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '301')->value('id'),
+            'voucher_no'          => $data['memo_no'],
+            'voucher_type'        => 'INVOICE',
+            'voucher_date'        => $data['sale_date'],
+            'description'         => 'Cash sale income '.$data['grand_total'].'Tk from Invoice No. - '.$data['memo_no'],
+            'debit'               => 0,
+            'credit'              => $data['grand_total'],
             'posted'              => 1,
             'approve'             => 1,
             'created_by'          => auth()->user()->name,
@@ -143,12 +143,12 @@ class CashSale extends BaseModel
 
         $payment = array(
             'chart_of_account_id' => $data['account_id'],
-            'voucher_no'          => $data['challan_no'],
-            'voucher_type'        => 'Purchase',
-            'voucher_date'        => $data['receive_date'],
-            'description'         => 'Cash '.$data['grand_total'].'Tk given for material purchase',
-            'debit'               => 0,
-            'credit'              => $data['grand_total'],
+            'voucher_no'          => $data['memo_no'],
+            'voucher_type'        => 'INVOICE',
+            'voucher_date'        => $data['sale_date'],
+            'description'         => 'Cash '.$data['grand_total'].'Tk received for sales from Invoice No. - '.$data['memo_no'],
+            'debit'               => $data['grand_total'],
+            'credit'              => 0,
             'posted'              => 1,
             'approve'             => 1,
             'created_by'          => auth()->user()->name,
@@ -156,6 +156,6 @@ class CashSale extends BaseModel
             
         );
 
-        return [$inventory,$expense,$payment];
+        return [$inventory,$income,$payment];
     } 
 }

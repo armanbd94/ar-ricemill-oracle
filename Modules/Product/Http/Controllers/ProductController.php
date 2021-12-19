@@ -224,6 +224,8 @@ class ProductController extends BaseController
         ->when( $category_id,function($q) use ($category_id){
             $q->where('p.category_id','!=',$category_id);
         })
+        ->orderBy('p.category_id','desc')
+        ->orderBy('p.id','asc')
         ->get();
 
         $output = '<option value="">Select Please</option>';

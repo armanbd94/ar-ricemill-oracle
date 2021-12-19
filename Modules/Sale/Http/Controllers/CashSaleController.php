@@ -4,18 +4,18 @@ namespace Modules\Sale\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Sale\Entities\CashSale;
 use Modules\Product\Entities\Product;
+use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\Transaction;
 use Modules\Product\Entities\SiteProduct;
 use Modules\Sale\Entities\CashSaleProduct;
-use Illuminate\Contracts\Support\Renderable;
+use Modules\Account\Entities\ChartOfAccount;
 use Modules\Sale\Http\Requests\CashSaleFormRequest;
 
-class CashSaleController extends Controller
+class CashSaleController extends BaseController
 {
     public function __construct(CashSale $model)
     {
@@ -26,7 +26,7 @@ class CashSaleController extends Controller
     {
         if(permission('cash-sale-access')){
             $this->setPageData('Manage Cash Sale','Manage Cash Sale','fas fa-opencart',[['name' => 'Manage Cash Sale']]);
-            return view('purchase::cash-sale.index');
+            return view('sale::cash-sale.index');
         }else{
             return $this->access_blocked();
         }
@@ -96,11 +96,11 @@ class CashSaleController extends Controller
         if(permission('cash-sale-add')){
             $this->setPageData('Cash Purchase Form','Cash Purchase Form','fas fa-cart-arrow-down',[['name' => 'Cash Purchase Form']]);
             $data = [
-                'sites'     => Site::allSites(),
-                'products' => Product::with('category')->where([['status',1]])->get(),
+                'sites'    => Site::allSites(),
+                'coas'     => ChartOfAccount::whereNotIn('code',['1020102','1020103'])->where('parent_name','Cash & Cash Equivalent')->get()
             ];
-            
-            return view('purchase::cash-sale.create',$data);
+
+            return view('sale::cash-sale.create',$data);
         }else{
             return $this->access_blocked();
         }
@@ -199,9 +199,9 @@ class CashSaleController extends Controller
     {
         if(permission('cash-sale-view')){
             $this->setPageData('Cash Purchase Details','Cash Purchase Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Cash Purchase Details']]);
-            $purchase = $this->model->with('materials','jobType')->find($id);
-            $purchase_materials = CashPurchaseMaterial::with(['site:id,name','location:id,name','material','purchase_unit:id,unit_name'])->where('cash_id',$id)->get();
-            return view('purchase::cash-sale.details',compact('purchase','purchase_materials'));
+            $sale = $this->model->find($id);
+            $sale_products = CashSaleProduct::with(['site:id,name','location:id,name','product'])->where('sale_id',$id)->get();
+            return view('sale::cash-sale.details',compact('sale','sale_products'));
         }else{
             return $this->access_blocked();
         }
@@ -212,18 +212,17 @@ class CashSaleController extends Controller
         if(permission('cash-sale-edit')){
             $this->setPageData('Edit Cash Purchase','Edit Cash Purchase','fas fa-edit',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Edit Cash Purchase']]);
             $data = [
-                'purchase'  => $this->model->with('materials')->find($id),
-                'job_types' => JobType::allJobTypes(),
+                'sale'  => $this->model->with('products')->find($id),
                 'sites'     => Site::allSites(),
-                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'coas'     => ChartOfAccount::whereNotIn('code',['1020102','1020103'])->where('parent_name','Cash & Cash Equivalent')->get()
             ];
-            return view('purchase::cash-sale.edit',$data);
+            return view('sale::cash-sale.edit',$data);
         }else{
             return $this->access_blocked();
         }
     }
 
-    public function update(CashPurchaseFormRequest $request)
+    public function update(CashSaleFormRequest $request)
     {
         if($request->ajax()){
             if(permission('cash-sale-edit')){
