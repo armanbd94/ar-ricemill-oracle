@@ -47,6 +47,14 @@ class LoanReport extends BaseModel
         $this->_person_id = $person_id;
     }
 
+    
+    // $weekholiday = DB::table('weekly_holiday_assigns as wholi')
+    // ->selectRaw("wholi.employee_id,wholi.weekly_holiday_id,holi.id,holi.name as hname,holi.short_name as same")
+    // ->join('holidays as holi','weekly_holiday_id','=','holi.id')
+    // ->where('wholi.employee_id',$employee_id)
+    // ->groupBy('wholi.weekly_holiday_id','wholi.employee_id','holi.id','holi.name','holi.short_name')
+    // ->get();
+
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
@@ -54,7 +62,7 @@ class LoanReport extends BaseModel
         $this->column_order = ['t.id', 't.voucher_no','t.voucher_date','t.descritpion','t.debit','t.credit','t.approve', 't.created_by',null];
         
         $query = DB::table('transactions as t')
-        ->select("t.*,sum(t.credit) as credit,sum(t.debit) as debit,name as cname")        
+        ->selectRaw("t.credit,t.debit,t.voucher_type,t.voucher_date,t.chart_of_account_id,sum(t.credit) as credit,sum(t.debit) as debit,chart_of_accounts.name as cname")        
         ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
         ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI']);
         //search query
@@ -71,7 +79,9 @@ class LoanReport extends BaseModel
             $query->where('t.chart_of_account_id', '=',$this->_person_id);
         }
         
-        $query->groupBy('t.voucher_no');
+        $query->groupBy('t.voucher_no','t.credit','t.debit','t.voucher_type','t.chart_of_account_id','chart_of_accounts.name')->get();
+
+        dd($query);
 
         //order by data fetching code
         if (isset($this->orderValue) && isset($this->dirValue)) { //orderValue is the index number of table header and dirValue is asc or desc
@@ -100,7 +110,7 @@ class LoanReport extends BaseModel
     public function count_all()
     {
         $query =  DB::table('transactions as t')
-        ->select("t.*,sum(t.credit) as credit,sum(t.debit) as debit") 
+        ->selectRaw("t.*,sum(t.credit) as credit,sum(t.debit) as debit") 
         ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
         ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI'])
         ->groupBy('t.voucher_no');
