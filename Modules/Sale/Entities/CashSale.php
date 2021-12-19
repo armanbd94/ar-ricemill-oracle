@@ -4,6 +4,7 @@ namespace Modules\Sale\Entities;
 
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
+use Modules\Product\Entities\Product;
 use Modules\Account\Entities\ChartOfAccount;
 
 class CashSale extends BaseModel

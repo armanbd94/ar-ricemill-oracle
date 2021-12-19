@@ -5,9 +5,6 @@
 @push('styles')
 <link rel="stylesheet" href="css/jquery-ui.css" />
 <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-<style>
-    .dropdown.bootstrap-select{width: 200px;}
-</style>
 @endpush
 
 @section('content')
@@ -18,84 +15,78 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('purchase.cash') }}" type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-window-close"></i> Cancel</a>
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
+                    <a href="{{ route('sale.cash') }}" type="button" class="btn btn-danger btn-sm mr-3 custom-btn"><i class="fas fa-window-close"></i> Cancel</a>
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
                 </div>
             </div>
         </div>
         <!--end::Notice-->
         <!--begin::Card-->
         <div class="card card-custom">
-
             <div class="card-body">
 
                 <!--begin: Datatable-->
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
 
 
-                    <form action="" id="cash_purchase_form" method="post" enctype="multipart/form-data">
+                    <form action="" id="cash_sale_form" method="post" enctype="multipart/form-data">
                         @csrf
-                        <input type="hidden" name="purchase_id" id="purchase_id" value="{{ $purchase->id }}">
+                        <input type="hidden" name="sale_id" id="sale_id" value="{{ $sale->id }}">
                         <div class="row">
-                            <x-form.textbox labelName="Challan No." name="challan_no" value="{{ $purchase->challan_no }}"  required="required"  col="col-md-4"/>
-                            <x-form.textbox labelName="Receive Date" name="receive_date" value="{{ $purchase->receive_date }}" required="required" class="date" col="col-md-4"/>
+                            <x-form.textbox labelName="Invoice Date" name="sale_date" value="{{ $sale->sale_date }}" required="required" class="date" col="col-md-4"/>
                             <div class="form-group col-md-4 required">
-                                <label for="vendor_name">Vendor Name</label>
-                                <input type="text" class="form-control" name="vendor_name" value="{{ $purchase->vendor_name }}" id="vendor_name" />
+                                <label for="memo_no">Memo No.</label>
+                                <input type="text" class="form-control" name="memo_no" id="memo_no" value="{{ $sale->memo_no }}"  />
                             </div>
                             
-                            <x-form.selectbox labelName="JOB Type" name="job_type_id"  class="selectpicker" col="col-md-4">
-                                @if (!$job_types->isEmpty())
-                                    @foreach ($job_types as $job_type)
-                                        <option value="{{ $job_type->id }}" {{ $purchase->job_type_id == $job_type->id ? 'selected' : '' }}>{{ $job_type->job_type }}</option>
+                            <div class="form-group col-md-4 required">
+                                <label for="customer_name">Customer Name</label>
+                                <input type="text" class="form-control" name="customer_name" id="customer_name" value="{{ $sale->customer_name }}" />
+                            </div>
+                            <div class="form-group col-md-4 required">
+                                <label for="do_number">DO Number</label>
+                                <input type="text" class="form-control" name="do_number" id="do_number" value="{{ $sale->do_number }}" />
+                            </div>
+                            
+                            <x-form.textbox labelName="Delivery Date" name="delivery_date" value="{{ $sale->delivery_date }}" required="required" class="date" col="col-md-4"/>
+
+                            <x-form.selectbox labelName="Deposit To" name="account_id" col="col-md-4" class="selectpicker" required="required">
+                                @if (!$coas->isEmpty())
+                                    @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}" {{ $sale->account_id == $coa->id ? 'selected' : '' }}>{{ $coa->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
-                            <div class="form-group col-md-4">
-                                <label for="name">Name</label>
-                                <input type="text" class="form-control" name="name" value="{{ $purchase->name }}" id="name"  />
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label for="memo_no">Memo No.</label>
-                                <input type="text" class="form-control" value="{{ $purchase->memo_no }}" name="memo_no" id="memo_no"  />
-                            </div>
+                            
                             <div class="col-md-12 table-responsive" style="min-height: 500px;">
 
-                                <table class="table table-bordered" id="material_table">
+                                <table class="table table-bordered" id="product_table">
                                     <thead class="bg-primary">
-                                        <th>Item</th>
-                                        <th>Description</th>
-                                        <th class="text-center">Class</th>
                                         <th class="text-center">Site</th>
                                         <th class="text-center">Location</th>
-                                        <th class="text-center">Unit</th>
-                                        <th class="text-center">Quantity</th>
+                                        <th>Item</th>
+                                        <th>Description</th>
+                                        <th class="text-center">Available Qty</th>
+                                        <th class="text-center">Qty</th>
                                         <th class="text-right">Rate</th>
                                         <th class="text-right">Subtotal</th>
                                         <th class="text-center"><i class="fas fa-trash text-white"></i></th>
                                     </thead>
                                     <tbody>
-                                        @if(!$purchase->materials->isEmpty())
-                                            @foreach($purchase->materials as $key => $value)
+                                        @if(!$sale->products->isEmpty())
+                                            @foreach($sale->products as $key => $value)
                                             @php
-                                            $unit_name = DB::table('units')->where('id',$value->pivot->purchase_unit_id)->value('unit_name');
+                                            $stock_qty = $value->pivot->qty;
                                             $locations = DB::table('locations')->where('site_id',$value->pivot->site_id)->get();
+                                            $products = DB::table('site_product as sp')
+                                            ->select('p.id','p.name','sp.qty')
+                                            ->leftJoin('products as p','sp.product_id','=','p.id')
+                                            ->where([['sp.site_id',$value->pivot->site_id],['sp.location_id',$value->pivot->location_id]])
+                                            ->get();
                                             @endphp
                                             <tr>
-                                                <td>                     
-                                                    <select name="materials[{{ $key+1 }}][id]" id="materials_{{ $key+1 }}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails({{ $key+1 }})"  data-live-search="true" data-row="{{ $key+1 }}">    
-                                                        <option value="">Select Please</option>                                        
-                                                        @if (!$materials->isEmpty())
-                                                            @foreach ($materials as $material)
-                                                                <option value="{{ $material->id }}" {{ $value->id == $material->id ? 'selected' : '' }} data-unitid={{ $material->unit_id }} data-unitname="{{ $material->unit->unit_name }}" data-category="{{ $material->category->name }}">{{ $material->material_name }}</option>
-                                                            @endforeach
-                                                        @endif
-                                                    </select>
-                                                </td>    
-                                                <td><input type="text" class="form-control" style="width: 150px;" value="{{ $value->pivot->description }}" name="materials[{{ $key+1 }}][description]" id="materials_{{ $key+1 }}_description" data-row="{{ $key+1 }}"></td>                                    
-                                                <td class="category_name_{{ $key+1 }} text-center" style="min-width: 120px;" id="category_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $value->category->name }}</td>
-                                                <td>                                                  
-                                                    <select name="materials[{{ $key+1 }}][site_id]" id="materials_{{ $key+1 }}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,{{ $key+1 }})"  data-live-search="true" data-row="{{ $key+1 }}">                                            
+                                                <td style="width:250px;">                                                  
+                                                    <select name="products[{{ $key+1 }}][site_id]"  style="width:250px;" id="products_{{ $key+1 }}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,{{ $key+1 }})"  data-live-search="true" data-row="{{ $key+1 }}">                                            
                                                         <option value="">Select Please</option>  
                                                         @if(!$sites->isEmpty())  
                                                             @foreach ($sites as $site)
@@ -104,46 +95,61 @@
                                                         @endif
                                                     </select>
                                                 </td>  
-                                                <td>                                                  
-                                                    <select name="materials[{{ $key+1 }}][location_id]" id="materials_{{ $key+1 }}_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="{{ $key+1 }}">                                            
+                                                <td style="width:250px;">                                                  
+                                                    <select name="products[{{ $key+1 }}][location_id]"  style="width:250px;" onchange="product_list({{ $key+1 }})" id="products_{{ $key+1 }}_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="{{ $key+1 }}">                                            
                                                         <option value="">Select Please</option>  
                                                         @if(!$locations->isEmpty())  
-                                                            @foreach ($locations as $location)
-                                                                <option value="{{ $location->id }}" {{ $location->id == $value->pivot->location_id ? 'selected' : '' }}>{{ $location->name }}</option>
-                                                            @endforeach
-                                                        @endif
+                                                        @foreach ($locations as $location)
+                                                            <option value="{{ $location->id }}" {{ $location->id == $value->pivot->location_id ? 'selected' : '' }}>{{ $location->name }}</option>
+                                                        @endforeach
+                                                    @endif
                                                     </select>
-                                                </td>  
-                                                <td class="unit_name_{{ $key+1 }} text-center" style="min-width: 80px;" id="unit_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $unit_name }}</td>
-                                                <td><input type="text" class="form-control qty text-center" style="width: 120px;" value="{{ $value->pivot->qty }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="materials[{{ $key+1 }}][qty]" id="materials_{{ $key+1 }}_qty"  data-row="{{ $key+1 }}"></td>
-                                                <td><input type="text" style="width: 120px;" class="text-right form-control net_unit_cost" value="{{ $value->pivot->net_unit_cost }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="materials[{{ $key+1 }}][net_unit_cost]" id="materials_{{ $key+1 }}_net_unit_cost" data-row="{{ $key+1 }}"></td>
+                                                </td> 
+                                                <td style="width:250px;">                     
+                                                    <select name="products[{{ $key+1 }}][id]" id="products_{{ $key+1 }}_id"  style="width:250px;" class="fcs col-md-12 form-control selectpicker" onchange="setProductDetails({{ $key+1 }})"  data-live-search="true" data-row="{{ $key+1 }}">    
+                                                        <option value="">Select Please</option>    
+                                                        @if (!$products->isEmpty())
+                                                            @foreach ($products as $product)
+                                                            @if($value->id == $product->id)
+                                                             @php 
+                                                             $stock_qty += ($product->qty ? $product->qty : 0); 
+                                                             @endphp
+                                                            @endif
+                                                                <option value="{{ $product->id }}" {{ $value->id == $product->id ? 'selected' : '' }} data-stokcqty={{ $value->id == $product->id ? $stock_qty : ($product->qty ? $product->qty : 0) }}>{{ $product->name }}</option>
+                                                            @endforeach
+                                                        @endif                                    
+                                                    </select>
+                                                </td>    
+                                                <td><input type="text" class="form-control" style="width: 150px;margin: 0 auto;" name="products[{{ $key+1 }}][description]" id="products_{{ $key+1 }}_description" value="{{ $value->pivot->description }}" data-row="{{ $key+1 }}"></td>                                    
+                                                <td><input type="text" class="form-control text-center" style="width: 120px;margin: 0 auto;" name="products[{{ $key+1 }}][stock_qty]" id="products_{{ $key+1 }}_stock_qty" value="{{ $stock_qty }}" data-row="{{ $key+1 }}"></td>
+                                                <td><input type="text" class="form-control qty text-center" style="width: 120px;margin: 0 auto;" onkeyup="calculateRowTotal({{ $key+1 }})" name="products[{{ $key+1 }}][qty]"  value="{{ $value->pivot->qty }}" id="products_{{ $key+1 }}_qty"  data-row="{{ $key+1 }}"></td>
+                                                <td><input type="text" style="width: 120px;margin: 0 auto;" class="text-right form-control net_unit_price" value="{{ $value->pivot->net_unit_price }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="products[{{ $key+1 }}][net_unit_price]" id="products_{{ $key+1 }}_net_unit_price" data-row="{{ $key+1 }}"></td>
                                                 <td class="subtotal_{{ $key+1 }} text-right" id="sub_total_{{ $key+1 }}" data-row="{{ $key+1 }}">{{ $value->pivot->total }}</td>
                                                 <td class="text-center" data-row="{{ $key+1 }}">
                                                     @if($key != 0)
-                                                        <button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button>
-                                                        @endif
+                                                    <button type="button" class="btn btn-danger btn-sm remove-product"><i class="fas fa-trash"></i></button>
+                                                    @endif
                                                 </td>
-                                                <input type="hidden" id="materials_{{ $key+1 }}_purchase_unit_id" value="{{ $value->pivot->purchase_unit_id }}" name="materials[{{ $key+1 }}][purchase_unit_id]" data-row="{{ $key+1 }}">
-                                                <input type="hidden" class="subtotal" value="{{ $value->pivot->total }}" id="materials_{{ $key+1 }}_subtotal" name="materials[{{ $key+1 }}][subtotal]" data-row="{{ $key+1 }}">
+                                                <input type="hidden" class="subtotal" id="products_{{ $key+1 }}_subtotal" name="products[{{ $key+1 }}][subtotal]" value="{{ $value->pivot->total }}" data-row="{{ $key+1 }}">
                                             </tr>
                                             @endforeach
                                         @endif
                                     </tbody>
                                     <tfoot class="bg-primary">
-                                        <th colspan="6" class="font-weight-bolder">Total</th>
-                                        <th id="total-qty" class="text-center font-weight-bolder">{{ $purchase->total_qty }}</th>
+                                        <th colspan="5" class="font-weight-bolder">Total</th>
+                                        <th id="total-qty" class="text-center font-weight-bolder">0</th>
                                         <th></th>
-                                        <th id="total" class="text-right font-weight-bolder">{{ $purchase->grand_total }}</th>
-                                        <th class="text-center"><button type="button" data-toggle="tooltip" data-theme="dark" title="Add More" class="btn btn-success btn-sm add-material"><i class="fas fa-plus"></i></button></th>
+                                        <th id="total" class="text-right font-weight-bolder">0.00</th>
+                                        <th class="text-center"><button type="button" data-toggle="tooltip" data-theme="dark" title="Add More" class="btn btn-success btn-sm add-product"><i class="fas fa-plus"></i></button></th>
                                     </tfoot>
                                 </table>
                             </div>
 
             
                             <div class="col-md-12">
-                                <input type="hidden" name="item" id="item" value="{{ $purchase->item }}">
-                                <input type="hidden" name="total_qty" id="total_qty" value="{{ $purchase->total_qty }}">
-                                <input type="hidden" name="grand_total" id="grand_total" value="{{ $purchase->grand_total }}">
+                                <input type="hidden" name="item">
+                                <input type="hidden" name="total_qty">
+                                <input type="hidden" name="grand_total">
                             </div>
 
                         </div>
@@ -165,36 +171,24 @@
 $(document).ready(function () {
     $('.date').datetimepicker({format: 'YYYY-MM-DD'});
 
-    $('#material_table').on('click','.remove-material',function(){
+    $('#product_table').on('click','.remove-product',function(){
         $(this).closest('tr').remove();
         calculateTotal();
     });
 
     var count = 1;
-    @if(!$purchase->materials->isEmpty())
-    count = "{{ count($purchase->materials) }}";
+    @if(!$sale->products->isEmpty())
+    count = "{{ count($sale->products) }}";
     @endif
-    $('#material_table').on('click','.add-material',function(){
+    $('#product_table').on('click','.add-product',function(){
         count++;
-        material_row_add(count);
+        product_row_add(count);
     }); 
 
-    function material_row_add(count){
+    function product_row_add(count){
         var html = `<tr>
-                        <td>                     
-                            <select name="materials[${count}][id]" id="materials_${count}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(${count})"  data-live-search="true" data-row="${count}">    
-                                <option value="">Select Please</option>                                        
-                                @if (!$materials->isEmpty())
-                                    @foreach ($materials as $material)
-                                        <option value="{{ $material->id }}" data-unitid={{ $material->unit_id }} data-unitname="{{ $material->unit->unit_name }}" data-category="{{ $material->category->name }}">{{ $material->material_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </td>    
-                        <td><input type="text" class="form-control" style="width: 150px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
-                        <td class="category_name_${count} text-center" style="min-width: 120px;" id="category_name_${count}"  data-row="${count}"></td>
-                        <td>                                                  
-                            <select name="materials[${count}][site_id]" id="materials_${count}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
+                        <td style="width:250px;">                                                  
+                            <select name="products[${count}][site_id]"  style="width:250px;" id="products_${count}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
@@ -203,47 +197,47 @@ $(document).ready(function () {
                                 @endif
                             </select>
                         </td>  
-                        <td>                                                  
-                            <select name="materials[${count}][location_id]" id="materials_${count}_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="${count}">                                            
+                        <td style="width:250px;">                                                  
+                            <select name="products[${count}][location_id]" style="width:250px;" onchange="product_list(${count})" id="products_${count}_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
                             </select>
                         </td>  
-                        <td class="unit_name_${count} text-center" style="min-width: 80px;" id="unit_name_${count}"  data-row="${count}"></td>
-                        <td><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="calculateRowTotal(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
-                        <td><input type="text" style="width: 120px;" class="text-right form-control net_unit_cost" onkeyup="calculateRowTotal(${count})" name="materials[${count}][net_unit_cost]" id="materials_${count}_net_unit_cost" data-row="${count}"></td>
+                        <td style="width:250px;">                     
+                            <select name="products[${count}][id]" style="width:250px;" id="products_${count}_id" class="fcs col-md-12 form-control selectpicker" onchange="setProductDetails(${count})"  data-live-search="true" data-row="${count}">    
+                                <option value="">Select Please</option>                                        
+                            </select>
+                        </td>    
+                        <td><input type="text" class="form-control" style="width: 150px;margin: 0 auto;" name="products[${count}][description]" id="products_${count}_description" data-row="${count}"></td>                                    
+                        <td><input type="text" class="form-control text-center" style="width: 120px;margin: 0 auto;" name="products[${count}][stock_qty]" id="products_${count}_stock_qty"  data-row="${count}"></td>
+                        <td><input type="text" class="form-control qty text-center" style="width: 120px;margin: 0 auto;" onkeyup="calculateRowTotal(${count})" name="products[${count}][qty]" id="products_${count}_qty"  data-row="${count}"></td>
+                        <td><input type="text" style="width: 120px;margin: 0 auto;" class="text-right form-control net_unit_price" onkeyup="calculateRowTotal(${count})" name="products[${count}][net_unit_price]" id="products_${count}_net_unit_price" data-row="${count}"></td>
                         <td class="subtotal_${count} text-right" id="sub_total_${count}" data-row="${count}"></td>
-                        <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-material"><i class="fas fa-trash"></i></button></td>
-                        <input type="hidden" id="materials_${count}_purchase_unit_id" name="materials[${count}][purchase_unit_id]" data-row="${count}">
-                        <input type="hidden" class="subtotal" id="materials_${count}_subtotal" name="materials[${count}][subtotal]" data-row="${count}">
+                        <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-product"><i class="fas fa-trash"></i></button></td>
+                        <input type="hidden" class="subtotal" id="products_${count}_subtotal" name="products[${count}][subtotal]" data-row="${count}">
                     </tr>`;
-        $('#material_table tbody').append(html);
-        $('#material_table .selectpicker').selectpicker();
+        $('#product_table tbody').append(html);
+        $('#product_table .selectpicker').selectpicker();
     }
 });
-function setMaterialDetails(row){
-    let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
-    let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
-    let category_name = $(`#materials_${row}_id option:selected`).data('category');
-
-    $(`.unit_name_${row}`).text(unit_name);
-    $(`.category_name_${row}`).text(category_name);
-    $(`#materials_${row}_purchase_unit_id`).val(unit_id);
+function setProductDetails(row){
+    const stock_qty = $(`#products_${row}_id option:selected`).data('stockqty') ? parseFloat($(`#products_${row}_id option:selected`).data('stockqty')) : 0;
+    $(`#products_${row}_stock_qty`).val(stock_qty);
 } 
 function calculateRowTotal(row)
 {
-    let cost = $(`#materials_${row}_net_unit_cost`).val() ? parseFloat($(`#materials_${row}_net_unit_cost`).val()) : 0;
-    let qty = $(`#materials_${row}_qty`).val() ? parseFloat($(`#materials_${row}_qty`).val()) : 0;
+    let price = $(`#products_${row}_net_unit_price`).val() ? parseFloat($(`#products_${row}_net_unit_price`).val()) : 0;
+    let qty = $(`#products_${row}_qty`).val() ? parseFloat($(`#products_${row}_qty`).val()) : 0;
     if(qty < 0 || qty == ''){
         qty = 0;
-        $(`#materials_${row}_qty`).val('');
+        $(`#products_${row}_qty`).val('');
     }
-    if(cost < 0 || cost == ''){
-        cost = 0;
-        $(`#materials_${row}_net_unit_cost`).val('');
+    if(price < 0 || price == ''){
+        price = 0;
+        $(`#products_${row}_net_unit_price`).val('');
     }
 
-    $(`.subtotal_${row}`).text(parseFloat(qty * cost));
-    $(`#materials_${row}_subtotal`).val(parseFloat(qty * cost));
+    $(`.subtotal_${row}`).text(parseFloat(qty * price));
+    $(`#products_${row}_subtotal`).val(parseFloat(qty * price));
     
     calculateTotal();
 }
@@ -270,8 +264,28 @@ function calculateTotal()
     $('#total').text(total);
     $('input[name="grand_total"]').val(total);
 
-    var item = $('#material_table tbody tr:last').index()+1;
+    var item = $('#product_table tbody tr:last').index()+1;
     $('input[name="item"]').val(item);
+}
+function product_list(row)
+{
+    const site_id       = $(`#products_${row}_site_id option:selected`).val();
+    const location_id   = $(`#products_${row}_location_id option:selected`).val();
+    if(site_id && location_id)
+    {
+        $.ajax({
+            url:"{{ route('product.list') }}",
+            type:"POST",
+            data:{
+                site_id:site_id,location_id:location_id,_token:_token
+            },
+            success:function(data){
+                $(`#products_${row}_id`).empty().append(data);
+                $(`#products_${row}_id.selectpicker`).selectpicker('refresh');
+            },
+        });
+        $('#available_qty').val('');
+    }
 }
 function getLocations(site_id,row)
 {
@@ -280,25 +294,25 @@ function getLocations(site_id,row)
         type:"GET",
         dataType:"JSON",
         success:function(data){
-            $(`#materials_${row}_location_id`).empty();
+            $(`#products_${row}_location_id`).empty();
             var html = '<option value="">Select Please</option>';
             $.each(data, function(key, value) {
                 html += '<option value="'+ key +'">'+ value +'</option>';
             });
-            $(`#materials_${row}_location_id`).append(html);
-            $(`#materials_${row}_location_id.selectpicker`).selectpicker('refresh');
+            $(`#products_${row}_location_id`).append(html);
+            $(`#products_${row}_location_id.selectpicker`).selectpicker('refresh');
         },
     });
 }
 
 function store_data(){
-    var rownumber = $('table#material_table tbody tr:last').index();
+    var rownumber = $('table#product_table tbody tr:last').index();
     if (rownumber < 0) {
         notification("error","Please insert material to order table!")
     }else{
-        let form = document.getElementById('cash_purchase_form');
+        let form = document.getElementById('cash_sale_form');
         let formData = new FormData(form);
-        let url = "{{route('purchase.cash.update')}}";
+        let url = "{{route('sale.cash.update')}}";
         $.ajax({
             url: url,
             type: "POST",
@@ -314,21 +328,21 @@ function store_data(){
                 $('#save-btn').removeClass('spinner spinner-white spinner-right');
             },
             success: function (data) {
-                $('#cash_purchase_form').find('.is-invalid').removeClass('is-invalid');
-                $('#cash_purchase_form').find('.error').remove();
+                $('#cash_sale_form').find('.is-invalid').removeClass('is-invalid');
+                $('#cash_sale_form').find('.error').remove();
                 if (data.status == false) {
                     $.each(data.errors, function (key, value) {
                         var key = key.split('.').join('_');
-                        $('#cash_purchase_form input#' + key).addClass('is-invalid');
-                        $('#cash_purchase_form textarea#' + key).addClass('is-invalid');
-                        $('#cash_purchase_form select#' + key).parent().addClass('is-invalid');
-                        $('#cash_purchase_form #' + key).parent().append(
+                        $('#cash_sale_form input#' + key).addClass('is-invalid');
+                        $('#cash_sale_form textarea#' + key).addClass('is-invalid');
+                        $('#cash_sale_form select#' + key).parent().addClass('is-invalid');
+                        $('#cash_sale_form #' + key).parent().append(
                             '<small class="error text-danger">' + value + '</small>');
                     });
                 } else {
                     notification(data.status, data.message);
                     if (data.status == 'success') {
-                        window.location.replace("{{ url('purchase/cash') }}");
+                        window.location.replace("{{ url('sale/cash') }}");
                         
                         
                     }

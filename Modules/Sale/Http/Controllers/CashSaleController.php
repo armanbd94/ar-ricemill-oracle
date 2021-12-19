@@ -229,9 +229,9 @@ class CashSaleController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $saleData = $this->model->with('products')->find($request->purchase_id);
+                    $saleData = $this->model->with('products')->find($request->sale_id);
 
-                    $purchase_data = [
+                    $sale_data = [
                         'memo_no'       => $request->memo_no,
                         'customer_name' => $request->customer_name,
                         'do_number'     => $request->do_number,
@@ -309,14 +309,12 @@ class CashSaleController extends BaseController
                         'sale_date'     => $request->sale_date,
                         'account_id'    => $request->account_id,
                     ]));
-                    $purchase = $saleData->update($purchase_data);
-                    $output  = $this->store_message($purchase, $request->purchase_id);
+                    $purchase = $saleData->update($sale_data);
+                    $output  = $this->store_message($purchase, $request->sale_id);
                     DB::commit();
-                    // return response()->json($output);
                 } catch (Exception $e) {
                     DB::rollback();
                     $output = ['status' => 'error','message' => $e->getMessage()];
-                    // return response()->json($output);
                 }
             }else{
                 $output       = $this->unauthorized();
