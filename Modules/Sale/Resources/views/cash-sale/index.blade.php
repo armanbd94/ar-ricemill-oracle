@@ -17,8 +17,8 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    @if (permission('cash-purchase-add'))
-                    <a href="{{ route('purchase.cash.create') }}"  class="btn btn-primary btn-sm font-weight-bolder"> 
+                    @if (permission('cash-sale-add'))
+                    <a href="{{ route('sale.cash.create') }}"  class="btn btn-primary btn-sm font-weight-bolder  custom-btn"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                     @endif
                     <!--end::Button-->
@@ -31,7 +31,7 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
-                        <x-form.textbox labelName="Challan No." name="challan_no" col="col-md-3" />
+                        <x-form.textbox labelName="Memo No." name="memo_no" col="col-md-3" />
                         <div class="form-group col-md-3">
                             <label for="name">Choose Date</label>
                             <div class="input-group">
@@ -42,11 +42,11 @@
                         </div>
                         <div class="col-md-6">
                             <div style="margin-top:28px;">    
-                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
                                 <i class="fas fa-undo-alt"></i></button>
 
-                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Search">
                                 <i class="fas fa-search"></i></button>
                             </div>
@@ -62,7 +62,7 @@
                             <table id="dataTable" class="table table-bordered table-hover">
                                 <thead class="bg-primary">
                                     <tr>
-                                        @if (permission('cash-purchase-bulk-delete'))
+                                        @if (permission('cash-sale-bulk-delete'))
                                         <th>
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" class="custom-control-input" id="select_all" onchange="select_all()">
@@ -71,15 +71,15 @@
                                         </th>
                                         @endif
                                         <th>Sl</th>
-                                        <th>Challan No.</th>
                                         <th>Memo No.</th>
-                                        <th>Vendor Name</th>
-                                        <th>JOB Type</th>
-                                        <th>Name</th>
+                                        <th>Customer Name</th>
+                                        <th>DO Number</th>
                                         <th>Total Item</th>
                                         <th>Total Qty</th>
                                         <th>Grand Total</th>
-                                        <th>Receive Date</th>
+                                        <th>Sale Date</th>
+                                        <th>Delivery Date</th>
+                                        <th>Deposit Account</th>
                                         <th>Created By</th>
                                         <th>Action</th>
                                     </tr>
@@ -135,17 +135,17 @@ $(document).ready(function(){
             zeroRecords: '<strong class="text-danger">No Data Found</strong>'
         },
         "ajax": {
-            "url": "{{route('purchase.cash.datatable.data')}}",
+            "url": "{{route('sale.cash.datatable.data')}}",
             "type": "POST",
             "data": function (data) {
-                data.challan_no      = $("#form-filter #challan_no").val();
+                data.memo_no      = $("#form-filter #memo_no").val();
                 data.from_date       = $("#form-filter #from_date").val();
                 data.to_date         = $("#form-filter #to_date").val();
                 data._token          = _token;
             }
         },
         "columnDefs": [{
-                @if (permission('cash-purchase-bulk-delete'))
+                @if (permission('cash-sale-bulk-delete'))
                 "targets": [0,12],
                 @else
                 "targets": [11],
@@ -154,18 +154,18 @@ $(document).ready(function(){
                 "className": "text-center"
             },
             {
-                @if (permission('cash-purchase-bulk-delete'))
-                "targets": [1,2,3,4,5,6,7,8,10,11],
+                @if (permission('cash-sale-bulk-delete'))
+                "targets": [1,2,3,4,5,6,8,9,10,11],
                 @else
-                "targets": [0,1,2,3,4,5,6,7,9,10],
+                "targets": [0,1,2,3,4,5,7,8,9,10],
                 @endif
                 "className": "text-center"
             },
             {
-                @if (permission('cash-purchase-bulk-delete'))
-                "targets": [9],
+                @if (permission('cash-sale-bulk-delete'))
+                "targets": [7],
                 @else
-                "targets": [8],
+                "targets": [6],
                 @endif
                 "className": "text-right"
             },
@@ -177,17 +177,17 @@ $(document).ready(function(){
 
         "buttons": [
             {
-                'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
+                'extend':'colvis','className':'btn btn-secondary btn-sm text-white custom-btn','text':'Column','columns': ':gt(0)'
             },
             {
                 "extend": 'print',
                 'text':'Print',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
-                    @if (permission('cash-purchase-bulk-delete'))
+                    @if (permission('cash-sale-bulk-delete'))
                     columns: ':visible:not(:eq(0),:eq(12))' 
                     @else
                     columns: ':visible:not(:eq(11))' 
@@ -205,11 +205,11 @@ $(document).ready(function(){
             {
                 "extend": 'csv',
                 'text':'CSV',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
-                      @if (permission('cash-purchase-bulk-delete'))
+                      @if (permission('cash-sale-bulk-delete'))
                     columns: ':visible:not(:eq(0),:eq(12))' 
                     @else
                     columns: ':visible:not(:eq(11))' 
@@ -219,11 +219,11 @@ $(document).ready(function(){
             {
                 "extend": 'excel',
                 'text':'Excel',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
-                      @if (permission('cash-purchase-bulk-delete'))
+                      @if (permission('cash-sale-bulk-delete'))
                     columns: ':visible:not(:eq(0),:eq(12))' 
                     @else
                     columns: ':visible:not(:eq(11))' 
@@ -233,13 +233,13 @@ $(document).ready(function(){
             {
                 "extend": 'pdf',
                 'text':'PDF',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
-                      @if (permission('cash-purchase-bulk-delete'))
+                      @if (permission('cash-sale-bulk-delete'))
                     columns: ':visible:not(:eq(0),:eq(12))' 
                     @else
                     columns: ':visible:not(:eq(11))' 
@@ -251,9 +251,9 @@ $(document).ready(function(){
                     doc.pageMargins = [5,5,5,5];
                 }  
             },
-            @if (permission('cash-purchase-bulk-delete'))
+            @if (permission('cash-sale-bulk-delete'))
             {
-                'className':'btn btn-danger btn-sm delete_btn d-none text-white',
+                'className':'btn btn-danger btn-sm delete_btn d-none text-white custom-btn',
                 'text':'Delete',
                 action:function(e,dt,node,config){
                     multi_delete();
@@ -279,7 +279,7 @@ $(document).ready(function(){
         let id    = $(this).data('id');
         let name  = $(this).data('name');
         let row   = table.row($(this).parent('tr'));
-        let url   = "{{ route('purchase.cash.delete') }}";
+        let url   = "{{ route('sale.cash.delete') }}";
         delete_data(id, url, table, row, name);
     });
 
@@ -298,7 +298,7 @@ $(document).ready(function(){
                 icon: 'warning',
             });
         }else{
-            let url = "{{route('purchase.cash.bulk.delete')}}";
+            let url = "{{route('sale.cash.bulk.delete')}}";
             bulk_delete(ids,url,table,rows);
         }
     }

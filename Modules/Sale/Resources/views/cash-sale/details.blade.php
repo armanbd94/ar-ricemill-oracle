@@ -14,7 +14,7 @@
                     <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i
                             class="fas fa-print"></i> Print</button>
 
-                    <a href="{{ route('purchase.cash') }}" class="btn btn-warning btn-sm font-weight-bolder">
+                    <a href="{{ route('sale.cash') }}" class="btn btn-warning btn-sm font-weight-bolder">
                         <i class="fas fa-arrow-left"></i> Back</a>
                     <!--end::Button-->
                 </div>
@@ -427,7 +427,7 @@
                                             @if(config('settings.address'))<p style="font-weight: normal;margin:0;">
                                                 {{ config('settings.address') }}</p>@endif
                                             <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto; font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">
-                                                CASH PURCHASE MEMO</p>
+                                                CASH SALE MEMO</p>
                                         </td>
                                     </tr>
                                 </table>
@@ -440,19 +440,9 @@
                                                     <td colspan="2"><b>Billing To</b></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><b>Vendor Name</b></td>
-                                                    <td><b>: {{ $purchase->vendor_name}}</b></td>
+                                                    <td><b>Customer Name</b></td>
+                                                    <td><b>: {{ $sale->customer_name}}</b></td>
                                                 </tr>
-                                                @if($purchase->job_type_id)
-                                                <tr>
-                                                    <td><b>JOB Type</b></td>
-                                                    <td><b>: </b>{{ $purchase->jobType->job_type }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Name</b></td>
-                                                    <td><b>: </b>{{ $purchase->name }}</td>
-                                                </tr>
-                                                @endif
                                             </table>
                                         </td>
                                         <td width="20%"></td>
@@ -462,17 +452,23 @@
                                                     <td colspan="2"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><b>Challan No.</b></td>
-                                                    <td><b>: #{{ $purchase->challan_no }}</b></td>
-                                                </tr>
-                                                <tr>
                                                     <td><b>Memo No.</b></td>
-                                                    <td><b>: #{{ $purchase->memo_no }}</b></td>
+                                                    <td><b>: #{{ $sale->memo_no }}</b></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><b>Receive Date</b></td>
+                                                    <td><b>Sale Date</b></td>
                                                     <td><b>: </b>
-                                                        {{ date('d-M-Y',strtotime($purchase->receive_date)) }}
+                                                        {{ date('d-M-Y',strtotime($sale->sale_date)) }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>DO Numnber</b></td>
+                                                    <td><b>: {{ $sale->do_number }}</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Delivery Date</b></td>
+                                                    <td><b>: </b>
+                                                        {{ date('d-M-Y',strtotime($sale->delivery_date)) }}
                                                     </td>
                                                 </tr>
                                             </table>
@@ -484,44 +480,37 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-center font-weight-bolder">SL</td>
-                                            <td class="text-left font-weight-bolder">ITEM</td>
-                                            <td class="text-left font-weight-bolder no_print">DESCRIPTION</td>
-                                            <td class="text-center font-weight-bolder no_print">CLASS</td>
                                             <td class="text-center font-weight-bolder no_print">SITE</td>
                                             <td class="text-center font-weight-bolder no_print">LOCATION</td>
-                                            <td class="text-center font-weight-bolder">UNIT</td>
+                                            <td class="text-left font-weight-bolder">ITEM</td>
+                                            <td class="text-left font-weight-bolder no_print">DESCRIPTION</td>
                                             <td class="text-center font-weight-bolder">QUANTITY</td>
                                             <td class="text-right font-weight-bolder">RATE</td>
                                             <td class="text-right font-weight-bolder">SUBTOTAL</td>
                                         </tr>
-                                        @if (!$purchase_materials->isEmpty())
-                                        @foreach ($purchase_materials as $key => $item)
+                                        @if (!$sale_products->isEmpty())
+                                        @foreach ($sale_products as $key => $item)
                                         <tr>
                                             <td class="text-center">{{ $key+1 }}</td>
-                                            <td class="text-left">{{ $item->material->material_name }}</td>
-                                            <td class="text-left no_print">{{ $item->description }}</td>
-                                            <td class="text-center no_print">{{ $item->material->category->name }}</td>
                                             <td class="text-center no_print">{{ $item->site->name }}</td>
                                             <td class="text-center no_print">{{ $item->location->name }}</td>
-                                            <td class="text-center">{{ $item->purchase_unit->unit_name }}</td>
+                                            <td class="text-left">{{ $item->product->name }}</td>
+                                            <td class="text-left no_print">{{ $item->description }}</td>
                                             <td class="text-center">{{ $item->qty }}</td>
-                                            <td class="text-right">{{ number_format($item->net_unit_cost,2,'.',',') }}
-                                            </td>
+                                            <td class="text-right">{{ number_format($item->net_unit_price,2,'.',',') }}</td>
                                             <td class="text-right"> {{ number_format($item->total,2,'.',',') }}</td>
                                         </tr>
                                         @endforeach
                                         @endif
                                         <tr>
-                                            <td colspan="2" class="font-weight-bolder">TOTAL</td>
-                                            <td class="no_print"></td>
-                                            <td class="no_print"></td>
+                                            <td class="font-weight-bolder">TOTAL</td>
                                             <td class="no_print"></td>
                                             <td class="no_print"></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td class="text-right font-weight-bolder">
-                                                {{ number_format($purchase->grand_total,2,'.',',') }}</td>
+                                            <td></td>
+                                            <td class="text-right font-weight-bolder"> {{ number_format($sale->grand_total,2,'.',',') }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -537,8 +526,8 @@
                                         <td class="text-center">
                                             <div class="font-size-10" style="width:250px;float:right;">
                                                 <p style="margin:0;padding:0;"><b
-                                                        class="text-uppercase">{{ $purchase->created_by }}</b>
-                                                    <br> {{ date('d-M-Y h:i:s A',strtotime($purchase->created_at)) }}
+                                                        class="text-uppercase">{{ $sale->created_by }}</b>
+                                                    <br> {{ date('d-M-Y h:i:s A',strtotime($sale->created_at)) }}
                                                 </p>
                                                 <p class="dashed-border"></p>
                                                 <p style="margin:0;padding:0;">Generated By</p>

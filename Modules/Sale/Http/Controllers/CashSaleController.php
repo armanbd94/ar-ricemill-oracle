@@ -25,7 +25,7 @@ class CashSaleController extends BaseController
     public function index()
     {
         if(permission('cash-sale-access')){
-            $this->setPageData('Manage Cash Sale','Manage Cash Sale','fas fa-opencart',[['name' => 'Manage Cash Sale']]);
+            $this->setPageData('Manage Cash Sale','Manage Cash Sale','fab fa-opencart',[['name' => 'Manage Cash Sale']]);
             return view('sale::cash-sale.index');
         }else{
             return $this->access_blocked();
@@ -229,110 +229,87 @@ class CashSaleController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $purchaseData = $this->model->with('materials')->find($request->purchase_id);
+                    $saleData = $this->model->with('products')->find($request->purchase_id);
 
                     $purchase_data = [
-                        'challan_no'   => $request->challan_no,
-                        'memo_no'      => $request->memo_no,
-                        'vendor_name'  => $request->vendor_name,
-                        'job_type_id'  => $request->job_type_id,
-                        'name'         => $request->name,
-                        'account_id'   => $request->account_id,
-                        'item'         => $request->item,
-                        'total_qty'    => $request->total_qty,
-                        'grand_total'  => $request->grand_total,
-                        'receive_date' => $request->receive_date,
-                        'modified_by'     => auth()->user()->name
+                        'memo_no'       => $request->memo_no,
+                        'customer_name' => $request->customer_name,
+                        'do_number'     => $request->do_number,
+                        'account_id'    => $request->account_id,
+                        'item'          => $request->item,
+                        'total_qty'     => $request->total_qty,
+                        'grand_total'   => $request->grand_total,
+                        'sale_date'     => $request->sale_date,
+                        'delivery_date' => $request->delivery_date,
+                        'modified_by'   => auth()->user()->name
                     ];
 
-                    if(!$purchaseData->materials->isEmpty())
+                    if(!$saleData->products->isEmpty())
                     {
-                        foreach ($purchaseData->materials as $received_material) {
-                            $received_qty = $received_material->pivot->qty;
-                            $material = Material::find($received_material->id);
-                            if($material){
-                                $material->qty -= $received_qty;
-                                $material->cost = $material->old_cost;
-                                $material->old_cost = $received_material->pivot->old_cost;
-                                $material->update();
-                            }
-
-                            $site_material = SiteMaterial::where([
-                                'site_id' => $received_material->pivot->site_id,
-                                'location_id' => $received_material->pivot->location_id,
-                                'material_id'  => $received_material->id
-                                ])->first();
-                            if($site_material){
-                                $site_material->qty -= $received_qty;
-                                $site_material->update();
+                        foreach ($saleData->products as $value) {
+                            $site_product = SiteProduct::where([
+                                ['site_id',$value->pivot->site_id],
+                                ['location_id',$value->pivot->location_id],
+                                ['product_id',$value->id],
+                            ])->first();
+                            
+                            if($site_product)
+                            {
+                                $site_product->qty += $value->pivot->qty;
+                                $site_product->update();
                             }
 
                         }
                     }
 
-                    $materials = [];
-                    if($request->has('materials'))
+                    $products = [];
+                    if($request->has('products'))
                     {                        
-                        foreach ($request->materials as $key => $value) {
+                        foreach ($request->products as $key => $value) {
 
-                            $material = Material::find($value['id']);
+                            $products[$value['id']] = [
+                                'site_id'          => $value['site_id'],
+                                'location_id'      => $value['location_id'],
+                                'qty'              => $value['qty'],
+                                'net_unit_price'   => $value['net_unit_price'],
+                                'total'            => $value['subtotal'],
+                                'description'      => $value['description'],
+                                'created_at'       => date('Y-m-d H:i:s')
+                            ];
 
-                                $current_stock_value = ($material->qty ? $material->qty : 0) * ($material->cost ? $material->cost : 0);
-                                $new_cost            = ($value['subtotal'] + $current_stock_value) / ($value['qty'] + $material->qty);
-                                $current_cost        = $material->cost ? $material->cost : 0;
-                                $old_cost            = $material->old_cost ? $material->old_cost : 0;
-                                if($material)
-                                {
-                                    $material->qty     += $value['qty'];
-                                    $material->cost     = $new_cost;
-                                    $material->old_cost = $current_cost;
-                                    $material->update();
-                                }
-
-                                $materials[$value['id']] = [
-                                    'site_id'          => $value['site_id'],
-                                    'location_id'      => $value['location_id'],
-                                    'qty'              => $value['qty'],
-                                    'purchase_unit_id' => $value['purchase_unit_id'],
-                                    'net_unit_cost'    => $value['net_unit_cost'],
-                                    'old_cost'         => $old_cost,
-                                    'total'            => $value['subtotal'],
-                                    'description'      => $value['description'],
-                                    'created_at'       => date('Y-m-d H:i:s')
-                                ];
-
-                                $site_material = SiteMaterial::where([
-                                    ['site_id',$value['site_id']],
-                                    ['location_id',$value['location_id']],
-                                    ['material_id',$value['id']],
-                                ])->first();
-                                
-                                if($site_material)
-                                {
-                                    $site_material->qty += $value['qty'];
-                                    $site_material->update();
-                                }else{
-                                    SiteMaterial::create([
-                                        'site_id'     => $value['site_id'],
-                                        'location_id' => $value['location_id'],
-                                        'material_id' => $value['id'],
-                                        'qty'         => $value['qty']
-                                    ]);
-                                }
+                            $site_product = SiteProduct::where([
+                                ['site_id',$value['site_id']],
+                                ['location_id',$value['location_id']],
+                                ['product_id',$value['id']],
+                            ])->first();
+                            
+                            if($site_product)
+                            {
+                                $site_product->qty -= $value['qty'];
+                                $site_product->update();
+                            }else{
+                                SiteProduct::create([
+                                    'site_id'     => $value['site_id'],
+                                    'location_id' => $value['location_id'],
+                                    'product_id'  => $value['id'],
+                                    'qty'         => $value['qty']
+                                ]);
+                            }
+                        }
+                        if(!empty($products) && count($products))
+                        {
+                            $saleData->products()->sync($products);
                         }
                     }
-                    if(!empty($materials) && count($materials))
-                    {
-                        $purchaseData->materials()->sync($materials);
-                    }
-                    Transaction::where(['voucher_no'=>$purchaseData->challan_no,'voucher_type'=>'Purchase'])->delete();
+                    Transaction::where(['voucher_no'=>$saleData->memo_no,'voucher_type'=>'INVOICE'])->delete();
                     Transaction::insert($this->model->transaction_data([
-                        'challan_no'    => $request->challan_no,
+                        'memo_no'       => $request->memo_no,
                         'grand_total'   => $request->grand_total,
-                        'vendor_name'   => $request->vendor_name,
-                        'receive_date' => $request->receive_date
+                        'customer_name' => $request->customer_name,
+                        'sale_date'     => $request->sale_date,
+                        'account_id'    => $request->account_id,
                     ]));
-                    $purchase = $purchaseData->update($purchase_data);
+                    $purchase = $saleData->update($purchase_data);
                     $output  = $this->store_message($purchase, $request->purchase_id);
                     DB::commit();
                     // return response()->json($output);
@@ -356,36 +333,29 @@ class CashSaleController extends BaseController
             if(permission('cash-sale-delete')){
                 DB::beginTransaction();
                 try {
-                    $purchaseData = $this->model->with('materials')->find($request->id);
-                    if(!$purchaseData->materials->isEmpty())
+                    $saleData = $this->model->with('products')->find($request->id);
+                    if(!$saleData->products->isEmpty())
                     {
-                        foreach ($purchaseData->materials as $received_material) {
-                            $received_qty = $received_material->pivot->qty;
-                            $material = Material::find($received_material->id);
-                            if($material){
-                                $material->qty -= $received_qty;
-                                $material->cost = $material->old_cost;
-                                $material->old_cost = $received_material->pivot->old_cost;
-                                $material->update();
-                            }
-
-                            $site_material = SiteMaterial::where([
-                                'site_id' => $received_material->pivot->site_id,
-                                'location_id' => $received_material->pivot->location_id,
-                                'material_id'  => $received_material->id
-                                ])->first();
-                            if($site_material){
-                                $site_material->qty -= $received_qty;
-                                $site_material->update();
+                        foreach ($saleData->products as $value) {
+                            $site_product = SiteProduct::where([
+                                ['site_id',$value->pivot->site_id],
+                                ['location_id',$value->pivot->location_id],
+                                ['product_id',$value->id],
+                            ])->first();
+                            
+                            if($site_product)
+                            {
+                                $site_product->qty += $value->pivot->qty;
+                                $site_product->update();
                             }
 
                         }
-                        $purchaseData->materials()->detach();
+                        $saleData->products()->detach();
                     }
                    
-                    Transaction::where(['voucher_no'=>$purchaseData->challan_no,'voucher_type'=>'Purchase'])->delete();
+                    Transaction::where(['voucher_no'=>$saleData->memo_no,'voucher_type'=>'INVOICE'])->delete();
     
-                    $result = $purchaseData->delete();
+                    $result = $saleData->delete();
                     if($result)
                     {
                         $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
@@ -414,44 +384,38 @@ class CashSaleController extends BaseController
                 DB::beginTransaction();
                 try {
                     foreach ($request->ids as $id) {
-                        $purchaseData = $this->model->with('materials')->find($id);
-                        if(!$purchaseData->materials->isEmpty())
+                        $saleData = $this->model->with('products')->find($id);
+                        if(!$saleData->products->isEmpty())
                         {
-                            foreach ($purchaseData->materials as $received_material) {
-                                $received_qty = $received_material->pivot->qty;
-                                $material = Material::find($received_material->id);
-                                if($material){
-                                    $material->qty -= $received_qty;
-                                    $material->cost = $material->old_cost;
-                                    $material->old_cost = $received_material->pivot->old_cost;
-                                    $material->update();
-                                }
-
-                                $site_material = SiteMaterial::where([
-                                    'site_id' => $received_material->pivot->site_id,
-                                    'location_id' => $received_material->pivot->location_id,
-                                    'material_id'  => $received_material->id
-                                    ])->first();
-                                if($site_material){
-                                    $site_material->qty -= $received_qty;
-                                    $site_material->update();
+                            foreach ($saleData->products as $value) {
+                                $site_product = SiteProduct::where([
+                                    ['site_id',$value->pivot->site_id],
+                                    ['location_id',$value->pivot->location_id],
+                                    ['product_id',$value->id],
+                                ])->first();
+                                
+                                if($site_product)
+                                {
+                                    $site_product->qty += $value->pivot->qty;
+                                    $site_product->update();
                                 }
 
                             }
-                            $purchaseData->materials()->detach();
+                            $saleData->products()->detach();
                         }
                     
-                        Transaction::where(['voucher_no'=>$purchaseData->challan_no,'voucher_type'=>'Purchase'])->delete();
+                        Transaction::where(['voucher_no'=>$saleData->memo_no,'voucher_type'=>'INVOICE'])->delete();
         
-                        $result = $purchaseData->delete();
-                        if($result)
-                        {
-                            $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
-                        }else{
-                            $output = ['status' => 'error','message' => 'Failed to delete data'];
-                        }
                     }
-                DB::commit();
+                    
+                    $result = $this->model->destroy($request->ids);
+                    if($result)
+                    {
+                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                    }
+                    DB::commit();
                 } catch (Exception $e) {
                     DB::rollBack();
                     $output = ['status'=>'error','message'=>$e->getMessage()];

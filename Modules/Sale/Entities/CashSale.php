@@ -60,7 +60,7 @@ class CashSale extends BaseModel
         $query = DB::table('cash_sales as cs')
         ->leftJoin('chart_of_accounts as coa','cs.account_id','=','coa.id')
         ->select('cs.id','cs.memo_no','cs.customer_name','cs.account_id', 'coa.name as account_name','cs.item',
-        'cs.total_qty','cs.grand_total','cs.sale_date','cs.created_by');
+        'cs.total_qty','cs.grand_total','cs.sale_date','cs.do_number','cs.delivery_date','cs.created_by');
 
 
         if (!empty($this->_memo_no)) {
