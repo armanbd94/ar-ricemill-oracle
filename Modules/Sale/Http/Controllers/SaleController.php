@@ -180,7 +180,7 @@ class SaleController extends BaseController
         if(permission('sale-order-view')){
             $this->setPageData('Sale Order Details','Sale Order Details','fas fa-file',[['name'=>'Sale','link' => 'javascript::void();'],['name' => 'Sale Order Details']]);
             $sale = $this->model->with('products','customer','via_customer')->find($id);
-            return view('sale::sale-order.details',compact('sale','sale_products'));
+            return view('sale::sale-order.details',compact('sale'));
         }else{
             return $this->access_blocked();
         }

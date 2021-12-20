@@ -14,7 +14,7 @@
                     <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i
                             class="fas fa-print"></i> Print</button>
 
-                    <a href="{{ route('sale.cash') }}" class="btn btn-warning btn-sm font-weight-bolder">
+                    <a href="{{ route('sale.order') }}" class="btn btn-warning btn-sm font-weight-bolder custom-btn">
                         <i class="fas fa-arrow-left"></i> Back</a>
                     <!--end::Button-->
                 </div>
@@ -427,7 +427,7 @@
                                             @if(config('settings.address'))<p style="font-weight: normal;margin:0;">
                                                 {{ config('settings.address') }}</p>@endif
                                             <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto; font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">
-                                                CASH SALE MEMO</p>
+                                                SALE ORDER</p>
                                         </td>
                                     </tr>
                                 </table>
@@ -439,10 +439,11 @@
                                                 <tr>
                                                     <td colspan="2"><b>Billing To</b></td>
                                                 </tr>
-                                                <tr>
-                                                    <td><b>Customer Name</b></td>
-                                                    <td><b>: {{ $sale->customer_name}}</b></td>
-                                                </tr>
+                                                <tr><td><b>Customer Code</b></td> <td><b>: {{ $sale->customer->code}}</b></td></tr>
+                                                <tr><td><b>Trade Name</b></td> <td><b>: {{ $sale->customer->trade_name}}</b></td></tr>
+                                                <tr><td><b>Customer Name</b></td> <td><b>: {{ $sale->customer->name}}</b></td></tr>
+                                                <tr><td><b>Mobile Number</b></td> <td><b>: {{ $sale->customer->mobile}}</b></td></tr>
+                                                @if($sale->customer->address)<tr><td><b>Address</b></td> <td><b>: {{ $sale->customer->address}}</b></td></tr>@endif
                                             </table>
                                         </td>
                                         <td width="20%"></td>
@@ -456,19 +457,26 @@
                                                     <td><b>: #{{ $sale->memo_no }}</b></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><b>Sale Date</b></td>
+                                                    <td><b>SO No.</b></td>
+                                                    <td><b>: {{ $sale->so_no }}</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Order Date</b></td>
                                                     <td><b>: </b>
-                                                        {{ date('d-M-Y',strtotime($sale->sale_date)) }}
+                                                        {{ date('d-M-Y',strtotime($sale->order_date)) }}
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td><b>Target Delivery Date</b></td>
+                                                    <td><b>: </b>
+                                                        {{ date('d-M-Y',strtotime($sale->delivery_date)) }}
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td><b>DO Numnber</b></td>
-                                                    <td><b>: {{ $sale->do_number }}</b></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Delivery Date</b></td>
+                                                    <td><b>Shipping Address</b></td>
                                                     <td><b>: </b>
-                                                        {{ date('d-M-Y',strtotime($sale->delivery_date)) }}
+                                                        {{ $sale->shipping_address }}
                                                     </td>
                                                 </tr>
                                             </table>
@@ -480,36 +488,26 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-center font-weight-bolder">SL</td>
-                                            <td class="text-center font-weight-bolder no_print">SITE</td>
-                                            <td class="text-center font-weight-bolder no_print">LOCATION</td>
                                             <td class="text-left font-weight-bolder">ITEM</td>
-                                            <td class="text-left font-weight-bolder no_print">DESCRIPTION</td>
+                                            <td class="text-left font-weight-bolder">DESCRIPTION</td>
                                             <td class="text-center font-weight-bolder">QUANTITY</td>
                                             <td class="text-right font-weight-bolder">RATE</td>
                                             <td class="text-right font-weight-bolder">SUBTOTAL</td>
                                         </tr>
-                                        @if (!$sale_products->isEmpty())
-                                        @foreach ($sale_products as $key => $item)
+                                        @if (!$sale->products->isEmpty())
+                                        @foreach ($sale->products as $key => $item)
                                         <tr>
                                             <td class="text-center">{{ $key+1 }}</td>
-                                            <td class="text-center no_print">{{ $item->site->name }}</td>
-                                            <td class="text-center no_print">{{ $item->location->name }}</td>
-                                            <td class="text-left">{{ $item->product->name }}</td>
-                                            <td class="text-left no_print">{{ $item->description }}</td>
-                                            <td class="text-center">{{ $item->qty }}</td>
-                                            <td class="text-right">{{ number_format($item->net_unit_price,2,'.',',') }}</td>
-                                            <td class="text-right"> {{ number_format($item->total,2,'.',',') }}</td>
+                                            <td class="text-left">{{ $item->name }}</td>
+                                            <td class="text-left">{{ $item->pivot->description }}</td>
+                                            <td class="text-center">{{ $item->pivot->qty }}</td>
+                                            <td class="text-right">{{ number_format($item->pivot->net_unit_price,2,'.',',') }}</td>
+                                            <td class="text-right"> {{ number_format($item->pivot->total,2,'.',',') }}</td>
                                         </tr>
                                         @endforeach
                                         @endif
                                         <tr>
-                                            <td class="font-weight-bolder">TOTAL</td>
-                                            <td class="no_print"></td>
-                                            <td class="no_print"></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
+                                            <td class="font-weight-bolder text-right" colspan="5">TOTAL</td>
                                             <td class="text-right font-weight-bolder"> {{ number_format($sale->grand_total,2,'.',',') }}</td>
                                         </tr>
                                     </tbody>
