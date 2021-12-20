@@ -27,6 +27,7 @@ class CreateSaleOrdersTable extends Migration
             $table->date('order_date')->nullable();
             $table->date('delivery_date')->nullable();
             $table->text('shipping_address')->nullable();
+            $table->enum('order_status',['1','2'])->default(2)->comment("1=Delivered,2=Pending");
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();
             $table->timestamps(); 

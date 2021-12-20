@@ -33,7 +33,7 @@ Route::group(['middleware' => ['auth']], function () {
         //Sale Invoice Route
         Route::get('invoice', 'SaleInvoiceController@index')->name('invoice');
         Route::group(['prefix' => 'invoice', 'as'=>'invoice.'], function () {
-            Route::get('form', 'SaleInvoiceController@purchase_received_memo_form')->name('form');
+            Route::get('form', 'SaleInvoiceController@sale_memo_form')->name('form');
             Route::get('create', 'SaleInvoiceController@create')->name('create');
             Route::post('datatable-data', 'SaleInvoiceController@get_datatable_data')->name('datatable.data');
             Route::post('store', 'SaleInvoiceController@store')->name('store');

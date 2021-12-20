@@ -35,7 +35,7 @@ class ReceivedItemController extends BaseController
     public function purchase_received_memo_form()
     {
         if(permission('purchase-received-add')){
-            $this->setPageData('Purchase Received Form','Purchase Received Form','fas fa-truck-loading',[['name' => 'Purchase Received Form']]);
+            $this->setPageData('Purchase Order Memo Form','Purchase Order Memo Form','fas fa-truck-loading',[['name' => 'Purchase Order Memo Form']]);
             return view('purchase::purchase-received.form');
         }else{
             return $this->access_blocked();

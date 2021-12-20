@@ -11,7 +11,7 @@ use Modules\ViaCustomer\Entities\ViaCustomer;
 class SaleOrder extends BaseModel
 {
     protected $fillable = [
-        'memo_no','customer_id','via_customer_id','so_no','item','total_qty', 'grand_total','order_date','delivery_date','shipping_address','created_by','modified_by',
+        'memo_no','customer_id','via_customer_id','so_no','item','total_qty', 'grand_total','order_date','delivery_date','shipping_address','created_by','modified_by','order_status'
     ];
 
     public function products()
