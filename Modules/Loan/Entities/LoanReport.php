@@ -62,8 +62,9 @@ class LoanReport extends BaseModel
         $this->column_order = ['t.id', 't.voucher_no','t.voucher_date','t.descritpion','t.debit','t.credit','t.approve', 't.created_by',null];
         
         $query = DB::table('transactions as t')
-        ->selectRaw("t.credit,t.debit,t.voucher_type,t.voucher_date,t.chart_of_account_id,sum(t.credit) as credit,sum(t.debit) as debit,chart_of_accounts.name as cname")        
-        ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
+
+        ->selectRaw("t.id,t.voucher_type,t.created_by,t.voucher_date,t.chart_of_account_id,t.voucher_no,t.credit as credit,t.debit as debit,chart_of_accounts.name as cname,t.description as description") 
+        ->join('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
         ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI']);
         //search query
         if (!empty($this->_start_date)) {
@@ -72,16 +73,9 @@ class LoanReport extends BaseModel
         if (!empty($this->_end_date)) {
             $query->where('t.voucher_date', '<=',$this->_end_date);
         }
-        if (!empty($this->_employee_id)) {
-            $query->where('t.chart_of_account_id', '=',$this->_employee_id);
-        }
-        if (!empty($this->_person_id)) {
-            $query->where('t.chart_of_account_id', '=',$this->_person_id);
-        }
         
-        $query->groupBy('t.voucher_no','t.credit','t.debit','t.voucher_type','t.chart_of_account_id','chart_of_accounts.name')->get();
-
-        dd($query);
+        $query->groupBy('t.created_by','t.voucher_type','t.voucher_no','t.id','t.voucher_date','t.chart_of_account_id','chart_of_accounts.name');
+       // dd($query);
 
         //order by data fetching code
         if (isset($this->orderValue) && isset($this->dirValue)) { //orderValue is the index number of table header and dirValue is asc or desc
@@ -110,18 +104,15 @@ class LoanReport extends BaseModel
     public function count_all()
     {
         $query =  DB::table('transactions as t')
-        ->selectRaw("t.*,sum(t.credit) as credit,sum(t.debit) as debit") 
-        ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
+        ->selectRaw("t.id,t.voucher_type,t.created_by,t.voucher_date,t.chart_of_account_id,t.voucher_no,t.credit as credit,t.debit as debit,chart_of_accounts.name as cname,t.description as description") 
+        ->join('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
         ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI'])
-        ->groupBy('t.voucher_no');
+        ->groupBy('t.created_by','t.voucher_type','t.voucher_no','t.id','t.voucher_date','t.chart_of_account_id','chart_of_accounts.name');
         if (!empty($this->_start_date)) {
             $query->where('t.voucher_date', '>=',$this->_start_date);
         }
         if (!empty($this->_end_date)) {
             $query->where('t.voucher_date', '<=',$this->_end_date);
-        }
-        if (!empty($this->_chart_of_account_id)) {
-            $query->where('t.chart_of_account_id', '=',$this->_chart_of_account_id);
         }
 
         return $query->get()->count();
