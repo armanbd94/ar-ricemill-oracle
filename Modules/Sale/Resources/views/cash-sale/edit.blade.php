@@ -29,7 +29,7 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
 
 
-                    <form action="" id="cash_sale_form" method="post" enctype="multipart/form-data">
+                    <form  id="cash_sale_form" method="post" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="sale_id" id="sale_id" value="{{ $sale->id }}">
                         <div class="row">
@@ -137,9 +137,9 @@
                                     </tbody>
                                     <tfoot class="bg-primary">
                                         <th colspan="5" class="font-weight-bolder">Total</th>
-                                        <th id="total-qty" class="text-center font-weight-bolder">0</th>
+                                        <th id="total-qty" class="text-center font-weight-bolder">{{ $sale->total_qty }}</th>
                                         <th></th>
-                                        <th id="total" class="text-right font-weight-bolder">0.00</th>
+                                        <th id="total" class="text-right font-weight-bolder">{{ $sale->grand_total}}</th>
                                         <th class="text-center"><button type="button" data-toggle="tooltip" data-theme="dark" title="Add More" class="btn btn-success btn-sm add-product"><i class="fas fa-plus"></i></button></th>
                                     </tfoot>
                                 </table>
@@ -147,9 +147,9 @@
 
             
                             <div class="col-md-12">
-                                <input type="hidden" name="item">
-                                <input type="hidden" name="total_qty">
-                                <input type="hidden" name="grand_total">
+                                <input type="hidden" name="item" value="{{ $sale->item }}">
+                                <input type="hidden" name="total_qty" value="{{ $sale->total_qty }}">
+                                <input type="hidden" name="grand_total" value="{{ $sale->grand_total }}">
                             </div>
 
                         </div>

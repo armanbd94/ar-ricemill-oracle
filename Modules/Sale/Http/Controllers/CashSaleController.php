@@ -94,7 +94,7 @@ class CashSaleController extends BaseController
     public function create()
     {
         if(permission('cash-sale-add')){
-            $this->setPageData('Cash Purchase Form','Cash Purchase Form','fas fa-cart-arrow-down',[['name' => 'Cash Purchase Form']]);
+            $this->setPageData('Cash Sale Form','Cash Sale Form','fab fa-opencart',[['name' => 'Cash Sale Form']]);
             $data = [
                 'sites'    => Site::allSites(),
                 'coas'     => ChartOfAccount::whereNotIn('code',['1020102','1020103'])->where('parent_name','Cash & Cash Equivalent')->get()
@@ -198,7 +198,7 @@ class CashSaleController extends BaseController
     public function show(int $id)
     {
         if(permission('cash-sale-view')){
-            $this->setPageData('Cash Purchase Details','Cash Purchase Details','fas fa-file',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Cash Purchase Details']]);
+            $this->setPageData('Cash Sale Details','Cash Sale Details','fas fa-file',[['name'=>'Sale','link' => 'javascript::void();'],['name' => 'Cash Sale Details']]);
             $sale = $this->model->find($id);
             $sale_products = CashSaleProduct::with(['site:id,name','location:id,name','product'])->where('sale_id',$id)->get();
             return view('sale::cash-sale.details',compact('sale','sale_products'));
@@ -210,7 +210,7 @@ class CashSaleController extends BaseController
     {
 
         if(permission('cash-sale-edit')){
-            $this->setPageData('Edit Cash Purchase','Edit Cash Purchase','fas fa-edit',[['name'=>'Purchase','link' => 'javascript::void();'],['name' => 'Edit Cash Purchase']]);
+            $this->setPageData('Edit Cash Sale','Edit Cash Sale','fas fa-edit',[['name'=>'Sale','link' => 'javascript::void();'],['name' => 'Edit Cash Sale']]);
             $data = [
                 'sale'  => $this->model->with('products')->find($id),
                 'sites'     => Site::allSites(),
@@ -309,8 +309,8 @@ class CashSaleController extends BaseController
                         'sale_date'     => $request->sale_date,
                         'account_id'    => $request->account_id,
                     ]));
-                    $purchase = $saleData->update($sale_data);
-                    $output  = $this->store_message($purchase, $request->sale_id);
+                    $sale = $saleData->update($sale_data);
+                    $output  = $this->store_message($sale, $request->sale_id);
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollback();

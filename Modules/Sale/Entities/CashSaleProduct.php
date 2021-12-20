@@ -16,7 +16,7 @@ class CashSaleProduct extends Model
 
     public function cash_sale()
     {
-        return $this->belongsTo(CashSale::class,'cash_id','id');
+        return $this->belongsTo(CashSale::class,'sale_id','id');
     }
     public function product()
     {
