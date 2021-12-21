@@ -155,13 +155,6 @@ class CashSaleController extends BaseController
                                 {
                                     $site_product->qty -= $value['qty'];
                                     $site_product->update();
-                                }else{
-                                    SiteProduct::create([
-                                        'site_id'     => $value['site_id'],
-                                        'location_id' => $value['location_id'],
-                                        'product_id'  => $value['id'],
-                                        'qty'         => $value['qty']
-                                    ]);
                                 }
                             }
                             if(!empty($products) && count($products))
@@ -287,13 +280,6 @@ class CashSaleController extends BaseController
                             {
                                 $site_product->qty -= $value['qty'];
                                 $site_product->update();
-                            }else{
-                                SiteProduct::create([
-                                    'site_id'     => $value['site_id'],
-                                    'location_id' => $value['location_id'],
-                                    'product_id'  => $value['id'],
-                                    'qty'         => $value['qty']
-                                ]);
                             }
                         }
                         if(!empty($products) && count($products))

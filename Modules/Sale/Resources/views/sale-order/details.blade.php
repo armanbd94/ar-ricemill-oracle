@@ -11,7 +11,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="print-invoice"> <i
                             class="fas fa-print"></i> Print</button>
 
                     <a href="{{ route('sale.order') }}" class="btn btn-warning btn-sm font-weight-bolder custom-btn">
@@ -449,9 +449,6 @@
                                         <td width="20%"></td>
                                         <td width="40%">
                                             <table>
-                                                <tr>
-                                                    <td colspan="2"></td>
-                                                </tr>
                                                 <tr>
                                                     <td><b>Memo No.</b></td>
                                                     <td><b>: #{{ $sale->memo_no }}</b></td>

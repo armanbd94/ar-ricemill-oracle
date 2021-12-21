@@ -238,5 +238,14 @@ class ProductController extends BaseController
         return $output;
     }
 
-    
+    public function stock_qty(Request $request)
+    {
+        $stock_qty = DB::table('site_product')->where([
+            'site_id'     => $request->site_id,
+            'location_id' => $request->location_id,
+            'product_id' => $request->product_id,
+        ])->value('qty');
+
+        return response()->json($stock_qty ?? 0);
+    }
 }

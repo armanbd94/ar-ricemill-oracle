@@ -379,10 +379,10 @@ class ReceivedItemController extends BaseController
                     $purchase = $orderReceivedData->update($order_received);
                     $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
                     $purchase_order = PurchaseOrder::find($order_id);
-                    if($total_received_qty >= $purchase_order->order_total_qty)
+                    if($total_received_qty >= $purchase_order->total_qty)
                     {
                         $purchase_order->purchase_status = 1;
-                    }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                    }elseif (($total_received_qty < $purchase_order->total_qty) && ($total_received_qty > 0)) {
                         $purchase_order->purchase_status = 2;
                     }else{
                         $purchase_order->purchase_status = 3;
@@ -449,10 +449,10 @@ class ReceivedItemController extends BaseController
                     {
                         $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
                         $purchase_order = PurchaseOrder::find($order_id);
-                        if($total_received_qty >= $purchase_order->order_total_qty)
+                        if($total_received_qty >= $purchase_order->total_qty)
                         {
                             $purchase_order->purchase_status = 1;
-                        }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                        }elseif (($total_received_qty < $purchase_order->total_qty) && ($total_received_qty > 0)) {
                             $purchase_order->purchase_status = 2;
                         }else{
                             $purchase_order->purchase_status = 3;
@@ -520,10 +520,10 @@ class ReceivedItemController extends BaseController
                         {
                             $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
                             $purchase_order = PurchaseOrder::find($order_id);
-                            if($total_received_qty >= $purchase_order->order_total_qty)
+                            if($total_received_qty >= $purchase_order->total_qty)
                             {
                                 $purchase_order->purchase_status = 1;
-                            }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                            }elseif (($total_received_qty < $purchase_order->total_qty) && ($total_received_qty > 0)) {
                                 $purchase_order->purchase_status = 2;
                             }else{
                                 $purchase_order->purchase_status = 3;

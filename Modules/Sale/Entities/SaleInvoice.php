@@ -127,4 +127,55 @@ class SaleInvoice extends BaseModel
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
+
+    public function transaction_data(array $data) : array
+    {
+
+        //Inventory Debit
+        $inventory = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
+            'voucher_no'          => $data['challan_no'],
+            'voucher_type'        => 'INVOICE',
+            'voucher_date'        => $data['invoice_date'],
+            'description'         => 'Inventory credit '.$data['grand_total'].'Tk for cash sale Invoice No. - '.$data['challan_no'],
+            'debit'               => 0,
+            'credit'              => $data['grand_total'],
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        ); 
+
+         // Income for company
+        $income = array(
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '301')->value('id'),
+            'voucher_no'          => $data['challan_no'],
+            'voucher_type'        => 'INVOICE',
+            'voucher_date'        => $data['invoice_date'],
+            'description'         => 'Sale income '.$data['grand_total'].'Tk from Invoice No. - '.$data['challan_no'],
+            'debit'               => 0,
+            'credit'              => $data['grand_total'],
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        ); 
+
+        // customer Debit
+        $customer_sale_debit = array(
+            'chart_of_account_id' => $data['customer_coa_id'],
+            'voucher_no'          => $data['challan_no'],
+            'voucher_type'        => 'INVOICE',
+            'voucher_date'        => $data['invoice_date'],
+            'description'         => 'Debit amount '.$data['grand_total'].'Tk from customer '.$data['customer_name'].' on Invoice No. - '.$data['challan_no'],
+            'debit'               => $data['grand_total'],
+            'credit'              => 0,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        );
+
+        return [$inventory,$income,$customer_sale_debit];
+    } 
 }

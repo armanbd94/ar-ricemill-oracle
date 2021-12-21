@@ -127,7 +127,7 @@ class CashSale extends BaseModel
             'created_at'          => date('Y-m-d H:i:s')
         ); 
 
-         // Expense for company
+         // Income for company
         $income = array(
             'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '301')->value('id'),
             'voucher_no'          => $data['memo_no'],

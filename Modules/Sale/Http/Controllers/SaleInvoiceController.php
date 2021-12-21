@@ -12,6 +12,8 @@ use Modules\Customer\Entities\Customer;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\Transaction;
 use Modules\Product\Entities\SiteProduct;
+use Modules\Sale\Entities\SaleInvoiceProduct;
+use Modules\ViaCustomer\Entities\ViaCustomer;
 use Modules\Sale\Http\Requests\SaleInvoiceFormRequest;
 
 class SaleInvoiceController extends BaseController
@@ -74,6 +76,14 @@ class SaleInvoiceController extends BaseController
                     if(permission('sale-invoice-bulk-delete')){
                         $row[] = row_checkbox($value->id);//custom helper function to show the table each row checkbox
                     }
+                    $terms = '';
+                    if($value->terms == 1)
+                    {
+                        $terms =  'Office Payable';
+                    }elseif ($value->terms == 2) {
+                        $terms =  'Customer Payable';
+                    }
+                    
                     $row[] = $no;
                     $row[] = $value->challan_no;
                     $row[] = $value->memo_no;
@@ -85,7 +95,7 @@ class SaleInvoiceController extends BaseController
                     $row[] = date(config('settings.date_format'),strtotime($value->invoice_date));
                     $row[] = $value->transport_no;
                     $row[] = $value->truck_fare;
-                    $row[] = $value->terms == 1 ? 'Office Payable' : 'Customer Payable';
+                    $row[] = $terms;
                     $row[] = $value->driver_mobile_no;
                     $row[] = $value->created_by;
                     $row[] = action_button($action);//custom helper function for action button
@@ -111,12 +121,14 @@ class SaleInvoiceController extends BaseController
     {
         if(permission('sale-invoice-add')){
             if($request->memo_no){
-                $sale = SaleOrder::with('products','customer','via_customer')->where([['memo_no',$request->memo_no],['order_status',2]])->first();
+                $sale = SaleOrder::with('products','customer','via_customer')->where([['memo_no',$request->memo_no],['order_status','!=',1]])->first();
                 if($sale){
                     $this->setPageData('Sale Invoice Form','Sale Invoice Form','fab fa-opencart',[['name' => 'Sale Invoice Form']]);
                     $data = [
-                        'sale' => $sale,
-                        'sites' => Site::allSites(),
+                        'sale'          => $sale,
+                        'sites'         => Site::allSites(),
+                        'customers'     => Customer::allCustomers(),
+                        'via_customers' => ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get()
                     ];
                     return view('sale::sale-invoice.create',$data);
                 }else{
@@ -138,27 +150,37 @@ class SaleInvoiceController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $cashSale  = $this->model->create([
-                        'memo_no'       => $request->memo_no,
-                        'customer_name' => $request->customer_name,
-                        'do_number'     => $request->do_number,
-                        'account_id'    => $request->account_id,
-                        'item'          => $request->item,
-                        'total_qty'     => $request->total_qty,
-                        'grand_total'   => $request->grand_total,
-                        'sale_date'     => $request->sale_date,
-                        'delivery_date' => $request->delivery_date,
-                        'created_by'    => auth()->user()->name
+                    $saleInvoice  = $this->model->create([
+                        'order_id'         => $request->order_id,
+                        'challan_no'       => $request->challan_no,
+                        'transport_no'     => $request->transport_no,
+                        'truck_fare'       => $request->truck_fare,
+                        'terms'            => $request->terms,
+                        'driver_mobile_no' => $request->driver_mobile_no,
+                        'item'             => $request->item,
+                        'total_qty'        => $request->total_qty,
+                        'grand_total'      => $request->grand_total,
+                        'invoice_date'     => $request->invoice_date,
+                        'created_by'       => auth()->user()->name
                     ]);
 
-                    if($cashSale){
+                    if($saleInvoice){
+                        $total_delivered_qty = $this->model->where('order_id',$request->order_id)->sum('total_qty');
+                        $sale_order = SaleOrder::find($request->order_id);
+                        if($total_delivered_qty >= $request->order_total_qty)
+                        {
+                            $sale_order->order_status = 1;
+                        }elseif (($total_delivered_qty < $request->order_total_qty) && ($total_delivered_qty > 0)) {
+                            $sale_order->order_status = 2;
+                        }
+                        $sale_order->update();
                         $products = [];
                         if($request->has('products'))
                         {                        
                             foreach ($request->products as $key => $value) {
 
                                 $products[] = [
-                                    'sale_id'          => $cashSale->id,
+                                    'sale_id'          => $saleInvoice->id,
                                     'product_id'       => $value['id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
@@ -179,30 +201,40 @@ class SaleInvoiceController extends BaseController
                                 {
                                     $site_product->qty -= $value['qty'];
                                     $site_product->update();
-                                }else{
-                                    SiteProduct::create([
-                                        'site_id'     => $value['site_id'],
-                                        'location_id' => $value['location_id'],
-                                        'product_id'  => $value['id'],
-                                        'qty'         => $value['qty']
-                                    ]);
                                 }
                             }
                             if(!empty($products) && count($products))
                             {
-                                CashSaleProduct::insert($products);
+                                SaleInvoiceProduct::insert($products);
                             }
                         }
+
                         Transaction::insert($this->model->transaction_data([
-                            'memo_no'       => $request->memo_no,
+                            'challan_no'    => $request->challan_no,
                             'grand_total'   => $request->grand_total,
-                            'customer_name' => $request->customer_name,
-                            'sale_date'     => $request->sale_date,
-                            'account_id'    => $request->account_id,
+                            'customer_coa_id' => $request->customer_coa_id,
+                            'customer_name' => $request->customer_trade_name,
+                            'invoice_date'  => $request->invoice_date,
                         ]));
-                        $output = ['status'=>'success','message'=>'Data has been saved successfully','sale_id'=>$cashSale->id];
+                        if(!empty($request->truck_fare) && $request->truck_fare > 0 && $request->terms == 1)
+                        {
+                            Transaction::create([
+                                'chart_of_account_id' => $request->customer_coa_id,
+                                'voucher_no'          => $request->challan_no,
+                                'voucher_type'        => 'INVOICE',
+                                'voucher_date'        => $request->invoice_date,
+                                'description'         => 'Truck fare amount '.$request->truck_fare.'Tk from customer '.$request->customer_trade_name.' on Invoice No. - '.$request->challan_no,
+                                'debit'               => $request->truck_fare,
+                                'credit'              => 0,
+                                'posted'              => 1,
+                                'approve'             => 1,
+                                'created_by'          => auth()->user()->name,
+                                'created_at'          => date('Y-m-d H:i:s')
+                            ]);
+                        }
+                        $output = ['status'=>'success','message'=>'Data has been saved successfully','invoice_id'=>$saleInvoice->id];
                     }else{
-                        $output = ['status'=>'error','message'=>'Failed to save data','sale_id'=>''];
+                        $output = ['status'=>'error','message'=>'Failed to save data','invoice_id'=>''];
                     }
                     DB::commit();
                 } catch (Exception $e) {
@@ -223,8 +255,8 @@ class SaleInvoiceController extends BaseController
     {
         if(permission('sale-invoice-view')){
             $this->setPageData('Sale Invoice Details','Sale Invoice Details','fas fa-file',[['name'=>'Sale','link' => 'javascript::void();'],['name' => 'Sale Invoice Details']]);
-            $sale = $this->model->find($id);
-            $sale_products = CashSaleProduct::with(['site:id,name','location:id,name','product'])->where('sale_id',$id)->get();
+            $sale = $this->model->with('order')->find($id);
+            $sale_products = SaleInvoiceProduct::with(['site:id,name','location:id,name','product'])->where('sale_id',$id)->get();
             return view('sale::sale-invoice.details',compact('sale','sale_products'));
         }else{
             return $this->access_blocked();
@@ -235,9 +267,14 @@ class SaleInvoiceController extends BaseController
 
         if(permission('sale-invoice-edit')){
             $this->setPageData('Edit Sale Invoice','Edit Sale Invoice','fas fa-edit',[['name'=>'Sale','link' => 'javascript::void();'],['name' => 'Edit Sale Invoice']]);
+            $invoice = $this->model->with('products','order')->find($id);
+            $sale = SaleOrder::with('products')->where([['memo_no',$invoice->order->memo_no],['order_status','!=',1]])->first();
             $data = [
-                'sale'  => $this->model->with('products')->find($id),
-                'sites'     => Site::allSites(),
+                'sale'    => $sale,
+                'sites'   => Site::allSites(),
+                'invoice' => $invoice,
+                'customers'     => Customer::allCustomers(),
+                'via_customers' => ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get()
             ];
             return view('sale::sale-invoice.edit',$data);
         }else{
@@ -252,19 +289,20 @@ class SaleInvoiceController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $saleData = $this->model->with('products')->find($request->sale_id);
-
+                    $saleData = $this->model->with('products')->find($request->invoice_id);
+                    $order_id = $saleData->order_id;
                     $sale_data = [
-                        'memo_no'       => $request->memo_no,
-                        'customer_name' => $request->customer_name,
-                        'do_number'     => $request->do_number,
-                        'account_id'    => $request->account_id,
-                        'item'          => $request->item,
-                        'total_qty'     => $request->total_qty,
-                        'grand_total'   => $request->grand_total,
-                        'sale_date'     => $request->sale_date,
-                        'delivery_date' => $request->delivery_date,
-                        'modified_by'   => auth()->user()->name
+                        'order_id'         => $request->order_id,
+                        'challan_no'       => $request->challan_no,
+                        'transport_no'     => $request->transport_no,
+                        'truck_fare'       => $request->truck_fare,
+                        'terms'            => $request->terms,
+                        'driver_mobile_no' => $request->driver_mobile_no,
+                        'item'             => $request->item,
+                        'total_qty'        => $request->total_qty,
+                        'grand_total'      => $request->grand_total,
+                        'invoice_date'     => $request->invoice_date,
+                        'modified_by'      => auth()->user()->name
                     ];
 
                     if(!$saleData->products->isEmpty())
@@ -310,13 +348,6 @@ class SaleInvoiceController extends BaseController
                             {
                                 $site_product->qty -= $value['qty'];
                                 $site_product->update();
-                            }else{
-                                SiteProduct::create([
-                                    'site_id'     => $value['site_id'],
-                                    'location_id' => $value['location_id'],
-                                    'product_id'  => $value['id'],
-                                    'qty'         => $value['qty']
-                                ]);
                             }
                         }
                         if(!empty($products) && count($products))
@@ -324,16 +355,48 @@ class SaleInvoiceController extends BaseController
                             $saleData->products()->sync($products);
                         }
                     }
-                    Transaction::where(['voucher_no'=>$saleData->memo_no,'voucher_type'=>'INVOICE'])->delete();
+                    Transaction::where(['voucher_no'=>$saleData->challan_no,'voucher_type'=>'INVOICE'])->delete();
                     Transaction::insert($this->model->transaction_data([
-                        'memo_no'       => $request->memo_no,
+                        'challan_no'    => $request->challan_no,
                         'grand_total'   => $request->grand_total,
-                        'customer_name' => $request->customer_name,
-                        'sale_date'     => $request->sale_date,
-                        'account_id'    => $request->account_id,
+                        'customer_coa_id' => $request->customer_coa_id,
+                        'customer_name' => $request->customer_trade_name,
+                        'invoice_date'  => $request->invoice_date,
                     ]));
-                    $sale = $saleData->update($sale_data);
-                    $output  = $this->store_message($sale, $request->sale_id);
+                    if(!empty($request->truck_fare) && $request->truck_fare > 0 && $request->terms == 1)
+                    {
+                        Transaction::create([
+                            'chart_of_account_id' => $request->customer_coa_id,
+                            'voucher_no'          => $request->challan_no,
+                            'voucher_type'        => 'INVOICE',
+                            'voucher_date'        => $request->invoice_date,
+                            'description'         => 'Truck fare amount '.$request->truck_fare.'Tk from customer '.$request->customer_trade_name.' on Invoice No. - '.$request->challan_no,
+                            'debit'               => $request->truck_fare,
+                            'credit'              => 0,
+                            'posted'              => 1,
+                            'approve'             => 1,
+                            'created_by'          => auth()->user()->name,
+                            'created_at'          => date('Y-m-d H:i:s')
+                        ]);
+                    }
+                    $result = $saleData->update($sale_data);
+                    if($result)
+                    {
+                        $total_delivered_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
+                        $sale_order = SaleOrder::find($order_id);
+                        if($total_delivered_qty >= $sale_order->total_qty)
+                        {
+                            $sale_order->order_status = 1;
+                        }elseif (($total_delivered_qty < $sale_order->total_qty) && ($total_delivered_qty > 0)) {
+                            $sale_order->order_status = 2;
+                        }else{
+                            $sale_order->order_status = 3;
+                        }
+                        $sale_order->update();
+                        $output = ['status' => 'success','message' => 'Data has been updated successfully'];
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to update data'];
+                    }
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollback();
@@ -355,6 +418,7 @@ class SaleInvoiceController extends BaseController
                 DB::beginTransaction();
                 try {
                     $saleData = $this->model->with('products')->find($request->id);
+                    $order_id = $saleData->order_id;
                     if(!$saleData->products->isEmpty())
                     {
                         foreach ($saleData->products as $value) {
@@ -374,11 +438,22 @@ class SaleInvoiceController extends BaseController
                         $saleData->products()->detach();
                     }
                    
-                    Transaction::where(['voucher_no'=>$saleData->memo_no,'voucher_type'=>'INVOICE'])->delete();
+                    Transaction::where(['voucher_no'=>$saleData->challan_no,'voucher_type'=>'INVOICE'])->delete();
     
                     $result = $saleData->delete();
                     if($result)
                     {
+                        $total_delivered_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
+                        $sale_order = SaleOrder::find($order_id);
+                        if($total_delivered_qty >= $sale_order->total_qty)
+                        {
+                            $sale_order->order_status = 1;
+                        }elseif (($total_delivered_qty < $sale_order->total_qty) && ($total_delivered_qty > 0)) {
+                            $sale_order->order_status = 2;
+                        }else{
+                            $sale_order->order_status = 3;
+                        }
+                        $sale_order->update();
                         $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
                     }else{
                         $output = ['status' => 'error','message' => 'Failed to delete data'];
@@ -406,6 +481,7 @@ class SaleInvoiceController extends BaseController
                 try {
                     foreach ($request->ids as $id) {
                         $saleData = $this->model->with('products')->find($id);
+                        $order_id = $saleData->order_id;
                         if(!$saleData->products->isEmpty())
                         {
                             foreach ($saleData->products as $value) {
@@ -425,16 +501,26 @@ class SaleInvoiceController extends BaseController
                             $saleData->products()->detach();
                         }
                     
-                        Transaction::where(['voucher_no'=>$saleData->memo_no,'voucher_type'=>'INVOICE'])->delete();
-        
-                    }
-                    
-                    $result = $this->model->destroy($request->ids);
-                    if($result)
-                    {
-                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
-                    }else{
-                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                        Transaction::where(['voucher_no'=>$saleData->challan_no,'voucher_type'=>'INVOICE'])->delete();
+                        
+                        $result = $saleData->delete();
+                        if($result)
+                        {
+                            $total_delivered_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
+                            $sale_order = SaleOrder::find($order_id);
+                            if($total_delivered_qty >= $sale_order->total_qty)
+                            {
+                                $sale_order->order_status = 1;
+                            }elseif (($total_delivered_qty < $sale_order->total_qty) && ($total_delivered_qty > 0)) {
+                                $sale_order->order_status = 2;
+                            }else{
+                                $sale_order->order_status = 3;
+                            }
+                            $sale_order->update();
+                            $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                        }else{
+                            $output = ['status' => 'error','message' => 'Failed to delete data'];
+                        }
                     }
                     DB::commit();
                 } catch (Exception $e) {
