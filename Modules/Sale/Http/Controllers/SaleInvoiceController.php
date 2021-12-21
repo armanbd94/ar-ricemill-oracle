@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Sale\Entities\SaleOrder;
 use Modules\Sale\Entities\SaleInvoice;
+use Modules\Customer\Entities\Customer;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\Transaction;
 use Modules\Product\Entities\SiteProduct;
@@ -24,7 +25,8 @@ class SaleInvoiceController extends BaseController
     {
         if(permission('sale-invoice-access')){
             $this->setPageData('Manage Sale Invoice','Manage Sale Invoice','fab fa-opencart',[['name' => 'Manage Sale Invoice']]);
-            return view('sale::sale-invoice.index');
+            $customers = Customer::allCustomers();
+            return view('sale::sale-invoice.index',compact('customers'));
         }else{
             return $this->access_blocked();
         }
@@ -47,7 +49,9 @@ class SaleInvoiceController extends BaseController
                 if (!empty($request->to_date)) {
                     $this->model->setToDate($request->to_date);
                 }
-
+                if (!empty($request->customer_id)) {
+                    $this->model->setCustomerID($request->customer_id);
+                }
 
                 $this->set_datatable_default_properties($request);//set datatable default properties
                 $list = $this->model->getDatatableList();//get table data

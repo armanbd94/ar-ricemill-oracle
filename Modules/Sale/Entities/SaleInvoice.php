@@ -10,7 +10,7 @@ use Modules\Product\Entities\Product;
 class SaleInvoice extends BaseModel
 {
     protected $fillable = [
-        'order_id','challan_no','transport_no','transport_fare','terms','driver_mobile_no',
+        'order_id','challan_no','transport_no','truck_fare','terms','driver_mobile_no',
         'item','total_qty','grand_total','invoice_date','created_by','modified_by',
     ];
 

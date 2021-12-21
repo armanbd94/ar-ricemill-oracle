@@ -19,7 +19,7 @@ class CreateSaleInvoicesTable extends Migration
             $table->foreign('order_id')->references('id')->on('sale_orders');
             $table->string('challan_no')->unique()->index('challan_no');
             $table->string('transport_no',100)->nullable();
-            $table->float('transport_fare',8,0)->nullable();
+            $table->float('truck_fare',8,0)->nullable();
             $table->enum('terms',['1','2'])->comment("1=Office Payable,2=Customer Payable");
             $table->string('driver_mobile_no',20)->nullable();
             $table->float('item',8,0);
