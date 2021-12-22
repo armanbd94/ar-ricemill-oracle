@@ -1,27 +1,23 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\CategoryFormRequest;
+use App\Http\Requests\ItemClassFormRequest;
 
-class CategoryController extends BaseController
+class ItemClassController extends BaseController
 {
-    public function __construct(Category $model)
+    public function __construct(ItemClass $model)
     {
         $this->model = $model;
     }
 
-    public function index(string $type)
+    public function index()
     {
-        if(permission('material-category-access') || permission('product-category-access')){
-            $type       = $type == 'material' ? 1 : 2; //1=Material,2=Product
-            $breadcrumb = $type == 'material' ? [['name' => 'Raw Material','link' => url('material')],['name' => 'Category']] : 
-                        [['name' => 'Product','link' => url('product')],['name' => 'Category']];
-            $this->setPageData('Category','Category','fas fa-th-list',$breadcrumb);
-            return view('category.index',compact('type'));
+        if(permission('class-access')){
+            $this->setPageData('Manage Class','Manage Class','fas fa-th-list',[['name' => 'Manage Class']]);
+            return view('class.index');
         }else{
             return $this->access_blocked();
         }
@@ -30,10 +26,8 @@ class CategoryController extends BaseController
     public function get_datatable_data(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-category-access') || permission('product-category-access')){
-                if (!empty($request->type)) {
-                    $this->model->setType($request->type);
-                }
+            if(permission('class-access')){
+
                 if (!empty($request->name)) {
                     $this->model->setName($request->name);
                 }
@@ -48,38 +42,25 @@ class CategoryController extends BaseController
                 foreach ($list as $value) {
                     $no++;
                     $action = '';
-                    if(permission('material-category-edit') || permission('product-category-edit')){
-                        if($value->id != 3){
-                            $action .= ' <a class="dropdown-item edit_data" data-id="' . $value->id . '">'.self::ACTION_BUTTON['Edit'].'</a>';
-                        }
+                    if(permission('class-edit')){
+                        $action .= ' <a class="dropdown-item edit_data" data-id="' . $value->id . '">'.self::ACTION_BUTTON['Edit'].'</a>';
                     }
-                    if(permission('material-category-delete') || permission('product-category-delete')){
-                        if($value->id != 3){
-                            $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->name . '">'.self::ACTION_BUTTON['Delete'].'</a>';
-                        }
+                    if(permission('class-delete')){
+                        $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->id . '" data-name="' . $value->name . '">'.self::ACTION_BUTTON['Delete'].'</a>';
                     }
 
                     $row = [];
-                    if(permission('material-category-bulk-delete') || permission('product-category-bulk-delete')){
-                        if($value->id != 3){
+                    if(permission('class-bulk-delete')){
                         $row[] = row_checkbox($value->id);//custom helper function to show the table each row checkbox
-                        }else{
-                            $row[] ='';
-                        }
                     }
                     $row[] = $no;
                     $row[] = $value->name;
-                    $row[] = (permission('material-category-edit') || permission('product-category-edit')) ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
+                    $row[] = (permission('class-edit')) ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                     $row[] = $value->created_by;
                     $row[] = $value->modified_by ?? '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">Not Modified Yet</span>';
                     $row[] = $value->created_at ? date(config('settings.date_format'),strtotime($value->created_at)) : '';
                     $row[] = $value->modified_by ? date(config('settings.date_format'),strtotime($value->updated_at)) : '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">No Update Date</span>';
-                    if($value->id != 3){
-                        $row[] = action_button($action);//custom helper function for action button
-                    }else{
-                        $row[] ='';
-                    }
-                    
+                    $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
                 }
                 return $this->datatable_draw($request->input('draw'),$this->model->count_all(),
@@ -90,16 +71,15 @@ class CategoryController extends BaseController
         }
     }
 
-    public function store_or_update_data(CategoryFormRequest $request)
+    public function store_or_update_data(ItemClassFormRequest $request)
     {
         if($request->ajax()){
-            if(permission('material-category-add') || permission('material-category-edit') || permission('product-category-add') || permission('product-category-edit')){
+            if(permission('class-add') || permission('class-edit')){
                 $collection   = collect($request->validated());
-                $collection   = $collection->merge(with(['type' => $request->type]));
                 $collection   = $this->track_data($collection,$request->update_id);
                 $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());
                 $output       = $this->store_message($result, $request->update_id);
-                $this->model->flushCategoryCache();
+                $this->model->flushItemClassCache();
             }else{
                 $output       = $this->unauthorized();
             }
@@ -112,7 +92,7 @@ class CategoryController extends BaseController
     public function edit(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-category-edit') || permission('product-category-edit')){
+            if(permission('class-edit')){
                 $data   = $this->model->findOrFail($request->id);
                 $output = $this->data_message($data); //if data found then it will return data otherwise return error message
             }else{
@@ -127,10 +107,10 @@ class CategoryController extends BaseController
     public function delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-category-delete') || permission('product-category-delete')){
+            if(permission('class-delete')){
                 $result   = $this->model->find($request->id)->delete();
                 $output   = $this->delete_message($result);
-                $this->model->flushCategoryCache();
+                $this->model->flushItemClassCache();
             }else{
                 $output       = $this->unauthorized();
             }
@@ -143,10 +123,10 @@ class CategoryController extends BaseController
     public function bulk_delete(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-category-bulk-delete') || permission('product-category-bulk-delete')){
+            if(permission('class-bulk-delete')){
                 $result   = $this->model->destroy($request->ids);
                 $output   = $this->bulk_delete_message($result);
-                $this->model->flushCategoryCache();
+                $this->model->flushItemClassCache();
             }else{
                 $output       = $this->unauthorized();
             }
@@ -159,9 +139,9 @@ class CategoryController extends BaseController
     public function change_status(Request $request)
     {
         if($request->ajax()){
-            if(permission('material-category-edit') || permission('product-category-edit')){
+            if(permission('class-edit')){
                 $result   = $this->model->find($request->id)->update(['status' => $request->status]);
-                $this->model->flushCategoryCache();
+                $this->model->flushItemClassCache();
                 $output   = $result ? ['status' => 'success','message' => 'Status Has Been Changed Successfully']
                 : ['status' => 'error','message' => 'Failed To Change Status'];
             }else{

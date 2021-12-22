@@ -13,8 +13,8 @@
         <div class="card card-custom custom-card">
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
-                    @if (permission('material-class-add') || permission('product-class-add') )
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Class','Save')" class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
+                    @if (permission('material-category-add') || permission('product-category-add') )
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Category','Save')" class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                     @endif
                 </div>
@@ -54,7 +54,7 @@
                             <table id="dataTable" class="table table-bordered table-hover">
                                 <thead class="bg-primary">
                                     <tr>
-                                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                                         <th>
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" class="custom-control-input" id="select_all" onchange="select_all()">
@@ -111,7 +111,7 @@
                 zeroRecords: '<strong class="text-danger">No Data Found</strong>'
             },
             "ajax": {
-                "url": "{{route('class.datatable.data')}}",
+                "url": "{{route('category.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
                     data.name   = $("#form-filter #name").val();
@@ -122,13 +122,13 @@
             },
             "columnDefs": [{
                     @if($type == 1)
-                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                         "targets": [0,8],
                         @else 
                         "targets": [7],
                         @endif
                     @else 
-                        @if (permission('product-class-bulk-delete') || permission('product-class-bulk-delete'))
+                        @if (permission('product-category-bulk-delete') || permission('product-category-bulk-delete'))
                         "targets": [0,8],
                         @else 
                         "targets": [7],
@@ -140,13 +140,13 @@
                 },
                 {
                 @if($type == 1)
-                    @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                    @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                     "targets": [1,3,4,5,6,7],
                     @else 
                     "targets": [0,2,3,4,5,6],
                     @endif
                 @else 
-                    @if (permission('product-class-bulk-delete') || permission('product-class-bulk-delete'))
+                    @if (permission('product-category-bulk-delete') || permission('product-category-bulk-delete'))
                     "targets": [1,3,4,5,6,7],
                     @else 
                     "targets": [0,2,3,4,5,6],
@@ -172,7 +172,7 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     'columns': ':gt(0)',
                     "exportOptions": {
-                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -195,7 +195,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -209,7 +209,7 @@
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -225,7 +225,7 @@
                     "orientation": "portrait", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                        @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                         columns: [1,2,3,4,5,6,7],
                         @else 
                         columns: [0,1,2,3,4,5,6],
@@ -233,7 +233,7 @@
                     },
                    
                 },
-                @if (permission('material-class-bulk-delete') || permission('product-class-bulk-delete'))
+                @if (permission('material-category-bulk-delete') || permission('product-category-bulk-delete'))
                 {
                     'className':'btn btn-danger btn-sm delete_btn d-none text-white',
                     'text':'Delete',
@@ -258,7 +258,7 @@
         $(document).on('click', '#save-btn', function () {
             let form = document.getElementById('store_or_update_form');
             let formData = new FormData(form);
-            let url = "{{route('class.store.or.update')}}";
+            let url = "{{route('category.store.or.update')}}";
             let id = $('#update_id').val();
             let method;
             if (id) {
@@ -276,7 +276,7 @@
             $('#store_or_update_form').find('.error').remove();
             if (id) {
                 $.ajax({
-                    url: "{{route('class.edit')}}",
+                    url: "{{route('category.edit')}}",
                     type: "POST",
                     data: { id: id,_token: _token},
                     dataType: "JSON",
@@ -308,7 +308,7 @@
             let id    = $(this).data('id');
             let name  = $(this).data('name');
             let row   = table.row($(this).parent('tr'));
-            let url   = "{{ route('class.delete') }}";
+            let url   = "{{ route('category.delete') }}";
             delete_data(id, url, table, row, name);
         });
     
@@ -327,7 +327,7 @@
                     icon: 'warning',
                 });
             }else{
-                let url = "{{route('class.bulk.delete')}}";
+                let url = "{{route('category.bulk.delete')}}";
                 bulk_delete(ids,url,table,rows);
             }
         }
@@ -337,7 +337,7 @@
             let name   = $(this).data('name');
             let status = $(this).data('status');
             let row    = table.row($(this).parent('tr'));
-            let url    = "{{ route('class.change.status') }}";
+            let url    = "{{ route('category.change.status') }}";
             change_status(id, url, table, row, name, status);
         });
     

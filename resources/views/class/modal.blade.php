@@ -18,16 +18,15 @@
             <div class="modal-body">
                 <div class="row">
                     <input type="hidden" name="update_id" id="update_id"/>
-                    <x-form.textbox labelName="Barch Start Date" name="batch_start_date" required="required" class="date" col="col-md-12" />
-                    <x-form.textbox labelName="Packaging Batch No." name="batch_no" required="required" col="col-md-12"/>
+                    <x-form.textbox labelName="Class Name" name="name" required="required" col="col-md-12" placeholder="Enter cagory name"/>
                 </div>
             </div>
             <!-- /modal body -->
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary btn-sm" id="save-btn"></button>
+            <button type="button" class="btn btn-danger btn-sm custom-btn" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary btn-sm custom-btn" id="save-btn"></button>
             </div>
             <!-- /modal footer -->
         </form>

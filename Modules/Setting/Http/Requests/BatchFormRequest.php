@@ -14,6 +14,7 @@ class BatchFormRequest extends FormRequest
     public function rules()
     {
         $rules = [];
+        $rules['batch_start_date'] = ['required'];
         $rules['batch_no'] = ['required','string','unique:batches,batch_no'];
         if(request()->update_id)
         {

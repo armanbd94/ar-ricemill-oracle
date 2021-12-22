@@ -8,15 +8,20 @@ use Illuminate\Support\Facades\Cache;
 
 class Batch extends BaseModel
 {
-    protected $fillable = ['batch_no','status','created_at','modified_at'];
+    protected $fillable = ['batch_start_date','batch_no','status','created_at','modified_at'];
 
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     //custom search column property
+    protected $_batch_start_date; 
     protected $_batch_no; 
 
     //methods to set custom search property value
+    public function setBatchStartDate($batch_start_date)
+    {
+        $this->_batch_start_date = $batch_start_date;
+    }
     public function setBatchNo($batch_no)
     {
         $this->_batch_no = $batch_no;
@@ -27,9 +32,9 @@ class Batch extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('wip-batch-bulk-delete')){
-            $this->column_order = [null,'id','batch_no','status','created_by','modified_by','created_at','updated_at',null];
+            $this->column_order = [null,'id','batch_start_date','batch_no','status','created_by','modified_by','created_at','updated_at',null];
         }else{
-            $this->column_order = ['id','batch_no','status','created_by','modified_by','created_at','updated_at',null];
+            $this->column_order = ['id','batch_start_date','batch_no','status','created_by','modified_by','created_at','updated_at',null];
         }
         
         $query = DB::table('batches');
@@ -37,6 +42,9 @@ class Batch extends BaseModel
         //search query
         if (!empty($this->_batch_no)) {
             $query->where('batch_no', 'like', '%' . $this->_batch_no . '%');
+        }
+        if (!empty($this->_batch_start_date)) {
+            $query->where('batch_start_date',  date('Y-m-d',strtotime($this->_batch_start_date)));
         }
 
         //order by data fetching code
