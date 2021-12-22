@@ -496,11 +496,19 @@
                                         </tr>
                                         @if (!$purchase_materials->isEmpty())
                                         @foreach ($purchase_materials as $key => $item)
+                                        @php
+                                            $class_name = '';
+                                            if($item->item_class_id)
+                                            {
+                                                $class_name = DB::table('item_classes')->where('id',$item->item_class_id)->value('name');
+                                            }
+                                            
+                                        @endphp
                                         <tr>
                                             <td class="text-center">{{ $key+1 }}</td>
                                             <td class="text-left">{{ $item->material->material_name }}</td>
                                             <td class="text-left no_print">{{ $item->description }}</td>
-                                            <td class="text-center no_print">{{ $item->material->category->name }}</td>
+                                            <td class="text-center no_print">{{ $class_name }}</td>
                                             <td class="text-center no_print">{{ $item->site->name }}</td>
                                             <td class="text-center no_print">{{ $item->location->name }}</td>
                                             <td class="text-center">{{ $item->purchase_unit->unit_name }}</td>
