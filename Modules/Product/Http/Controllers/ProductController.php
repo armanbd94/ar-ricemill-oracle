@@ -79,11 +79,9 @@ class ProductController extends BaseController
                     $row[] = $value->name;
                     $row[] = $value->code;
                     $row[] = $value->category->name;
-                    $row[] = $value->cost ? number_format($value->cost,2,'.',',') : 0;
-                    $row[] = $value->cost ? number_format($value->price,2,'.',',') : 0;
+                    $row[] = $value->price ? number_format($value->price,2,'.',',') : 0;
                     $row[] = $value->unit->unit_name;
-                    $row[] = $value->qty ? $value->qty : "<span class='label label-rounded label-danger'>0</span>";
-                    $row[] = $value->alert_qty ? $value->alert_qty : "<span class='label label-rounded label-danger'>0</span>";
+                    $row[] = $value->alert_qty ? $value->alert_qty : 0;
                     $row[] = permission('product-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;

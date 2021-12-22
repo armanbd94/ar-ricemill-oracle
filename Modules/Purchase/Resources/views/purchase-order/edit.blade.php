@@ -78,7 +78,16 @@
                                                         </select>
                                                     </td>    
                                                     <td><input type="text" class="form-control" name="materials[{{ $key+1 }}][description]" value="{{ $value->pivot->description }}"  id="materials_{{ $key+1 }}_description" data-row="{{ $key+1 }}"></td>                                    
-                                                    <td class="category_name_{{ $key+1 }} text-center"  id="category_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $value->category->name }}</td>
+                                                    <td>
+                                                        <select name="materials[{{ $key+1 }}][item_class_id]" id="materials_{{ $key+1 }}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="{{ $key+1 }}">    
+                                                            <option value="">Select Please</option>                                        
+                                                            @if (!$classes->isEmpty())
+                                                                @foreach ($classes as $class)
+                                                                    <option value="{{ $class->id }}" {{ $value->pivot->item_class_id == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </td>
                                                     <td class="unit_name_{{ $key+1 }} text-center"  id="unit_name_{{ $key+1 }}"  data-row="{{ $key+1 }}">{{ $unit_name }}</td>
                                                     <td><input type="text" class="form-control qty text-center" value="{{ $value->pivot->qty }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="materials[{{ $key+1 }}][qty]" id="materials_{{ $key+1 }}_qty" data-row="{{ $key+1 }}"></td>
                                                     <td><input type="text" class="text-right form-control net_unit_cost" value="{{ $value->pivot->net_unit_cost }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="materials[{{ $key+1 }}][net_unit_cost]" id="materials_{{ $key+1 }}_net_unit_cost" data-row="{{ $key+1 }}"></td>
@@ -156,7 +165,18 @@ $(document).ready(function () {
                             </select>
                         </td>    
                         <td><input type="text" class="form-control" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
-                        <td class="category_name_${count} text-center"  id="category_name_${count}"  data-row="${count}"></td>
+                        <td>
+                            <td>
+                                <select name="materials[${count}][item_class_id]" id="materials_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                                    <option value="">Select Please</option>                                        
+                                    @if (!$classes->isEmpty())
+                                        @foreach ($classes as $class)
+                                            <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </td>
+                        </td>
                         <td class="unit_name_${count} text-center"  id="unit_name_${count}"  data-row="${count}"></td>
                         <td><input type="text" class="form-control qty text-center" onkeyup="calculateRowTotal(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
                         <td><input type="text" class="text-right form-control net_unit_cost" onkeyup="calculateRowTotal(${count})" name="materials[${count}][net_unit_cost]" id="materials_${count}_net_unit_cost" data-row="${count}"></td>
@@ -172,10 +192,8 @@ $(document).ready(function () {
 function setMaterialDetails(row){
     let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
     let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
-    let category_name = $(`#materials_${row}_id option:selected`).data('category');
 
     $(`.unit_name_${row}`).text(unit_name);
-    $(`.category_name_${row}`).text(category_name);
     $(`#materials_${row}_purchase_unit_id`).val(unit_id);
 } 
 function calculateRowTotal(row)

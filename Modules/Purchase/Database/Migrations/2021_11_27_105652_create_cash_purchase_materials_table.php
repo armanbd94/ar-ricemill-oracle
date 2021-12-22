@@ -19,6 +19,8 @@ class CreateCashPurchaseMaterialsTable extends Migration
             $table->foreign('cash_id')->references('id')->on('cash_purchases');
             $table->unsignedBigInteger('material_id');
             $table->foreign('material_id')->references('id')->on('materials');
+            $table->unsignedBigInteger('item_class_id');
+            $table->foreign('item_class_id')->references('id')->on('item_classes');
             $table->unsignedBigInteger('site_id');
             $table->foreign('site_id')->references('id')->on('sites');
             $table->unsignedBigInteger('location_id')->nullable();

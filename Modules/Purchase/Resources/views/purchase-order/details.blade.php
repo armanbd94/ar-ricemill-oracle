@@ -411,16 +411,21 @@
                                         @if (!$purchase->materials->isEmpty())
                                             @foreach ($purchase->materials as $key => $item)
                                                 @php
-                                                    $unit_name = '';
+                                                    $unit_name = $class_name = '';
                                                     if($item->pivot->purchase_unit_id)
                                                     {
                                                         $unit_name = DB::table('units')->where('id',$item->pivot->purchase_unit_id)->value('unit_name');
                                                     }
+                                                    if($item->pivot->item_class_id)
+                                                    {
+                                                        $class_name = DB::table('item_classes')->where('id',$item->pivot->item_class_id)->value('name');
+                                                    }
+                                                    
                                                 @endphp
                                                 <tr>
                                                     <td class="text-center">{{ $key+1 }}</td>
                                                     <td class="text-left">{{ $item->material_name }}</td>
-                                                    <td class="text-center">{{ $item->category->name }}</td>
+                                                    <td class="text-center">{{ $class_name }}</td>
                                                     <td class="text-center">{{ $unit_name }}</td>
                                                     <td class="text-center">{{ $item->pivot->qty }}</td>
                                                     <td class="text-right">{{ number_format($item->pivot->net_unit_cost,2,'.',',') }}</td>

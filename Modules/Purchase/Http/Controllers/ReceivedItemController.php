@@ -3,6 +3,7 @@
 namespace Modules\Purchase\Http\Controllers;
 
 use Exception;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -114,6 +115,7 @@ class ReceivedItemController extends BaseController
                     $data = [
                         'purchase' => $purchase,
                         'sites' => Site::allSites(),
+                        'classes'   => ItemClass::allItemClass()
                     ];
                     return view('purchase::purchase-received.create',$data);
                 }else{
@@ -180,6 +182,7 @@ class ReceivedItemController extends BaseController
                                     'order_id'         => $request->order_id,
                                     'received_id'      => $order_received->id,
                                     'material_id'      => $value['id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
                                     'received_qty'     => $value['qty'],
@@ -263,6 +266,7 @@ class ReceivedItemController extends BaseController
                 'purchase' => $purchase,
                 'sites'    => Site::allSites(),
                 'receive'  => $receive,
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('purchase::purchase-received.edit',$data);
         }else{
@@ -333,6 +337,7 @@ class ReceivedItemController extends BaseController
 
                             $materials[$value['id']] = [
                                 'order_id'         => $orderReceivedData->order_id,
+                                'item_class_id'    => $value['item_class_id'],
                                 'site_id'          => $value['site_id'],
                                 'location_id'      => $value['location_id'],
                                 'received_qty'     => $value['qty'],

@@ -17,7 +17,7 @@ class CashPurchase extends BaseModel
     public function materials()
     {
         return $this->belongsToMany(Material::class,'cash_purchase_materials','cash_id','material_id','id','id')
-        ->withPivot('id', 'site_id', 'location_id','qty','purchase_unit_id','net_unit_cost','old_cost','total','description')
+        ->withPivot('id','item_class_id', 'site_id', 'location_id','qty','purchase_unit_id','net_unit_cost','old_cost','total','description')
         ->withTimeStamps(); 
     }
 

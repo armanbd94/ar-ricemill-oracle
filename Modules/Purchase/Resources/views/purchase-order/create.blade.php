@@ -73,7 +73,16 @@
                                                 </select>
                                             </td>    
                                             <td><input type="text" class="form-control" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                            <td class="category_name_1 text-center"  id="category_name_1"  data-row="1"></td>
+                                            <td>
+                                                <select name="materials[1][item_class_id]" id="materials_1_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+                                                    @if (!$classes->isEmpty())
+                                                        @foreach ($classes as $class)
+                                                            <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </td>
                                             <td class="unit_name_1 text-center"  id="unit_name_1"  data-row="1"></td>
                                             <td><input type="text" class="form-control qty text-center" onkeyup="calculateRowTotal(1)" name="materials[1][qty]" id="materials_1_qty" data-row="1"></td>
                                             <td><input type="text" class="text-right form-control net_unit_cost" onkeyup="calculateRowTotal(1)" name="materials[1][net_unit_cost]" id="materials_1_net_unit_cost" data-row="1"></td>
@@ -143,7 +152,16 @@ $(document).ready(function () {
                             </select>
                         </td>    
                         <td><input type="text" class="form-control" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
-                        <td class="category_name_${count} text-center"  id="category_name_${count}"  data-row="${count}"></td>
+                        <td>
+                            <select name="materials[${count}][item_class_id]" id="materials_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                                <option value="">Select Please</option>                                        
+                                @if (!$classes->isEmpty())
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>
                         <td class="unit_name_${count} text-center"  id="unit_name_${count}"  data-row="${count}"></td>
                         <td><input type="text" class="form-control qty text-center" onkeyup="calculateRowTotal(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
                         <td><input type="text" class="text-right form-control net_unit_cost" onkeyup="calculateRowTotal(${count})" name="materials[${count}][net_unit_cost]" id="materials_${count}_net_unit_cost" data-row="${count}"></td>
@@ -159,10 +177,8 @@ $(document).ready(function () {
 function setMaterialDetails(row){
     let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
     let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
-    let category_name = $(`#materials_${row}_id option:selected`).data('category');
 
     $(`.unit_name_${row}`).text(unit_name);
-    $(`.category_name_${row}`).text(category_name);
     $(`#materials_${row}_purchase_unit_id`).val(unit_id);
 } 
 function calculateRowTotal(row)
