@@ -4,6 +4,7 @@ namespace Modules\Loan\Http\Controllers\Report;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Modules\Loan\Entities\LoanReport;
 use App\Http\Controllers\BaseController;
 use Illuminate\Contracts\Support\Renderable;
@@ -26,6 +27,17 @@ class LoanReportController extends BaseController
                 'person_list' => ChartOfAccount::where('parent_name','Loan Payable Long Term')->where('status','1')->orwhere('parent_name','Loan Payable Short Term')->where('status','1')->orderBy('id','asc')->get()
                 
                 ];
+            
+        //         $query = DB::table('transactions as t')
+        // ->select('t.voucher_no',DB::raw('SUM(t.debit) as debit'),DB::raw('SUM(t.credit) as credit'),'t.voucher_date','chart_of_accounts.name','t.description')
+        // ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
+        // ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI'])
+        // ->groupBy('t.voucher_no','t.voucher_date','chart_of_accounts.name','t.description')
+        // ->get();
+        // dd($query);
+
+
+
             return view('loan::report-list.report',$data);
         }else{
             return $this->access_blocked();

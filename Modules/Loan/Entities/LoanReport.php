@@ -6,7 +6,6 @@ use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Account\Entities\ChartOfAccount;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LoanReport extends BaseModel
 {
@@ -23,7 +22,7 @@ class LoanReport extends BaseModel
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
-    protected $order = ['t.id' => 'desc'];
+    protected $order = ['t.voucher_no' => 'desc'];
     protected $_start_date; 
     protected $_end_date; 
     protected $_employee_id; 
@@ -47,25 +46,17 @@ class LoanReport extends BaseModel
         $this->_person_id = $person_id;
     }
 
-    
-    // $weekholiday = DB::table('weekly_holiday_assigns as wholi')
-    // ->selectRaw("wholi.employee_id,wholi.weekly_holiday_id,holi.id,holi.name as hname,holi.short_name as same")
-    // ->join('holidays as holi','weekly_holiday_id','=','holi.id')
-    // ->where('wholi.employee_id',$employee_id)
-    // ->groupBy('wholi.weekly_holiday_id','wholi.employee_id','holi.id','holi.name','holi.short_name')
-    // ->get();
-
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
 
         $this->column_order = ['t.id', 't.voucher_no','t.voucher_date','t.descritpion','t.debit','t.credit','t.approve', 't.created_by',null];
         
-        $query = DB::table('transactions as t')
-
-        ->selectRaw("t.id,t.voucher_type,t.created_by,t.voucher_date,t.chart_of_account_id,t.voucher_no,t.credit as credit,t.debit as debit,chart_of_accounts.name as cname,t.description as description") 
-        ->join('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
-        ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI']);
+        $query =  DB::table('transactions as t')
+        ->select('t.voucher_no',DB::raw('SUM(t.debit) as debit'),DB::raw('SUM(t.credit) as credit'),'t.voucher_date','chart_of_accounts.name','t.description')
+        ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
+        ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI'])
+        ->groupBy('t.voucher_no','t.voucher_date','chart_of_accounts.name','t.description');
         //search query
         if (!empty($this->_start_date)) {
             $query->where('t.voucher_date', '>=',$this->_start_date);
@@ -73,9 +64,6 @@ class LoanReport extends BaseModel
         if (!empty($this->_end_date)) {
             $query->where('t.voucher_date', '<=',$this->_end_date);
         }
-        
-        $query->groupBy('t.created_by','t.voucher_type','t.voucher_no','t.id','t.voucher_date','t.chart_of_account_id','chart_of_accounts.name');
-       // dd($query);
 
         //order by data fetching code
         if (isset($this->orderValue) && isset($this->dirValue)) { //orderValue is the index number of table header and dirValue is asc or desc
@@ -103,18 +91,11 @@ class LoanReport extends BaseModel
 
     public function count_all()
     {
-        $query =  DB::table('transactions as t')
-        ->selectRaw("t.id,t.voucher_type,t.created_by,t.voucher_date,t.chart_of_account_id,t.voucher_no,t.credit as credit,t.debit as debit,chart_of_accounts.name as cname,t.description as description") 
-        ->join('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
+        $query =   DB::table('transactions as t')
+        ->select('t.voucher_no',DB::raw('SUM(t.debit) as debit'),DB::raw('SUM(t.credit) as credit'),'t.voucher_date','chart_of_accounts.name','t.description')
+        ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
         ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI'])
-        ->groupBy('t.created_by','t.voucher_type','t.voucher_no','t.id','t.voucher_date','t.chart_of_account_id','chart_of_accounts.name');
-        if (!empty($this->_start_date)) {
-            $query->where('t.voucher_date', '>=',$this->_start_date);
-        }
-        if (!empty($this->_end_date)) {
-            $query->where('t.voucher_date', '<=',$this->_end_date);
-        }
-
+        ->groupBy('t.voucher_no','t.voucher_date','chart_of_accounts.name','t.description');
         return $query->get()->count();
     }
     /******************************************
