@@ -41,7 +41,7 @@
                             <x-form.selectbox labelName="WIP Batch" name="batch_id" required="required"  class="selectpicker" col="col-md-3">
                                 @if (!$batches->isEmpty())
                                     @foreach ($batches as $batch)
-                                        <option value="{{ $batch->id }}" {{ $transfer->batch_id == $batch->id ? 'selected' : '' }}>{{ $batch->batch_no }}</option>
+                                        <option value="{{ $batch->id }}" {{ $transfer->batch_id == $batch->id ? 'selected' : '' }}>{{ date('d-m-Y',strtotime($batch->batch_start_date)).' - '.$batch->batch_no }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>

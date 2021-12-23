@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
 use Modules\Product\Entities\Product;
+use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
 use Modules\Material\Entities\SiteMaterial;
 use Modules\TransferInventory\Entities\TransferMixItem;
@@ -27,7 +28,8 @@ class TransferInventoryMixController extends BaseController
     {
         if(permission('transfer-inventory-mix-access')){
             $this->setPageData('Manage Transfer Inventory Mix','Manage Transfer Inventory Mix','fas fa-people-carry',[['name' => 'Manage Transfer Inventory Mix']]);
-            return view('transferinventory::transfer-inventory-mix.index');
+            $batches   = Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get();
+            return view('transferinventory::transfer-inventory-mix.index',compact('batches'));
         }else{
             return $this->access_blocked();
         }
@@ -40,6 +42,9 @@ class TransferInventoryMixController extends BaseController
 
                 if (!empty($request->memo_no)) {
                     $this->model->setMemoNo($request->memo_no);
+                }
+                if (!empty($request->batch_id)) {
+                    $this->model->setBatchID($request->batch_id);
                 }
                 if (!empty($request->from_date)) {
                     $this->model->setFromDate($request->from_date);
@@ -72,8 +77,8 @@ class TransferInventoryMixController extends BaseController
                     $row[] = $no;
                     $row[] = $value->memo_no;
                     $row[] = $value->batch_no;
-                    $row[] = $value->product_name;
-                    $row[] = $value->category_name;
+                    $row[] = $value->material_name;
+                    $row[] = $value->class_name;
                     $row[] = $value->to_site;
                     $row[] = $value->to_location;
                     $row[] = $value->item;
@@ -97,10 +102,10 @@ class TransferInventoryMixController extends BaseController
         if(permission('transfer-inventory-mix-add')){
             $this->setPageData('Transfer Inventory Mix Form','Transfer Inventory Mix Form','fas fa-people-carry',[['name' => 'Transfer Inventory Mix Form']]);
             $data = [
-                'batches' => Batch::allBatches(),
-                'sites'     => Site::allSites(),
-                'products' => Product::with('category')->where('status',1)->get(),
-                'classes'   => ItemClass::allItemClass()
+                'batches'  => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
+                'sites'    => Site::allSites(),
+                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'classes'  => ItemClass::allItemClass()
             ];
             
             return view('transferinventory::transfer-inventory-mix.create',$data);
@@ -119,8 +124,8 @@ class TransferInventoryMixController extends BaseController
                     $transferData  = $this->model->create([
                         'memo_no'         => $request->memo_no,
                         'batch_id'        => $request->batch_id,
-                        'product_id'      => $request->product_id,
-                        'category_id'     => $request->category_id,
+                        'material_id'      => $request->material_id,
+                        'item_class_id'   => $request->item_class_id,
                         'to_site_id'      => $request->to_site_id,
                         'to_location_id'  => $request->to_location_id,
                         'item'            => $request->item,
@@ -162,7 +167,7 @@ class TransferInventoryMixController extends BaseController
                                 $to_site_material = SiteMaterial::where([
                                     ['site_id',$request->to_site_id],
                                     ['location_id',$request->to_location_id],
-                                    ['material_id',$value['id']],
+                                    ['material_id', $request->material_id],
                                 ])->first();
                                 
                                 if($to_site_material)
@@ -173,7 +178,7 @@ class TransferInventoryMixController extends BaseController
                                     SiteMaterial::create([
                                         'site_id'     => $request->to_site_id,
                                         'location_id' => $request->to_location_id,
-                                        'material_id' => $value['id'],
+                                        'material_id' =>  $request->material_id,
                                         'qty'         => $value['qty']
                                     ]);
                                 }
@@ -205,7 +210,7 @@ class TransferInventoryMixController extends BaseController
     {
         if(permission('transfer-inventory-mix-view')){
             $this->setPageData('Transfer Inventory Mix Details','Transfer Inventory Mix Details','fas fa-file',[['name' => 'Transfer Inventory Mix Details']]);
-            $transfer = $this->model->with('materials','batch','product','to_site','category','to_location')->find($id);
+            $transfer = $this->model->with('materials','batch','material','to_site','item_class','to_location')->find($id);
             $materials = TransferMixItem::with('from_site','material','from_location')->where('transfer_id',$id)->get();
             return view('transferinventory::transfer-inventory-mix.details',compact('transfer','materials'));
         }else{
@@ -218,11 +223,11 @@ class TransferInventoryMixController extends BaseController
         if(permission('transfer-inventory-mix-edit')){
             $this->setPageData('Edit Transfer Inventory Mix','Edit Transfer Inventory Mix','fas fa-edit',[['name' => 'Edit Transfer Inventory Mix']]);
             $data = [
-                'transfer'   => $this->model->with('materials')->find($id),
-                'batches'    => Batch::allBatches(),
-                'sites'      => Site::allSites(),
-                'products'   => Product::with('category')->where('status',1)->get(),
-                'classes'   => ItemClass::allItemClass()
+                'transfer' => $this->model->with('materials')->find($id),
+                'batches'  => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
+                'sites'    => Site::allSites(),
+                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'classes'  => ItemClass::allItemClass()
             ];
             return view('transferinventory::transfer-inventory-mix.edit',$data);
         }else{
@@ -242,8 +247,8 @@ class TransferInventoryMixController extends BaseController
                     $transfer_data = [
                         'memo_no'         => $request->memo_no,
                         'batch_id'        => $request->batch_id,
-                        'product_id'      => $request->product_id,
-                        'category_id'     => $request->category_id,
+                        'material_id'      => $request->material_id,
+                        'item_class_id'     => $request->item_class_id,
                         'to_site_id'      => $request->to_site_id,
                         'to_location_id'  => $request->to_location_id,
                         'item'            => $request->item,
@@ -271,7 +276,7 @@ class TransferInventoryMixController extends BaseController
                             $to_site_material = SiteMaterial::where([
                                 'site_id' => $transferData->to_site_id,
                                 'location_id' => $transferData->to_location_id,
-                                'material_id'  => $transfer_material->id
+                                'material_id'  => $transferData->material_id
                                 ])->first();
                             if($to_site_material){
                                 $to_site_material->qty -= $transfer_qty;
@@ -310,7 +315,7 @@ class TransferInventoryMixController extends BaseController
                             $to_site_material = SiteMaterial::where([
                                 ['site_id',$request->to_site_id],
                                 ['location_id',$request->to_location_id],
-                                ['material_id',$value['id']],
+                                ['material_id',$request->material_id],
                             ])->first();
                             
                             if($to_site_material)
@@ -321,7 +326,7 @@ class TransferInventoryMixController extends BaseController
                                 SiteMaterial::create([
                                     'site_id'     => $request->to_site_id,
                                     'location_id' => $request->to_location_id,
-                                    'material_id' => $value['id'],
+                                    'material_id' => $request->material_id,
                                     'qty'         => $value['qty']
                                 ]);
                             }
@@ -373,7 +378,7 @@ class TransferInventoryMixController extends BaseController
                             $to_site_material = SiteMaterial::where([
                                 'site_id' => $transferData->to_site_id,
                                 'location_id' => $transferData->to_location_id,
-                                'material_id'  => $transfer_material->id
+                                'material_id'  => $transferData->material_id
                                 ])->first();
                             if($to_site_material){
                                 $to_site_material->qty -= $transfer_qty;
@@ -431,7 +436,7 @@ class TransferInventoryMixController extends BaseController
                                 $to_site_material = SiteMaterial::where([
                                     'site_id' => $transferData->to_site_id,
                                     'location_id' => $transferData->to_location_id,
-                                    'material_id'  => $transfer_material->id
+                                    'material_id'  => $transferData->material_id
                                     ])->first();
                                 if($to_site_material){
                                     $to_site_material->qty -= $transfer_qty;

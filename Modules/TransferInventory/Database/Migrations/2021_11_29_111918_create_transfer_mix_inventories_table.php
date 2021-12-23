@@ -18,8 +18,8 @@ class CreateTransferMixInventoriesTable extends Migration
             $table->string('memo_no')->nullable();
             $table->unsignedBigInteger('batch_id');
             $table->foreign('batch_id')->references('id')->on('batches');
-            $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedBigInteger('material_id');
+            $table->foreign('material_id')->references('id')->on('materials');
             $table->unsignedBigInteger('item_class_id');
             $table->foreign('item_class_id')->references('id')->on('item_classes');
             $table->unsignedBigInteger('to_site_id');

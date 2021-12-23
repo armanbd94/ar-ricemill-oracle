@@ -2,12 +2,11 @@
 
 namespace Modules\TransferInventory\Entities;
 
-use App\Models\Category;
 use App\Models\BaseModel;
+use App\Models\ItemClass;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
-use Modules\Product\Entities\Product;
 use Modules\Setting\Entities\Location;
 use Modules\Material\Entities\Material;
 
@@ -15,20 +14,20 @@ class TransferMixInventory extends BaseModel
 {
     protected $table = 'transfer_mix_inventories';
     protected $fillable = [
-        'memo_no', 'batch_id','product_id','item_class_id','to_site_id','to_location_id',
+        'memo_no', 'batch_id','material_id','item_class_id','to_site_id','to_location_id',
         'item','total_qty', 'transfer_date', 'transfer_number','created_by','modified_by',
     ];
     public function batch()
     {
         return $this->belongsTo(Batch::class,'batch_id','id');
     }
-    public function product()
+    public function material()
     {
-        return $this->belongsTo(Product::class,'product_id','id');
+        return $this->belongsTo(Material::class,'material_id','id');
     }
-    public function category()
+    public function item_class()
     {
-        return $this->belongsTo(Category::class,'category_id','id');
+        return $this->belongsTo(ItemClass::class,'item_class_id','id');
     }
     public function to_site()
     {
@@ -53,6 +52,7 @@ class TransferMixInventory extends BaseModel
     protected $order = ['ti.id' => 'desc'];
     //custom search column property
     protected $_memo_no; 
+    protected $_batch_id; 
     protected $_from_date; 
     protected $_to_date; 
 
@@ -61,6 +61,11 @@ class TransferMixInventory extends BaseModel
     {
         $this->_memo_no = $memo_no;
     }
+    public function setBatchID($batch_id)
+    {
+        $this->_batch_id = $batch_id;
+    }
+
 
     public function setFromDate($from_date)
     {
@@ -77,26 +82,28 @@ class TransferMixInventory extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('transfer-inventory-mix-bulk-delete')){
-            $this->column_order = ['ti.id', 'ti.id', 'ti.memo_no','ti.batch_id', 'ti.product_id', 'ti.category_id','ti.to_site_id','ti.to_location_id','ti.item','ti.total_qty','ti.transfer_date','ti.transfer_number','ti.created_by', null];
+            $this->column_order = ['ti.id', 'ti.id', 'ti.memo_no','ti.batch_id', 'ti.material_id', 'ti.category_id','ti.to_site_id','ti.to_location_id','ti.item','ti.total_qty','ti.transfer_date','ti.transfer_number','ti.created_by', null];
         }else{
-            $this->column_order = ['ti.id', 'ti.memo_no','ti.batch_id', 'ti.product_id', 'ti.category_id','ti.to_site_id','ti.to_location_id','ti.item','ti.total_qty','ti.transfer_date','ti.transfer_number','ti.created_by', null];
+            $this->column_order = ['ti.id', 'ti.memo_no','ti.batch_id', 'ti.material_id', 'ti.category_id','ti.to_site_id','ti.to_location_id','ti.item','ti.total_qty','ti.transfer_date','ti.transfer_number','ti.created_by', null];
         }
         
         $query = DB::table('transfer_mix_inventories as ti')
         ->leftJoin('batches as b','ti.batch_id','=','b.id')
-        ->leftJoin('products as p','ti.product_id','=','p.id')
-        ->leftJoin('categories as c','ti.category_id','=','c.id')
+        ->leftJoin('materials as m','ti.material_id','=','m.id')
+        ->leftJoin('item_classes as ic','ti.item_class_id','=','ic.id')
         ->leftJoin('sites as ts','ti.to_site_id','=','ts.id')
         ->leftJoin('locations as tl','ti.to_location_id','=','tl.id')
-        ->select('ti.id', 'ti.memo_no','ti.batch_id', 'ti.product_id', 'ti.category_id','ti.to_site_id',
+        ->select('ti.id', 'ti.memo_no','ti.batch_id', 'ti.material_id', 'ti.item_class_id','ti.to_site_id',
         'ti.to_location_id','ti.item','ti.total_qty','ti.transfer_date','ti.transfer_number','ti.created_by',
-        'b.batch_no','p.name as product_name','ts.name as to_site','c.name as category_name','tl.name as to_location');
+        'b.batch_no','b.batch_start_date','m.material_name','ts.name as to_site','ic.name as class_name','tl.name as to_location');
 
         //search query
         if (!empty($this->_memo_no)) {
             $query->where('ti.memo_no', 'like', '%' . $this->_memo_no . '%');
         }
-
+        if (!empty($this->_batch_id)) {
+            $query->where('ti.batch_id', $this->_batch_id);
+        }
         if (!empty($this->_from_date)) {
             $query->where('ti.transfer_date', '>=',$this->_from_date);
         }

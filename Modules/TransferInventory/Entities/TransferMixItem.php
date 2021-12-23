@@ -2,6 +2,7 @@
 
 namespace Modules\TransferInventory\Entities;
 
+use App\Models\ItemClass;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Location;
 use Illuminate\Database\Eloquent\Model;
@@ -25,5 +26,9 @@ class TransferMixItem extends Model
     public function material()
     {
         return $this->belongsTo(Material::class,'material_id','id');
+    }
+    public function item_class()
+    {
+        return $this->belongsTo(ItemClass::class,'item_class_id','id');
     }
 }

@@ -40,21 +40,21 @@
                             <x-form.selectbox labelName="WIP Batch" name="batch_id" required="required"  class="selectpicker" col="col-md-3">
                                 @if (!$batches->isEmpty())
                                     @foreach ($batches as $batch)
-                                        <option value="{{ $batch->id }}">{{ $batch->batch_no }}</option>
+                                        <option value="{{ $batch->id }}">{{ date('d-m-Y',strtotime($batch->batch_start_date)).' - '.$batch->batch_no }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="Mix Item" name="product_id" onchange="setCategory()" required="required" class="selectpicker" col="col-md-3">
-                                @if(!$products->isEmpty())  
-                                    @foreach ($products as $product)
-                                        <option value="{{ $product->id }}" data-category="{{ $product->category_id }}">{{ $product->name }}</option>
+                            <x-form.selectbox labelName="Mix Item" name="material_id" required="required" class="selectpicker" col="col-md-3">
+                                @if(!$materials->isEmpty())  
+                                    @foreach ($materials as $material)
+                                        <option value="{{ $material->id }}" >{{ $material->material_name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="Mix Class" name="category_id" required="required" class="selectpicker" col="col-md-3">
-                                @if(!$categories->isEmpty())  
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            <x-form.selectbox labelName="Mix Class" name="item_class_id" class="selectpicker" col="col-md-3">
+                                @if (!$classes->isEmpty())
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
@@ -113,8 +113,17 @@
 
                                                 </select>
                                             </td>    
-                                            <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                            <td class="category_name_1 text-center" style="width: 120px;" id="category_name_1"  data-row="1"></td>
+                                            <td style="width: 250px;"><input type="text" class="form-control" style="width: 250px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
+                                            <td>
+                                                <select name="materials[1][item_class_id]" id="materials_1_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+                                                    @if (!$classes->isEmpty())
+                                                        @foreach ($classes as $class)
+                                                            <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </td>
                                             <td class="unit_name_1 text-center" style="min-width: 80px;" id="unit_name_1"  data-row="1"></td>
                                             <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[1][available_qty]" id="materials_1_available_qty" readonly  data-row="1"></td>
                                             <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(1)" name="materials[1][qty]" id="materials_1_qty"  data-row="1"></td>
@@ -189,7 +198,16 @@ $(document).ready(function () {
                             </select>
                         </td>    
                         <td style="width: 350px;"><input type="text" class="form-control" style="width: 350px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
-                        <td class="category_name_${count} text-center" style="width: 120px;" id="category_name_${count}"  data-row="${count}"></td>
+                        <td>
+                            <select name="materials[${count}][item_class_id]" id="materials_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                                <option value="">Select Please</option>                                        
+                                @if (!$classes->isEmpty())
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>
                         <td class="unit_name_${count} text-center" style="min-width: 80px;" id="unit_name_${count}"  data-row="${count}"></td>
                         <td style="width: 120px;"><input type="text" class="form-control text-center" style="width: 120px;" name="materials[${count}][available_qty]" id="materials_${count}_available_qty" readonly  data-row="${count}"></td>
                         <td style="width: 120px;"><input type="text" class="form-control qty text-center" style="width: 120px;" onkeyup="checkQty(${count})" name="materials[${count}][qty]" id="materials_${count}_qty"  data-row="${count}"></td>
@@ -199,17 +217,12 @@ $(document).ready(function () {
         $('#material_table .selectpicker').selectpicker();
     }
 });
-function setCategory(){
-    $('#category_id').val($(`#product_id option:selected`).data('category'));
-    $('#category_id.selectpicker').selectpicker('refresh');
-}
+
 function setMaterialDetails(row){
     let stock_qty     = $(`#materials_${row}_id option:selected`).data('stockqty');
     let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
-    let category_name = $(`#materials_${row}_id option:selected`).data('category');
 
     $(`.unit_name_${row}`).text(unit_name);
-    $(`.category_name_${row}`).text(category_name);
     $(`#materials_${row}_available_qty`).val(stock_qty);
 } 
 function checkQty(row)

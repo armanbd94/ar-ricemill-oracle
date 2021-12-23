@@ -146,11 +146,11 @@ $(document).ready(function(){
             "url": "{{route('transfer.inventory.datatable.data')}}",
             "type": "POST",
             "data": function (data) {
-                data.memo_no      = $("#form-filter #memo_no").val();
-                data.batch_id      = $("#form-filter #batch_id").val();
-                data.from_date       = $("#form-filter #from_date").val();
-                data.to_date         = $("#form-filter #to_date").val();
-                data._token          = _token;
+                data.memo_no   = $("#form-filter #memo_no").val();
+                data.batch_id  = $("#form-filter #batch_id").val();
+                data.from_date = $("#form-filter #from_date").val();
+                data.to_date   = $("#form-filter #to_date").val();
+                data._token    = _token;
             }
         },
         "columnDefs": [{
