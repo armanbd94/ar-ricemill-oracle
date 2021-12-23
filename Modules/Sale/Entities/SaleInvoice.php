@@ -17,7 +17,7 @@ class SaleInvoice extends BaseModel
     public function products()
     {
         return $this->belongsToMany(Product::class,'sale_invoice_products','sale_id','product_id','id','id')
-        ->withPivot('id', 'site_id', 'location_id','qty','net_unit_price','total','description')
+        ->withPivot('id','item_class_id', 'site_id', 'location_id','qty','net_unit_price','total','description')
         ->withTimeStamps(); 
     }
     public function order()

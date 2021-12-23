@@ -4,14 +4,15 @@ namespace Modules\Sale\Http\Controllers;
 
 use Exception;
 use App\Models\Category;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Sale\Entities\SaleOrder;
 use Modules\Customer\Entities\Customer;
 use App\Http\Controllers\BaseController;
 use Modules\Sale\Entities\SaleOrderProduct;
-use Modules\Sale\Http\Requests\SaleOrderFormRequest;
 use Modules\ViaCustomer\Entities\ViaCustomer;
+use Modules\Sale\Http\Requests\SaleOrderFormRequest;
 
 class SaleController extends BaseController
 {
@@ -105,7 +106,8 @@ class SaleController extends BaseController
             $this->setPageData('Sale Order Form','Sale Order Form','fab fa-opencart',[['name' => 'Sale Order Form']]);
             $data = [
                 'customers'    => Customer::allCustomers(),
-                'categories'   => Category::with('products')->whereHas('products')->where('type',2)->orderBy('id','desc')->get()
+                'categories'   => Category::with('products')->whereHas('products')->where('type',2)->orderBy('id','desc')->get(),
+                'classes'      => ItemClass::allItemClass()
             ];
             return view('sale::sale-order.create',$data);
         }else{
@@ -144,6 +146,7 @@ class SaleController extends BaseController
                                 $products[] = [
                                     'sale_id'          => $saleOrder->id,
                                     'product_id'       => $value['id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'qty'              => $value['qty'],
                                     'net_unit_price'   => $value['net_unit_price'],
                                     'total'            => $value['subtotal'],
@@ -195,7 +198,8 @@ class SaleController extends BaseController
                 'sale'  => $sale,
                 'customers'    => Customer::allCustomers(),
                 'categories'   => Category::with('products')->whereHas('products')->where('type',2)->orderBy('id','desc')->get(),
-                'via_customers'=> ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get()
+                'via_customers'=> ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('sale::sale-order.edit',$data);
         }else{
@@ -232,6 +236,7 @@ class SaleController extends BaseController
                         foreach ($request->products as $key => $value) {
 
                             $products[$value['id']] = [
+                                'item_class_id'    => $value['item_class_id'],
                                 'qty'              => $value['qty'],
                                 'net_unit_price'   => $value['net_unit_price'],
                                 'total'            => $value['subtotal'],

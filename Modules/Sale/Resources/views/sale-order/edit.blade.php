@@ -85,6 +85,7 @@
                                         <th class="text-center">Qty</th>
                                         <th class="text-right">Rate</th>
                                         <th class="text-right">Subtotal</th>
+                                        <th class="text-center">Class</th>
                                         <th class="text-center"><i class="fas fa-trash text-white"></i></th>
                                     </thead>
                                     <tbody>
@@ -111,6 +112,16 @@
                                                 <td style="width: 200px;"><input type="text" class="form-control qty text-center" style="width: 200px;margin: 0 auto;" onkeyup="calculateRowTotal({{ $key+1 }})" name="products[{{ $key+1 }}][qty]"  value="{{ $value->pivot->qty }}" id="products_{{ $key+1 }}_qty"  data-row="{{ $key+1 }}"></td>
                                                 <td style="width: 200px;"><input type="text" style="width: 200px;margin: 0 auto;" class="text-right form-control net_unit_price" value="{{ $value->pivot->net_unit_price }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="products[{{ $key+1 }}][net_unit_price]" id="products_{{ $key+1 }}_net_unit_price" data-row="{{ $key+1 }}"></td>
                                                 <td class="subtotal_{{ $key+1 }} text-right" id="sub_total_{{ $key+1 }}" data-row="{{ $key+1 }}">{{ $value->pivot->total }}</td>
+                                                <td style="width:250px;">
+                                                    <select name="products[{{ $key + 1 }}][item_class_id]" style="width:250px;" id="products_{{ $key + 1 }}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="{{ $key + 1 }}">    
+                                                        <option value="">Select Please</option>                                        
+                                                        @if (!$classes->isEmpty())
+                                                            @foreach ($classes as $class)
+                                                                <option value="{{ $class->id }}" {{ $class->id == $value->pivot->item_class_id ? 'selected' : '' }}>{{ $class->name }}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                </td>
                                                 <td class="text-center" data-row="{{ $key+1 }}">
                                                     @if($key != 0)
                                                     <button type="button" class="btn btn-danger btn-sm remove-product"><i class="fas fa-trash"></i></button>
@@ -126,6 +137,7 @@
                                         <th id="total-qty" class="text-center font-weight-bolder">{{ $sale->total_qty }}</th>
                                         <th></th>
                                         <th id="total" class="text-right font-weight-bolder">{{ $sale->grand_total}}</th>
+                                        <th></th>
                                         <th class="text-center"><button type="button" data-toggle="tooltip" data-theme="dark" title="Add More" class="btn btn-success btn-sm add-product"><i class="fas fa-plus"></i></button></th>
                                     </tfoot>
                                 </table>
@@ -193,6 +205,16 @@ $(document).ready(function () {
                         <td style="width: 200px;"><input type="text" class="form-control qty text-center" style="width: 200px;margin: 0 auto;" onkeyup="calculateRowTotal(${count})" name="products[${count}][qty]" id="products_${count}_qty"  data-row="${count}"></td>
                         <td style="width: 200px;"><input type="text" style="width:200px;margin: 0 auto;" class="text-right form-control net_unit_price" onkeyup="calculateRowTotal(${count})" name="products[${count}][net_unit_price]" id="products_${count}_net_unit_price" data-row="${count}"></td>
                         <td class="subtotal_${count} text-right" id="sub_total_${count}" data-row="${count}"></td>
+                        <td>
+                            <select name="products[${count}][item_class_id]" id="products_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                                <option value="">Select Please</option>                                        
+                                @if (!$classes->isEmpty())
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>
                         <td class="text-center" data-row="${count}"><button type="button" class="btn btn-danger btn-sm remove-product"><i class="fas fa-trash"></i></button></td>
                         <input type="hidden" class="subtotal" id="products_${count}_subtotal" name="products[${count}][subtotal]" data-row="${count}">
                     </tr>`;

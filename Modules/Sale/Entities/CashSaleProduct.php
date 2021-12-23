@@ -2,6 +2,7 @@
 
 namespace Modules\Sale\Entities;
 
+use App\Models\ItemClass;
 use Modules\Setting\Entities\Site;
 use Modules\Sale\Entities\CashSale;
 use Modules\Product\Entities\Product;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class CashSaleProduct extends Model
 {
     protected $fillable = [
-        'sale_id','site_id','location_id','product_id','qty','net_unit_price','total','description'
+        'sale_id','site_id','location_id','product_id','item_class_id','qty','net_unit_price','total','description'
     ];
 
     public function cash_sale()
@@ -29,6 +30,10 @@ class CashSaleProduct extends Model
     public function location()
     {
         return $this->belongsTo(Location::class,'location_id','id'); 
+    }
+    public function class()
+    {
+        return $this->belongsTo(ItemClass::class,'item_class_id','id')->withDefault(['name'=>'']); 
     }
 
 }

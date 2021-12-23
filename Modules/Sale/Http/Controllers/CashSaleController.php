@@ -3,6 +3,7 @@
 namespace Modules\Sale\Http\Controllers;
 
 use Exception;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -97,7 +98,8 @@ class CashSaleController extends BaseController
             $this->setPageData('Cash Sale Form','Cash Sale Form','fab fa-opencart',[['name' => 'Cash Sale Form']]);
             $data = [
                 'sites'    => Site::allSites(),
-                'coas'     => ChartOfAccount::whereNotIn('code',['1020102','1020103'])->where('parent_name','Cash & Cash Equivalent')->get()
+                'coas'     => ChartOfAccount::whereNotIn('code',['1020102','1020103'])->where('parent_name','Cash & Cash Equivalent')->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
 
             return view('sale::cash-sale.create',$data);
@@ -138,6 +140,7 @@ class CashSaleController extends BaseController
                                     'product_id'       => $value['id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'qty'              => $value['qty'],
                                     'net_unit_price'   => $value['net_unit_price'],
                                     'total'            => $value['subtotal'],
@@ -207,7 +210,8 @@ class CashSaleController extends BaseController
             $data = [
                 'sale'  => $this->model->with('products')->find($id),
                 'sites'     => Site::allSites(),
-                'coas'     => ChartOfAccount::whereNotIn('code',['1020102','1020103'])->where('parent_name','Cash & Cash Equivalent')->get()
+                'coas'     => ChartOfAccount::whereNotIn('code',['1020102','1020103'])->where('parent_name','Cash & Cash Equivalent')->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('sale::cash-sale.edit',$data);
         }else{
@@ -263,6 +267,7 @@ class CashSaleController extends BaseController
                             $products[$value['id']] = [
                                 'site_id'          => $value['site_id'],
                                 'location_id'      => $value['location_id'],
+                                'item_class_id'    => $value['item_class_id'],
                                 'qty'              => $value['qty'],
                                 'net_unit_price'   => $value['net_unit_price'],
                                 'total'            => $value['subtotal'],

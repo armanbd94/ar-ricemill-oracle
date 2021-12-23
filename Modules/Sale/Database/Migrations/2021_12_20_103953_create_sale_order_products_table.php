@@ -19,6 +19,8 @@ class CreateSaleOrderProductsTable extends Migration
             $table->foreign('sale_id')->references('id')->on('sale_orders');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedBigInteger('item_class_id');
+            $table->foreign('item_class_id')->references('id')->on('item_classes');
             $table->double('qty',12,0);
             $table->double('net_unit_price',12,0);
             $table->double('total',12,0);

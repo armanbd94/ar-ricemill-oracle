@@ -3,6 +3,7 @@
 namespace Modules\Sale\Http\Controllers;
 
 use Exception;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -128,7 +129,8 @@ class SaleInvoiceController extends BaseController
                         'sale'          => $sale,
                         'sites'         => Site::allSites(),
                         'customers'     => Customer::allCustomers(),
-                        'via_customers' => ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get()
+                        'via_customers' => ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get(),
+                        'classes'   => ItemClass::allItemClass()
                     ];
                     return view('sale::sale-invoice.create',$data);
                 }else{
@@ -182,6 +184,7 @@ class SaleInvoiceController extends BaseController
                                 $products[] = [
                                     'sale_id'          => $saleInvoice->id,
                                     'product_id'       => $value['id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
                                     'qty'              => $value['qty'],
@@ -274,7 +277,8 @@ class SaleInvoiceController extends BaseController
                 'sites'   => Site::allSites(),
                 'invoice' => $invoice,
                 'customers'     => Customer::allCustomers(),
-                'via_customers' => ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get()
+                'via_customers' => ViaCustomer::where([['customer_id',$sale->customer_id],['status',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('sale::sale-invoice.edit',$data);
         }else{
@@ -329,6 +333,7 @@ class SaleInvoiceController extends BaseController
                         foreach ($request->products as $key => $value) {
 
                             $products[$value['id']] = [
+                                'item_class_id'    => $value['item_class_id'],
                                 'site_id'          => $value['site_id'],
                                 'location_id'      => $value['location_id'],
                                 'qty'              => $value['qty'],
