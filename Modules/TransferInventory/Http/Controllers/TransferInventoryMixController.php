@@ -3,13 +3,14 @@
 namespace Modules\TransferInventory\Http\Controllers;
 
 use Exception;
+use App\Models\Category;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
 use Modules\Product\Entities\Product;
 use App\Http\Controllers\BaseController;
-use App\Models\Category;
 use Modules\Material\Entities\SiteMaterial;
 use Modules\TransferInventory\Entities\TransferMixItem;
 use Modules\TransferInventory\Entities\TransferMixInventory;
@@ -99,7 +100,7 @@ class TransferInventoryMixController extends BaseController
                 'batches' => Batch::allBatches(),
                 'sites'     => Site::allSites(),
                 'products' => Product::with('category')->where('status',1)->get(),
-                'categories'     => Category::allProductCategories(),
+                'classes'   => ItemClass::allItemClass()
             ];
             
             return view('transferinventory::transfer-inventory-mix.create',$data);
@@ -138,6 +139,7 @@ class TransferInventoryMixController extends BaseController
                                 $materials[] = [
                                     'transfer_id'      => $transferData->id,
                                     'material_id'      => $value['id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'from_site_id'     => $value['from_site_id'],
                                     'from_location_id' => $value['from_location_id'],
                                     'qty'              => $value['qty'],
@@ -220,7 +222,7 @@ class TransferInventoryMixController extends BaseController
                 'batches'    => Batch::allBatches(),
                 'sites'      => Site::allSites(),
                 'products'   => Product::with('category')->where('status',1)->get(),
-                'categories' => Category::allProductCategories(),
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('transferinventory::transfer-inventory-mix.edit',$data);
         }else{
@@ -285,6 +287,7 @@ class TransferInventoryMixController extends BaseController
                         foreach ($request->materials as $key => $value) {
 
                             $materials[$value['id']] = [
+                                'item_class_id'     => $value['item_class_id'],
                                 'from_site_id'     => $value['from_site_id'],
                                 'from_location_id' => $value['from_location_id'],
                                 'qty'              => $value['qty'],

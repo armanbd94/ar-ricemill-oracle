@@ -38,7 +38,7 @@
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>WIP Batch</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $transfer->batch->batch_no }}</div>
+                                <div class="col-md-8"><b>:</b> {{ $transfer->batch->batch_no.' ('.date('d-m-Y',strtotime($transfer->batch->batch_start_date)).')' }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -95,11 +95,19 @@
                                 </thead>
                                 <tbody>
                                     @if (!$transfer->materials->isEmpty())
-                                        @foreach ($transfer->materials as $item)
+                                        @foreach ($transfer->materials as $item)\
+                                        @php
+                                            $class_name = '';
+                                            if($item->pivot->item_class_id)
+                                            {
+                                                $class_name = DB::table('item_classes')->where('id',$item->pivot->item_class_id)->value('name');
+                                            }
+                                            
+                                        @endphp
                                             <tr>
                                                 <td>{{ $item->material_name }}</td>
                                                 <td>{{ $item->pivot->description }}</td>
-                                                <td class="text-center">{{ $item->category->name }}</td>
+                                                <td class="text-center">{{ $class_name }}</td>
                                                 <td class="text-center">{{ $item->unit->unit_name }}</td>
                                                 <td class="text-center">{{ $item->pivot->qty }}</td>
                                             </tr>

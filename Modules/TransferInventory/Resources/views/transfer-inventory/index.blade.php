@@ -40,7 +40,14 @@
                                 <input type="hidden" id="to_date" name="to_date">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <x-form.selectbox labelName="WIP Batch" name="batch_id"  class="selectpicker" col="col-md-3">
+                            @if (!$batches->isEmpty())
+                                @foreach ($batches as $batch)
+                                    <option value="{{ $batch->id }}">{{ date('d-m-Y',strtotime($batch->batch_start_date)).' - '.$batch->batch_no }}</option>
+                                @endforeach
+                            @endif
+                        </x-form.selectbox>
+                        <div class="col-md-3">
                             <div style="margin-top:28px;">    
                                 <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -140,6 +147,7 @@ $(document).ready(function(){
             "type": "POST",
             "data": function (data) {
                 data.memo_no      = $("#form-filter #memo_no").val();
+                data.batch_id      = $("#form-filter #batch_id").val();
                 data.from_date       = $("#form-filter #from_date").val();
                 data.to_date         = $("#form-filter #to_date").val();
                 data._token          = _token;
@@ -170,12 +178,12 @@ $(document).ready(function(){
 
         "buttons": [
             {
-                'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
+                'extend':'colvis','className':'btn btn-secondary btn-sm text-white custom-btn','text':'Column','columns': ':gt(0)'
             },
             {
                 "extend": 'print',
                 'text':'Print',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
@@ -198,7 +206,7 @@ $(document).ready(function(){
             {
                 "extend": 'csv',
                 'text':'CSV',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
@@ -212,7 +220,7 @@ $(document).ready(function(){
             {
                 "extend": 'excel',
                 'text':'Excel',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
@@ -226,7 +234,7 @@ $(document).ready(function(){
             {
                 "extend": 'pdf',
                 'text':'PDF',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "orientation": "landscape", //portrait
@@ -246,7 +254,7 @@ $(document).ready(function(){
             },
             @if (permission('transfer-inventory-bulk-delete'))
             {
-                'className':'btn btn-danger btn-sm delete_btn d-none text-white',
+                'className':'btn btn-danger btn-sm delete_btn d-none text-white custom-btn',
                 'text':'Delete',
                 action:function(e,dt,node,config){
                     multi_delete();

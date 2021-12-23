@@ -3,6 +3,7 @@
 namespace Modules\TransferInventory\Http\Controllers;
 
 use Exception;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -25,7 +26,8 @@ class TransferInventoryController extends BaseController
     {
         if(permission('transfer-inventory-access')){
             $this->setPageData('Manage Transfer Inventory','Manage Transfer Inventory','fas fa-people-carry',[['name' => 'Manage Transfer Inventory']]);
-            return view('transferinventory::transfer-inventory.index');
+            $batches   = Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get();
+            return view('transferinventory::transfer-inventory.index',compact('batches'));
         }else{
             return $this->access_blocked();
         }
@@ -38,6 +40,9 @@ class TransferInventoryController extends BaseController
 
                 if (!empty($request->memo_no)) {
                     $this->model->setMemoNo($request->memo_no);
+                }
+                if (!empty($request->batch_id)) {
+                    $this->model->setBatchID($request->batch_id);
                 }
                 if (!empty($request->from_date)) {
                     $this->model->setFromDate($request->from_date);
@@ -70,7 +75,7 @@ class TransferInventoryController extends BaseController
                     }
                     $row[] = $no;
                     $row[] = $value->memo_no;
-                    $row[] = $value->batch_no;
+                    $row[] = $value->batch_no.' ('.date('d-m-Y',strtotime($value->batch_start_date)).')';
                     $row[] = $value->from_site;
                     $row[] = $value->from_location;
                     $row[] = $value->to_site;
@@ -96,11 +101,11 @@ class TransferInventoryController extends BaseController
         if(permission('transfer-inventory-add')){
             $this->setPageData('Transfer Inventory Form','Transfer Inventory Form','fas fa-people-carry',[['name' => 'Transfer Inventory Form']]);
             $data = [
-                'batches' => Batch::allBatches(),
+                'batches'   => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'     => Site::allSites(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
-            
             return view('transferinventory::transfer-inventory.create',$data);
         }else{
             return $this->access_blocked();
@@ -137,6 +142,7 @@ class TransferInventoryController extends BaseController
                                 $materials[] = [
                                     'transfer_id'      => $transferData->id,
                                     'material_id'      => $value['id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'qty'              => $value['qty'],
                                     'description'      => $value['description'],
                                     'created_at'       => date('Y-m-d H:i:s')
@@ -213,9 +219,11 @@ class TransferInventoryController extends BaseController
             $this->setPageData('Edit Transfer Inventory','Edit Transfer Inventory','fas fa-edit',[['name' => 'Edit Transfer Inventory']]);
             $data = [
                 'transfer'  => $this->model->with('materials')->find($id),
-                'batches'   => Batch::allBatches(),
+                'batches'   => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'     => Site::allSites(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
+                
             ];
             return view('transferinventory::transfer-inventory.edit',$data);
         }else{
@@ -280,6 +288,7 @@ class TransferInventoryController extends BaseController
                         foreach ($request->materials as $key => $value) {
 
                             $materials[$value['id']] = [
+                                'item_class_id'    => $value['item_class_id'],
                                 'qty'              => $value['qty'],
                                 'description'      => $value['description'],
                                 'created_at'       => date('Y-m-d H:i:s')
