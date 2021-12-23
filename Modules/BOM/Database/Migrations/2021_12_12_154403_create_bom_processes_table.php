@@ -28,6 +28,12 @@ class CreateBomProcessesTable extends Migration
             $table->foreign('to_location_id')->references('id')->on('locations');
             $table->unsignedBigInteger('from_product_id');
             $table->foreign('from_product_id')->references('id')->on('products');
+            $table->unsignedBigInteger('item_class_id');
+            $table->foreign('item_class_id')->references('id')->on('item_classes');
+            $table->unsignedBigInteger('from_site_id');
+            $table->foreign('from_site_id')->references('id')->on('sites');
+            $table->unsignedBigInteger('from_location_id');
+            $table->foreign('from_location_id')->references('id')->on('locations');
             $table->string('product_particular')->nullable();
             $table->float('product_per_unit_qty',8,0);
             $table->double('product_required_qty',12,0);
@@ -37,6 +43,8 @@ class CreateBomProcessesTable extends Migration
             $table->foreign('bag_location_id')->references('id')->on('locations');
             $table->unsignedBigInteger('bag_id');
             $table->foreign('bag_id')->references('id')->on('materials');
+            $table->unsignedBigInteger('bag_class_id');
+            $table->foreign('bag_class_id')->references('id')->on('item_classes');
             $table->string('bag_particular')->nullable();
             $table->float('bag_per_unit_qty',8,0);
             $table->double('bag_required_qty',12,0);

@@ -40,6 +40,10 @@ class CreateBomRePackingsTable extends Migration
             $table->double('product_qty',12,8);
             $table->double('bag_qty',12,8);
             $table->date('packing_date');
+            $table->unsignedBigInteger('item_class_id');
+            $table->foreign('item_class_id')->references('id')->on('item_classes');
+            $table->unsignedBigInteger('bag_class_id');
+            $table->foreign('bag_class_id')->references('id')->on('item_classes');
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();
             $table->timestamps();
