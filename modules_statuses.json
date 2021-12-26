@@ -18,5 +18,6 @@
     "BuildDisassembly": true,
     "BOM": true,
     "BuildReProcess": true,
-    "Sale": true
+    "Sale": true,
+    "Report": true
 }
