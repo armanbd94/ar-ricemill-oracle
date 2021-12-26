@@ -56,7 +56,7 @@
                             </div>
                             <x-form.textbox labelName="Number" name="packing_number" required="required" value="{{ $data->packing_number }}" col="col-md-4"/>
 
-                            <div class="col-md-12 pt-5 material_section table-responsive" style="min-height: 350px;">
+                            <div class="col-md-12 pt-5 material_section table-responsive" style="min-height: 550px;">
                                 <table class="table table-bordered">
                                     <thead class="bg-primary">
                                         <th>From Site</th>
@@ -65,6 +65,7 @@
                                         <th class="text-center">Available Qty</th>
                                         <th>Description</th>
                                         <th class="text-center">Converted Qty</th>
+                                        <th class="text-center">Class</th>
                                     </thead>
                                     <tbody>
                                         <tr>
@@ -112,6 +113,16 @@
                                             <td class="text-center">
                                                 <input type="text" name="product_qty" id="product_qty" value="{{ $data->product_qty }}" class="form-control text-right">
                                             </td>
+                                            <td style="width:250px;">
+                                                <select name="item_class_id"  style="width:250px;" id="item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+                                                    @if (!$classes->isEmpty())
+                                                        @foreach ($classes as $class)
+                                                            <option value="{{ $class->id }}" {{ $data->item_class_id == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td  style="width: 300px;">
@@ -157,6 +168,16 @@
                                             </td>
                                             <td class="text-center">
                                                 <input type="text" name="bag_qty" id="bag_qty" value="{{ $data->bag_qty }}" class="form-control text-right">
+                                            </td>
+                                            <td style="width:250px;">
+                                                <select name="bag_class_id"  style="width:250px;" id="bag_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+                                                    @if (!$classes->isEmpty())
+                                                        @foreach ($classes as $class)
+                                                            <option value="{{ $class->id }}" {{ $data->bag_class_id == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
                                             </td>
                                         </tr>
                                     </tbody>

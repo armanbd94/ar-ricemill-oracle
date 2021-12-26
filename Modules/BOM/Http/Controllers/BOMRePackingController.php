@@ -3,6 +3,7 @@
 namespace Modules\BOM\Http\Controllers;
 
 use Exception;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -97,7 +98,8 @@ class BOMRePackingController extends BaseController
             $this->setPageData('BOM Re Packing Form','BOM Re Packing Form','fas fa-box',[['name' => 'BOM Re Packing Form']]);
             $data = [
                 'sites'      => Site::allSites(),
-                'products'   => Product::where([['status',1],['category_id','!=',3]])->get(),
+                'products'   => Product::where([['status',1],['category_id',5]])->get(),
+                'classes'    => ItemClass::allItemClass()
             ];
             return view('bom::bom-re-packing.create',$data);
         }else{
@@ -129,6 +131,8 @@ class BOMRePackingController extends BaseController
                         'product_qty'         => $request->product_qty,
                         'bag_qty'             => $request->bag_qty,
                         'packing_date'        => $request->packing_date,
+                        'item_class_id'       => $request->item_class_id,
+                        'bag_class_id'        => $request->bag_class_id,
                         'created_by'          => auth()->user()->name
                     ]);
 
@@ -205,7 +209,7 @@ class BOMRePackingController extends BaseController
     {
         if(permission('bom-re-packing-view')){
             $this->setPageData('BOM Re Packing Details','BOM Re Packing Details','fas fa-file',[['name'=>'BOM','link' => 'javascript::void();'],['name' => 'BOM Re Packing Details']]);
-            $data = $this->model->with('from_site','from_location','from_product','to_site','to_location','to_product','bag_site','bag_location','bag')->find($id);
+            $data = $this->model->with('from_site','from_location','from_product','to_site','to_location','to_product','bag_site','bag_location','bag','product_class','bag_class')->find($id);
             return view('bom::bom-re-packing.details',compact('data'));
         }else{
             return $this->access_blocked();
@@ -220,7 +224,8 @@ class BOMRePackingController extends BaseController
             $data = [
                 'data'          => $bom_re_packing,
                 'sites'         => Site::allSites(),
-                'products'      => Product::where([['status',1],['category_id','!=',3]])->get(),
+                'products'      => Product::where([['status',1],['category_id',5]])->get(),
+                'classes'       => ItemClass::allItemClass(),
                 'site_products' => DB::table('site_product as sp')
                                     ->select('p.id','p.name as product_name','c.name as category_name','u.unit_name','u.unit_code','sp.qty')
                                     ->leftJoin('products as p','sp.product_id','=','p.id')
@@ -275,6 +280,8 @@ class BOMRePackingController extends BaseController
                         'product_qty'         => $request->product_qty,
                         'bag_qty'             => $request->bag_qty,
                         'packing_date'        => $request->packing_date,
+                        'item_class_id'       => $request->item_class_id,
+                        'bag_class_id'        => $request->bag_class_id,
                         'modified_by'         => auth()->user()->name
                     ];
                     if($bomRePackingData)

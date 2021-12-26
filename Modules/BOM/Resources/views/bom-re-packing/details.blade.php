@@ -80,6 +80,7 @@
                                     <th>Item</th>
                                     <th>Description</th>
                                     <th class="text-center">Converted Qty</th>
+                                    <th class="text-center">Class</th>
                                 </thead>
                                 <tbody>
                                     <tr>
@@ -88,6 +89,7 @@
                                         <td>{{ $data->from_product->name }}</td>
                                         <td>{{ $data->product_description }}</td>
                                         <td class="text-center">{{ $data->product_qty }}</td>
+                                        <td class="text-center">{{ $data->product_class->name }}</td>
                                     </tr>
                                     <tr>
                                         <td>{{ $data->bag_site->name }}</td>
@@ -95,6 +97,7 @@
                                         <td>{{ $data->bag->material_name }}</td>
                                         <td>{{ $data->bag_description }}</td>
                                         <td class="text-center">{{ $data->bag_qty }}</td>
+                                        <td class="text-center">{{ $data->bag_class->name }}</td>
                                     </tr>
                                 </tbody>
                             </table>

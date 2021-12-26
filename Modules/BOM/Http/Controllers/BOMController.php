@@ -3,7 +3,7 @@
 namespace Modules\BOM\Http\Controllers;
 
 use Exception;
-use App\Models\Category;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -14,7 +14,6 @@ use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
 use Modules\Product\Entities\SiteProduct;
 use Modules\Material\Entities\SiteMaterial;
-use Modules\BuildDisassembly\Entities\SiloProduct;
 use Modules\BOM\Http\Requests\BOMProcessFormRequest;
 
 class BOMController extends BaseController
@@ -103,11 +102,12 @@ class BOMController extends BaseController
             $data = [
                 'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
-                'products'   => Product::where([['status',1],['category_id','!=',3]])->get(),
-                'silo_products'   => DB::table('silo_products as sp')
-                ->select('sp.qty','p.id','p.name')
-                ->join('products as p','sp.product_id','=','p.id')->get(),
-                'categories' => Category::allProductCategories(),
+                'products'   => Product::where('status',1)
+                ->where(function($q){
+                    $q->where('category_id',4)->orWhere('category_id',5);
+                })
+                ->get(),
+                'classes'    => ItemClass::allItemClass()
             ];
             return view('bom::bom-process.create',$data);
         }else{
@@ -222,7 +222,7 @@ class BOMController extends BaseController
     {
         if(permission('bom-process-view')){
             $this->setPageData('BOM Process Details','BOM Process Details','fas fa-file',[['name'=>'BOM','link' => 'javascript::void();'],['name' => 'BOM Process Details']]);
-            $data = $this->model->with('batch','from_site','from_location','to_site','to_location','bag_site','bag_location','bag','from_product','to_product')->find($id);
+            $data = $this->model->with('batch','from_site','from_location','to_site','to_location','bag_site','bag_location','bag','from_product','to_product','bag_class','product_class')->find($id);
             return view('bom::bom-process.details',compact('data'));
         }else{
             return $this->access_blocked();
@@ -238,11 +238,16 @@ class BOMController extends BaseController
                 'data'       => $bom_process,
                 'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
-                'products'   => Product::where([['status',1],['category_id','!=',3]])->get(),
-                'silo_products'   => DB::table('silo_products as sp')
-                ->select('sp.qty','p.id','p.name')
-                ->join('products as p','sp.product_id','=','p.id')->get(),
-                'categories' => Category::allProductCategories(),
+                'products'   => Product::where('status',1)
+                ->where(function($q){
+                    $q->where('category_id',4)->orWhere('category_id',5);
+                })->get(),
+                'from_product_qty' => DB::table('site_product')->where([
+                    'site_id'     => $bom_process->from_site_id,
+                    'location_id' => $bom_process->from_location_id,
+                    'product_id' => $bom_process->from_product_id,
+                ])->value('qty'),
+                'classes'   => ItemClass::allItemClass(),
                 'bags' => DB::table('site_material as sm')
                 ->select('m.id','m.material_name','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
                 ->leftJoin('materials as m','sm.material_id','=','m.id')
@@ -254,6 +259,7 @@ class BOMController extends BaseController
                     'm.type'         => 2
                 ])->get()
             ];
+           
             return view('bom::bom-process.edit',$data);
         }else{
             return $this->access_blocked();

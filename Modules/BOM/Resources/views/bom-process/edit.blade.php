@@ -37,7 +37,7 @@
                             <x-form.selectbox labelName="WIP Batch" name="batch_id" required="required"  class="selectpicker" col="col-md-3">
                                 @if (!$batches->isEmpty())
                                     @foreach ($batches as $batch)
-                                        <option value="{{ $batch->id }}" {{ $data->batch_id == $batch->id ? 'selected' : '' }}>{{ $batch->batch_no }}</option>
+                                        <option value="{{ $batch->id }}" {{ $data->batch_id == $batch->id ? 'selected' : '' }}>{{ $batch->batch_no.' ('.date('d-m-Y',strtotime($batch->batch_start_date)).')' }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
@@ -47,9 +47,16 @@
                                 <input type="text" class="form-control" name="memo_no" id="memo_no" value="{{ $data->memo_no }}" onkeyup="setParticularText(this.value)" />
                             </div>
 
-                            <x-form.textbox labelName="Assemble From Site" name="assemble_from" required="required"  value="Bulk Rice in Silo" readonly  col="col-md-3"/>
+                            <x-form.selectbox labelName="Assemble From Site" name="from_site_id" required="required" onchange="getLocations(this.value,1)" class="selectpicker"  col="col-md-3">
+                                @if(!$sites->isEmpty())  
+                                    @foreach ($sites as $site)
+                                        <option value="{{ $site->id }}" {{ $data->from_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
+                            <x-form.selectbox labelName="Assemble From Location" name="from_location_id" required="required" col="col-md-3" class="selectpicker" />
 
-                            <x-form.selectbox labelName="Assemble To Site" name="to_site_id" required="required" onchange="getLocations(this.value,1)" class="selectpicker"  col="col-md-3">
+                            <x-form.selectbox labelName="Assemble To Site" name="to_site_id" required="required" onchange="getLocations(this.value,2)" class="selectpicker"  col="col-md-3">
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
                                         <option value="{{ $site->id }}" {{ $data->to_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
@@ -61,11 +68,13 @@
                             <x-form.selectbox labelName="Converted To" name="to_product_id" required="required"  col="col-md-3" class="selectpicker">
                                 @if (!$products->isEmpty())
                                     @foreach ($products as $product)
+                                        @if ($product->category_id == 5)
                                         <option value="{{ $product->id }}" {{ $data->to_product_id == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+                                        @endif
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="Bag Inventory Site" name="bag_site_id" onchange="getLocations(this.value,2)"  required="required" col="col-md-3" class="selectpicker">
+                            <x-form.selectbox labelName="Bag Inventory Site" name="bag_site_id" onchange="getLocations(this.value,3)"  required="required" col="col-md-3" class="selectpicker">
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
                                         <option value="{{ $site->id }}" {{ $data->bag_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
@@ -87,24 +96,21 @@
                                                 <th class="text-center">Particular</th>
                                                 <th class="text-center">Per Unit Qty</th>
                                                 <th class="text-center">Qty Needed</th>
+                                                <th class="text-center">Class</th>
                                             </thead>
                                             <tbody>
                                                 <tr>
                                                     @php
-                                                        $product_stock = $data->product_required_qty;
+                                                        $product_stock = $data->product_required_qty +  ($from_product_qty ?  $from_product_qty : 0);
                                                     @endphp
                                                     <td  style="width: 300px;">
                                                         <select name="from_product_id" id="from_product_id" class="form-control selectpicker" style="width: 300px;" data-live-search="true" onchange="setMaterialData(1)" data-live-search-placeholder="Search">
                                                             <option value="">Select Please</option>
-                                                            @if (!$silo_products->isEmpty())
-                                                                @foreach ($silo_products as $product)
-                                                                    <?php 
-                                                                        if($data->from_product_id == $product->id)
-                                                                        {
-                                                                            $product_stock += $product->qty ? $product->qty : 0;
-                                                                        }
-                                                                    ?>
-                                                                    <option value="{{ $product->id }}" {{ $data->from_product_id == $product->id ? 'selected' : '' }} data-stockqty="{{ $product->qty }}">{{ $product->name }}</option>
+                                                            @if (!$products->isEmpty())
+                                                                @foreach ($products as $product)
+                                                                    @if ($product->category_id == 4)
+                                                                    <option value="{{ $product->id }}" {{ $data->from_product_id == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+                                                                    @endif
                                                                 @endforeach
                                                             @endif
                                                         </select>
@@ -120,6 +126,16 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <input type="text" name="product_required_qty" id="product_required_qty" value="{{ $data->product_required_qty }}"  class="form-control text-right bg-secondary" readonly>
+                                                    </td>
+                                                    <td style="width:250px;">
+                                                        <select name="item_class_id"  style="width:250px;" id="item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                            <option value="">Select Please</option>                                        
+                                                            @if (!$classes->isEmpty())
+                                                                @foreach ($classes as $class)
+                                                                    <option value="{{ $class->id }}" {{ $data->item_class_id == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -155,14 +171,26 @@
                                                     <td class="text-center">
                                                         <input type="text" name="bag_required_qty" id="bag_required_qty" value="{{ $data->bag_required_qty }}"  class="form-control text-right bg-secondary" readonly>
                                                     </td>
+                                                    <td style="width:250px;">
+                                                        <select name="bag_class_id"  style="width:250px;" id="bag_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                            <option value="">Select Please</option>                                        
+                                                            @if (!$classes->isEmpty())
+                                                                @foreach ($classes as $class)
+                                                                    <option value="{{ $class->id }}" {{ $data->bag_class_id == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Fine Rice Quantity to Build</td>
                                                     <td><input type="text" name="total_rice_qty" id="total_rice_qty" value="{{ $data->total_rice_qty }}" onkeyup="packetRiceCalculation()" class="form-control text-right"></td>
+                                                    <td></td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Total Bag Used Quantity</td>
                                                     <td><input type="text" name="total_bag_qty" id="total_bag_qty" value="{{ $data->total_bag_qty }}"  class="form-control text-right bg-secondary" readonly></td>
+                                                    <td></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -188,9 +216,39 @@
 $(document).ready(function () {
     $('.date').datetimepicker({format: 'YYYY-MM-DD'});
 });
-getLocations("{{ $data->to_site_id }}",1,"{{ $data->to_location_id }}");
-getLocations("{{ $data->bag_site_id }}",2,"{{ $data->bag_location_id }}");
-
+getLocations("{{ $data->from_site_id }}",1,"{{ $data->from_location_id }}");
+getLocations("{{ $data->to_site_id }}",2,"{{ $data->to_location_id }}");
+getLocations("{{ $data->bag_site_id }}",3,"{{ $data->bag_location_id }}");
+function getStockQty(product_id)
+{
+    const site_id       = $(`#from_site_id option:selected`).val();
+    const location_id   = $(`#from_location_id option:selected`).val();
+    if(site_id && location_id && product_id)
+    {
+        $('#product_stock_qty').val('');
+        $.ajax({
+            url:"{{ route('product.stock.qty') }}",
+            type:"POST",
+            data:{
+                site_id:site_id,location_id:location_id,product_id:product_id,_token:_token
+            },
+            success:function(data){
+                $('#product_stock_qty').val(data);
+                $('#product_particular').val($('#memo_no').val());
+            },
+        });
+    }else{
+        if(!site_id)
+        {
+            notification('error','Please select from site first!');
+        }else if(!location_id)
+        {
+            notification('error','Please select from location first!');
+        }
+        $('#from_product_id').val('');
+        $('#from_product_id.selectpicker').selectpicker('refresh');
+    }
+}
 function bag_list(bag_id='')
 {
     const site_id       = $(`#bag_site_id option:selected`).val();
@@ -219,16 +277,10 @@ function bag_list(bag_id='')
 function setMaterialData(row)
 {
     const memo_no = $('#memo_no').val();
-    if(row == 1)
-    {
-        const qty = $('#from_product_id option:selected').data('stockqty');
-        $('#product_stock_qty').val(parseFloat(qty));
-        $('#product_particular').val(memo_no);
-    }else{
-        const qty = $('#bag_id option:selected').data('stockqty');
-        $('#bag_stock_qty').val(parseFloat(qty));
-        $('#bag_particular').val(memo_no);
-    }
+    const qty = $('#bag_id option:selected').data('stockqty');
+    $('#bag_stock_qty').val(parseFloat(qty));
+    $('#bag_particular').val(memo_no);
+    
 }
 function setParticularText(memo_no)
 {
@@ -274,6 +326,15 @@ function getLocations(site_id,selector,location_id='')
                 html += '<option value="'+ key +'">'+ value +'</option>';
             });
             if(selector == 1)
+            {
+                $(`#from_location_id`).empty().append(html);
+                $(`#from_location_id.selectpicker`).selectpicker('refresh');
+                if(location_id)
+                {
+                    $(`#from_location_id`).val(location_id);
+                    $(`#from_location_id.selectpicker`).selectpicker('refresh');
+                }
+            }else if(selector == 2)
             {
                 $(`#to_location_id`).empty().append(html);
                 $(`#to_location_id.selectpicker`).selectpicker('refresh');

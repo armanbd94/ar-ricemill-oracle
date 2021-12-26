@@ -30,13 +30,19 @@
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>WIP Batch</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $data->batch->batch_no }}</div>
+                                <div class="col-md-8"><b>:</b> {{ $data->batch->batch_no.' ('.date('d-m-Y',strtotime($data->batch->batch_start_date)).')' }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>Assemble From Site</b></div>
-                                <div class="col-md-8"><b>:</b> Bulk Rice in Silo</div>
+                                <div class="col-md-8"><b>:</b> {{ $data->from_site->name }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-4"><b>Assemble From Location</b></div>
+                                <div class="col-md-8"><b>:</b> {{ $data->from_location->name }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -90,6 +96,7 @@
                                     <th class="text-center">Particular</th>
                                     <th class="text-center">Per Unit Qty</th>
                                     <th class="text-center">Qty Needed</th>
+                                    <th class="text-center">Class</th>
                                 </thead>
                                 <tbody>
                                     <tr>
@@ -97,20 +104,24 @@
                                         <td>{{ $data->product_particular }}</td>
                                         <td class="text-right">{{ $data->product_per_unit_qty }}</td>
                                         <td class="text-right">{{ $data->product_required_qty }}</td>
+                                        <td class="text-center">{{ $data->product_class->name }}</td>
                                     </tr>
                                     <tr>
                                         <td>{{ $data->bag->material_name }}</td>
                                         <td>{{ $data->bag_particular }}</td>
                                         <td class="text-right">{{ $data->bag_per_unit_qty }}</td>
                                         <td class="text-right">{{ $data->bag_required_qty }}</td>
+                                        <td class="text-center">{{ $data->bag_class->name }}</td>
                                     </tr>
                                     <tr>
                                         <td colspan="3" class="text-right font-weight-bolder">Fine Rice Quantity to Build</td>
                                         <td class="text-right font-weight-bolder">{{ $data->total_rice_qty }}</td>
+                                        <td></td>
                                     </tr>
                                     <tr>
                                         <td colspan="3" class="text-right font-weight-bolder">Total Bag Used Quantity</td>
                                         <td class="text-right font-weight-bolder">{{ $data->total_bag_qty }}</td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>

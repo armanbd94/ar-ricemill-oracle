@@ -3,6 +3,7 @@
 namespace Modules\BOM\Entities;
 
 use App\Models\BaseModel;
+use App\Models\ItemClass;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
@@ -14,8 +15,8 @@ class BomProcess extends BaseModel
 {
     protected $fillable = [
         'memo_no','batch_id','process_number','to_product_id',
-        'to_site_id', 'to_location_id','from_product_id','product_particular','product_per_unit_qty',
-        'product_required_qty','bag_site_id','bag_location_id','bag_id','bag_particular','bag_per_unit_qty',
+        'to_site_id', 'to_location_id','from_product_id','item_class_id','from_site_id','from_location_id','product_particular','product_per_unit_qty',
+        'product_required_qty','bag_site_id','bag_location_id','bag_id','bag_class_id','bag_particular','bag_per_unit_qty',
         'bag_required_qty','total_rice_qty','total_bag_qty','process_date','created_by','modified_by','process_type'
     ];
 
@@ -35,6 +36,15 @@ class BomProcess extends BaseModel
     public function to_location()
     {
         return $this->belongsTo(Location::class,'to_location_id','id');
+    }
+    public function from_site()
+    {
+        return $this->belongsTo(Site::class,'from_site_id','id');
+    }
+
+    public function from_location()
+    {
+        return $this->belongsTo(Location::class,'from_location_id','id');
     }
 
     public function bag_site()
@@ -60,6 +70,15 @@ class BomProcess extends BaseModel
     public function to_product()
     {
         return $this->belongsTo(Product::class,'to_product_id','id');
+    }
+    public function bag_class()
+    {
+        return $this->belongsTo(ItemClass::class,'bag_class_id','id')->withDefault(['name'=>'']);
+    }
+
+    public function product_class()
+    {
+        return $this->belongsTo(ItemClass::class,'item_class_id','id')->withDefault(['name'=>'']);
     }
     /****************************
     * End :: Model Relation *

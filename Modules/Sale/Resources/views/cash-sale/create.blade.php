@@ -205,10 +205,7 @@ $(document).ready(function () {
         $('#product_table .selectpicker').selectpicker();
     }
 });
-function setProductDetails(row){
-    const stock_qty = $(`#products_${row}_id option:selected`).data('stockqty') ? parseFloat($(`#products_${row}_id option:selected`).data('stockqty')) : 0;
-    $(`#products_${row}_stock_qty`).val(stock_qty);
-} 
+
 function calculateRowTotal(row)
 {
     let price = $(`#products_${row}_net_unit_price`).val() ? parseFloat($(`#products_${row}_net_unit_price`).val()) : 0;

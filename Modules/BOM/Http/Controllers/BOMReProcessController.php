@@ -3,7 +3,7 @@
 namespace Modules\BOM\Http\Controllers;
 
 use Exception;
-use App\Models\Category;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -14,7 +14,6 @@ use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
 use Modules\Product\Entities\SiteProduct;
 use Modules\Material\Entities\SiteMaterial;
-use Modules\BuildDisassembly\Entities\SiloProduct;
 use Modules\BOM\Http\Requests\BOMProcessFormRequest;
 
 class BOMReProcessController extends BaseController
@@ -28,7 +27,7 @@ class BOMReProcessController extends BaseController
     {
         if(permission('bom-re-process-access')){
             $this->setPageData('Manage BOM Re Process','Manage BOM Re Process','fas fa-box',[['name' => 'Manage BOM Re Process']]);
-            $batches = Batch::allBatches();
+            $batches = Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get();
             return view('bom::bom-re-process.index',compact('batches'));
         }else{
             return $this->access_blocked();
@@ -101,13 +100,14 @@ class BOMReProcessController extends BaseController
         if(permission('bom-re-process-add')){
             $this->setPageData('BOM Re Process Form','BOM Re Process Form','fas fa-box',[['name' => 'BOM Re Process Form']]);
             $data = [
-                'batches'    => Batch::allBatches(),
+                'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
-                'products'   => Product::where([['status',1],['category_id','!=',3]])->get(),
-                'silo_products'   => DB::table('silo_products as sp')
-                ->select('sp.qty','p.id','p.name')
-                ->join('products as p','sp.product_id','=','p.id')->get(),
-                'categories' => Category::allProductCategories(),
+                'products'   => Product::where('status',1)
+                ->where(function($q){
+                    $q->where('category_id',4)->orWhere('category_id',5);
+                })
+                ->get(),
+                'classes'    => ItemClass::allItemClass()
             ];
             return view('bom::bom-re-process.create',$data);
         }else{
@@ -131,12 +131,16 @@ class BOMReProcessController extends BaseController
                         'to_site_id'           => $request->to_site_id,
                         'to_location_id'       => $request->to_location_id,
                         'from_product_id'      => $request->from_product_id,
+                        'item_class_id'        => $request->item_class_id,
+                        'from_site_id'         => $request->from_site_id,
+                        'from_location_id'     => $request->from_location_id,
                         'product_particular'   => $request->product_particular,
                         'product_per_unit_qty' => $request->product_per_unit_qty,
                         'product_required_qty' => $request->product_required_qty,
                         'bag_site_id'          => $request->bag_site_id,
                         'bag_location_id'      => $request->bag_location_id,
                         'bag_id'               => $request->bag_id,
+                        'bag_class_id'         => $request->bag_class_id,
                         'bag_particular'       => $request->bag_particular,
                         'bag_per_unit_qty'     => $request->bag_per_unit_qty,
                         'bag_required_qty'     => $request->bag_required_qty,
@@ -166,12 +170,16 @@ class BOMReProcessController extends BaseController
                             $from_site_bag->update();
                         }
                         //Subtract Product From Silo
-                        $silo_product = SiloProduct::where('product_id',$bomProcessData->from_product_id)->first();
+                        $from_site_product = SiteProduct::where([
+                            ['site_id',$bomProcessData->from_site_id],
+                            ['location_id',$bomProcessData->from_location_id],
+                            ['product_id',$bomProcessData->from_product_id],
+                        ])->first();
                         
-                        if($silo_product)
+                        if($from_site_product)
                         {
-                            $silo_product->qty -= $bomProcessData->total_rice_qty;
-                            $silo_product->update();
+                            $from_site_product->qty -= $bomProcessData->total_rice_qty;
+                            $from_site_product->update();
                         }
                         //Add Packet Rice Into Stock
                         $to_site_product = SiteProduct::where([
@@ -214,7 +222,7 @@ class BOMReProcessController extends BaseController
     {
         if(permission('bom-re-process-view')){
             $this->setPageData('BOM Re Process Details','BOM Re Process Details','fas fa-file',[['name'=>'BOM','link' => 'javascript::void();'],['name' => 'BOM Re Process Details']]);
-            $data = $this->model->with('batch','to_site','to_location','bag_site','bag_location','bag','from_product','to_product')->find($id);
+            $data = $this->model->with('batch','from_site','from_location','to_site','to_location','bag_site','bag_location','bag','from_product','to_product','bag_class','product_class')->find($id);
             return view('bom::bom-re-process.details',compact('data'));
         }else{
             return $this->access_blocked();
@@ -228,13 +236,18 @@ class BOMReProcessController extends BaseController
             $bom_process = $this->model->find($id);
             $data = [
                 'data'       => $bom_process,
-                'batches'    => Batch::allBatches(),
+                'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
-                'products'   => Product::where([['status',1],['category_id','!=',3]])->get(),
-                'silo_products'   => DB::table('silo_products as sp')
-                ->select('sp.qty','p.id','p.name')
-                ->join('products as p','sp.product_id','=','p.id')->get(),
-                'categories' => Category::allProductCategories(),
+                'products'   => Product::where('status',1)
+                ->where(function($q){
+                    $q->where('category_id',4)->orWhere('category_id',5);
+                })->get(),
+                'from_product_qty' => DB::table('site_product')->where([
+                    'site_id'     => $bom_process->from_site_id,
+                    'location_id' => $bom_process->from_location_id,
+                    'product_id' => $bom_process->from_product_id,
+                ])->value('qty'),
+                'classes'   => ItemClass::allItemClass(),
                 'bags' => DB::table('site_material as sm')
                 ->select('m.id','m.material_name','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
                 ->leftJoin('materials as m','sm.material_id','=','m.id')
@@ -270,12 +283,16 @@ class BOMReProcessController extends BaseController
                         'to_site_id'           => $request->to_site_id,
                         'to_location_id'       => $request->to_location_id,
                         'from_product_id'      => $request->from_product_id,
+                        'item_class_id'        => $request->item_class_id,
+                        'from_site_id'         => $request->from_site_id,
+                        'from_location_id'     => $request->from_location_id,
                         'product_particular'   => $request->product_particular,
                         'product_per_unit_qty' => $request->product_per_unit_qty,
                         'product_required_qty' => $request->product_required_qty,
                         'bag_site_id'          => $request->bag_site_id,
                         'bag_location_id'      => $request->bag_location_id,
                         'bag_id'               => $request->bag_id,
+                        'bag_class_id'         => $request->bag_class_id,
                         'bag_particular'       => $request->bag_particular,
                         'bag_per_unit_qty'     => $request->bag_per_unit_qty,
                         'bag_required_qty'     => $request->bag_required_qty,
@@ -304,12 +321,16 @@ class BOMReProcessController extends BaseController
                             $from_site_bag->update();
                         }
                         //Subtract Product From Silo
-                        $silo_product = SiloProduct::where('product_id',$bomProcessData->from_product_id)->first();
+                        $from_site_product = SiteProduct::where([
+                            ['site_id',$bomProcessData->from_site_id],
+                            ['location_id',$bomProcessData->from_location_id],
+                            ['product_id',$bomProcessData->from_product_id],
+                        ])->first();
                         
-                        if($silo_product)
+                        if($from_site_product)
                         {
-                            $silo_product->qty += $bomProcessData->total_rice_qty;
-                            $silo_product->update();
+                            $from_site_product->qty += $bomProcessData->total_rice_qty;
+                            $from_site_product->update();
                         }
                         //Add Packet Rice Into Stock
                         $to_site_product = SiteProduct::where([
@@ -346,12 +367,16 @@ class BOMReProcessController extends BaseController
                             $from_site_bag->update();
                         }
                         //Subtract Product From Silo
-                        $silo_product = SiloProduct::where('product_id',$request->from_product_id)->first();
+                        $from_site_product = SiteProduct::where([
+                            ['site_id',$request->from_site_id],
+                            ['location_id',$request->from_location_id],
+                            ['product_id',$request->from_product_id],
+                        ])->first();
                         
-                        if($silo_product)
+                        if($from_site_product)
                         {
-                            $silo_product->qty -= $request->total_rice_qty;
-                            $silo_product->update();
+                            $from_site_product->qty -= $request->total_rice_qty;
+                            $from_site_product->update();
                         }
                         //Add Packet Rice Into Stock
                         $to_site_product = SiteProduct::where([
@@ -415,12 +440,16 @@ class BOMReProcessController extends BaseController
                         $from_site_bag->update();
                     }
                     //Subtract Product From Silo
-                    $silo_product = SiloProduct::where('product_id',$bomProcessData->from_product_id)->first();
+                    $from_site_product = SiteProduct::where([
+                        ['site_id',$bomProcessData->from_site_id],
+                        ['location_id',$bomProcessData->from_location_id],
+                        ['product_id',$bomProcessData->from_product_id],
+                    ])->first();
                     
-                    if($silo_product)
+                    if($from_site_product)
                     {
-                        $silo_product->qty += $bomProcessData->total_rice_qty;
-                        $silo_product->update();
+                        $from_site_product->qty += $bomProcessData->total_rice_qty;
+                        $from_site_product->update();
                     }
                     //Add Packet Rice Into Stock
                     $to_site_product = SiteProduct::where([
@@ -484,12 +513,16 @@ class BOMReProcessController extends BaseController
                             $from_site_bag->update();
                         }
                         //Subtract Product From Silo
-                        $silo_product = SiloProduct::where('product_id',$bomProcessData->from_product_id)->first();
+                        $from_site_product = SiteProduct::where([
+                            ['site_id',$bomProcessData->from_site_id],
+                            ['location_id',$bomProcessData->from_location_id],
+                            ['product_id',$bomProcessData->from_product_id],
+                        ])->first();
                         
-                        if($silo_product)
+                        if($from_site_product)
                         {
-                            $silo_product->qty += $bomProcessData->total_rice_qty;
-                            $silo_product->update();
+                            $from_site_product->qty += $bomProcessData->total_rice_qty;
+                            $from_site_product->update();
                         }
                         //Add Packet Rice Into Stock
                         $to_site_product = SiteProduct::where([
