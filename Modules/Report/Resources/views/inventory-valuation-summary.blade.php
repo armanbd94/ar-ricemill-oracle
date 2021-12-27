@@ -336,7 +336,7 @@
                                         <td class="text-center">
                                             <h2 class="name m-0" style="text-transform: uppercase;"><b>{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</b></h2>
                                             <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto;
-                                            font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">WIP Summary Report</p>
+                                            font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">Inventory Valuation Summary</p>
                                             <p style="font-weight: normal;margin:0;font-weight:bold;">Date: {{ date('d-m-Y')  }}</p>
                                             
                                         </td>

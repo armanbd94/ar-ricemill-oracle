@@ -31,7 +31,7 @@ class CreateLoanInstallmentsTable extends Migration
             $table->enum('payment_method',['1','2','3'])->default('1')->comment="1=Cash,2=Cheque,3=Mobile";
             $table->unsignedBigInteger('account_id')->nullable();
             $table->foreign('account_id')->references('id')->on('chart_of_accounts');
-            $table->enum('status',['1','2'])->comment("1=Active,2=InActive");
+            $table->enum('status',['1','2'])->default('1')->comment("1=Active,2=InActive");
             $table->enum('approve',['1','2'])->default('1')->comment = "1=Yes, 2=No";
             $table->enum('deletable',['1','2'])->default('2')->comment = "1=No, 2=Yes";
             $table->string('created_by')->nullable();

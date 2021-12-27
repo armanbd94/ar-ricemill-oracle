@@ -26,6 +26,10 @@ class Category extends BaseModel
     {
         return $this->hasMany(Product::class, 'category_id','id');
     }
+    public function materials()
+    {
+        return $this->hasMany(Material::class, 'category_id','id');
+    }
 
 
     /******************************************

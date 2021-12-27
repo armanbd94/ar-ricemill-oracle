@@ -15,5 +15,6 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['auth']], function () {
     //Closing Route
     Route::get('wip-summary-report', 'WIPSummaryReportController@index');
+    Route::get('inventory-valuation-summary', 'InventoryValuationSummaryController@index');
 
 });
