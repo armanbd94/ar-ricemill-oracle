@@ -123,11 +123,10 @@ class PersonalLoanController extends BaseController
                 $personInfo = LoanPeople::find($collection['person_id']);
 
                 $debit_account = ChartOfAccount::where('name',$personInfo->id.'-'.$personInfo->name)->first();
-               
+               //dd($debit_account);
                 //Personal Loan People which is Credit for the company
                 $debit_credit_voucher_transaction[] = array(
                     'chart_of_account_id' => $debit_account->id,
-                    'warehouse_id'        => 1,
                     'voucher_no'          => $collection['voucher_no'],
                     'voucher_type'        => self::VOUCHER_PREFIX,
                     'voucher_date'        => $collection['adjusted_date'],
@@ -144,7 +143,6 @@ class PersonalLoanController extends BaseController
                 $credit_account = ChartOfAccount::find($collection['account_id']);
                 $debit_credit_voucher_transaction[] = array(
                     'chart_of_account_id' => $credit_account->id,
-                    'warehouse_id'        => 1,
                     'voucher_no'          => $collection['voucher_no'],
                     'voucher_type'        => self::VOUCHER_PREFIX,
                     'voucher_date'        => $collection['adjusted_date'],
