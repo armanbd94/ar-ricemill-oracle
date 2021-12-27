@@ -80,4 +80,7 @@ Route::group(['middleware' => ['auth']], function () {
     
 Route::get('loan-report', 'Report\LoanReportController@index')->name('loan.report');
 Route::post('loan-report/datatable-data', 'Report\LoanReportController@get_datatable_data')->name('loan.report.datatable.data');
+    
+Route::get('company-loan-report', 'Report\CompanyLoanReportController@index')->name('company.loan.report');
+Route::post('company-loan-report/datatable-data', 'Report\CompanyLoanReportController@get_datatable_data')->name('company.loan.report.datatable.data');
 });

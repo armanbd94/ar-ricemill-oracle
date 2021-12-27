@@ -33,10 +33,10 @@
                                 <input type="hidden" id="end_date" name="end_date" value="">
                             </div>
                         </div>
-                        <x-form.selectbox labelName="Employee List" name="employee_id" required="required"  col="col-md-3" class="selectpicker">
-                            @if (!$employee_list->isEmpty())
-                            @foreach ($employee_list as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                        <x-form.selectbox labelName="Company" name="person_id" required="required"  col="col-md-3" class="selectpicker">
+                            @if (!$person_list->isEmpty())
+                            @foreach ($person_list as $person)
+                                <option value="{{ $person->id }}">{{ $person->name }}</option>
                             @endforeach
                             @endif
                         </x-form.selectbox>
@@ -128,12 +128,12 @@ $(document).ready(function(){
             zeroRecords: '<strong class="text-danger">No Data Found</strong>'
         },
         "ajax": {
-            "url": "{{route('loan.report.datatable.data')}}",
+            "url": "{{route('company.loan.report.datatable.data')}}",
             "type": "POST",
             "data": function (data) {
                 data.start_date   = $("#form-filter #start_date").val();
                 data.end_date     = $("#form-filter #end_date").val();
-                data.employee_id   = $("#form-filter #employee_id").val();
+                data.person_id     = $("#form-filter #person_id").val();
                 data._token            = _token;
             }
         },

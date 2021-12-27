@@ -4,16 +4,14 @@ namespace Modules\Loan\Http\Controllers\Report;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
-use Modules\Loan\Entities\LoanReport;
 use App\Http\Controllers\BaseController;
-use Illuminate\Contracts\Support\Renderable;
 use Modules\Account\Entities\ChartOfAccount;
+use Modules\Loan\Entities\CompanyLoanReport;
 
-class LoanReportController extends BaseController
+class CompanyLoanReportController extends BaseController
 {
     
-    public function __construct(LoanReport $model)
+    public function __construct(CompanyLoanReport $model)
     {
         $this->model = $model;
     }
@@ -23,9 +21,10 @@ class LoanReportController extends BaseController
         if(permission('loan-report-access')){
             $this->setPageData('Loan Report List','Loan Report List','far fa-money-bill-alt',[['name'=>'Distributor'],['name'=>'Loan Report List']]);
             $data = [
-                'employee_list' => ChartOfAccount::where(['status'=>1,'is_transaction'=>1,'parent_name'=>'Employee Ledger'])->orderBy('id','asc')->get(),
+                'person_list' => ChartOfAccount::where('parent_name','Loan Payable Long Term')->where('status','1')->orwhere('parent_name','Loan Payable Short Term')->where('status','1')->orderBy('id','asc')->get()
+                
                 ];
-            return view('loan::report-list.report',$data);
+            return view('loan::report-list.company-report',$data);
         }else{
             return $this->access_blocked();
         }
@@ -41,10 +40,6 @@ class LoanReportController extends BaseController
                 }
                 if (!empty($request->end_date)) {
                     $this->model->setEndDate($request->end_date);
-                }
-                if (!empty($request->employee_id)) {
-                    $this->model->setEmployee($request->employee_id);
-                    //dd($request->chart_of_account_id);
                 }
                 if (!empty($request->person_id)) {
                     $this->model->setPerson($request->person_id);

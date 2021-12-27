@@ -21,6 +21,7 @@ class PersonalLoanFormRequest extends FormRequest
         $rules['payment_method']      = ['required'];
         $rules['account_id']      = ['required'];
         $rules['purpose']      = ['required'];        
+        $rules['loan_type']      = ['required'];        
         return $rules;
     }
 

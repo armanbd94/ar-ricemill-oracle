@@ -96,7 +96,6 @@ class PersonalLoanController extends BaseController
                 $collection   = $this->track_data($collection,$request->update_id);
                 $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());               
                 
-
                 if (empty($request->update_id)) {
                     $this->personal_loan_coa($collection);
                 } else {
@@ -124,7 +123,7 @@ class PersonalLoanController extends BaseController
                 $personInfo = LoanPeople::find($collection['person_id']);
 
                 $debit_account = ChartOfAccount::where('name',$personInfo->id.'-'.$personInfo->name)->first();
-
+               
                 //Personal Loan People which is Credit for the company
                 $debit_credit_voucher_transaction[] = array(
                     'chart_of_account_id' => $debit_account->id,

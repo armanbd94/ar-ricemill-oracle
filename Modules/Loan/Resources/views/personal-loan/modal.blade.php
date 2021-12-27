@@ -18,6 +18,7 @@
             <div class="modal-body">
                 <div class="row">
                     <input type="hidden" name="update_id" id="update_id"/>
+                    <input type="hidden" name="loan_type" id="loan_type" value='1'/>
                     <input type="hidden" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}" readonly />
                     <x-form.selectbox labelName="Name" name="person_id" onchange="getPersonDetails(this.value)" required="required" col="col-md-12" class="selectpicker">
                         @if (!$person_employees->isEmpty())
