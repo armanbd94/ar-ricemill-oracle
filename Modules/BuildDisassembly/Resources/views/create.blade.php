@@ -15,8 +15,8 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-sync-alt"></i> Reset</button>
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-danger btn-sm mr-3 custom-btn"><i class="fas fa-sync-alt"></i> Reset</button>
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
                 </div>
             </div>
         </div>
@@ -57,7 +57,14 @@
 
                             <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="material_list()" class="selectpicker" col="col-md-3"/>
                             
-                            <x-form.textbox labelName="To Location (Storage)" name="to_location" value="Silo" property="readonly" required="required"  col="col-md-3"/>
+                            <x-form.selectbox labelName="Transfer To" name="fto_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
+                                @if(!$sites->isEmpty())  
+                                    @foreach ($sites as $site)
+                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
+                            <x-form.selectbox labelName="To Location (Storage)" name="to_location_id" required="required" class="selectpicker" col="col-md-3"/>
 
                             <x-form.selectbox labelName="Raw Material Item" required="required" name="material_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker"/>
 
@@ -66,7 +73,7 @@
                                 <label for="memo_no">Availbale Qty <span class="material_unit"></span></label>
                                 <input type="text" class="form-control" name="available_qty" id="available_qty" readonly />
                             </div>
-                            <x-form.selectbox labelName="Converted Item" name="product_id" onchange="setCategory()" col="col-md-3" class="selectpicker" required="required">
+                            <x-form.selectbox labelName="Converted Item" name="product_id"  col="col-md-3" class="selectpicker" required="required">
                                 @if (!$products->isEmpty())
                                     @foreach ($products as $product)
                                         @if ($product->category_id != 3)
@@ -81,10 +88,10 @@
                                 <label for="memo_no">RM Needed <span class="material_unit"></span></label>
                                 <input type="text" class="form-control" name="required_qty" id="required_qty" readonly />
                             </div>
-                            <x-form.selectbox labelName="Class" name="category_id" required="required" class="selectpicker" col="col-md-3">
-                                @if(!$categories->isEmpty())  
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            <x-form.selectbox labelName="Class" name="item_class_id" required="required" class="selectpicker" col="col-md-3">
+                                @if(!$classes->isEmpty())  
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
@@ -134,7 +141,7 @@
                                                 position: absolute;top:-16px;left:10px;box-shadow: 1px 2px 5px 0px rgba(0,0,0,0.5);"><img src="images/grain-sack.png" style="width: 20px;margin-right: 5px;"/>By Products</div>
                                             <div class="col-md-12 pt-5">
                                                 <div class="row">
-                                                    <x-form.selectbox labelName="By Product Inventory Site" name="bp_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
+                                                    <x-form.selectbox labelName="By Product Inventory Site" name="bp_site_id" required="required" onchange="getLocations(this.value,3)"  class="selectpicker" col="col-md-3">
                                                         @if(!$sites->isEmpty())  
                                                             @foreach ($sites as $site)
                                                                 <option value="{{ $site->id }}">{{ $site->name }}</option>
@@ -365,6 +372,9 @@ function getLocations(site_id,selector)
             {
                 $(`#from_location_id`).empty().append(html);
                 $(`#from_location_id.selectpicker`).selectpicker('refresh');
+            }else if(selector == 2){
+                $(`#to_location_id`).empty().append(html);
+                $(`#to_location_id.selectpicker`).selectpicker('refresh');
             }else{
                 $(`#bp_location_id`).empty().append(html);
                 $(`#bp_location_id.selectpicker`).selectpicker('refresh');

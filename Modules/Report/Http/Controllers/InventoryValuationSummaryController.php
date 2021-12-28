@@ -37,18 +37,18 @@ class InventoryValuationSummaryController extends BaseController
                                 $qty = DB::table("site_material")->where('material_id',$item->id)->sum('qty');
                                 $table .= "<tr>";
                                 $table .= "<td>$item->material_name</td>";
-                                $table .= "<td class='text-right'>".number_format($qty,4,'.',',')."</td>";
-                                $table .= "<td class='text-right'>".number_format($item->cost,4,'.',',')."</td>";
-                                $table .= "<td class='text-right'>".number_format(($qty * $item->cost),4,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format($qty,2,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format($item->cost,2,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format(($qty * $item->cost),2,'.',',')."</td>";
                                 $table .= "</tr>";
                                 $total_qty += $qty;
                                 $total_value += $qty * $item->cost;
                             }
                             $table .= "<tr>";
                             $table .= "<td><b>Total</b></td>";
-                            $table .= "<td class='text-right'><b>".number_format($total_qty,4,'.',',')."</b></td>";
+                            $table .= "<td class='text-right'><b>".number_format($total_qty,2,'.',',')."</b></td>";
                             $table .= "<td></td>";
-                            $table .= "<td class='text-right'><b>".number_format($total_value,4,'.',',')."</b></td>";
+                            $table .= "<td class='text-right'><b>".number_format($total_value,2,'.',',')."</b></td>";
                             $table .= "</tr>";
                             $table .= "<tr><td colspan='4' style='padding: 20px;border: 0 !important;'></td></tr>";
                         }else{
@@ -70,18 +70,18 @@ class InventoryValuationSummaryController extends BaseController
                                 $qty = DB::table("site_product")->where(['product_id'=>$item->id])->sum('qty');
                                 $table .= "<tr>";
                                 $table .= "<td>$item->name</td>";
-                                $table .= "<td class='text-right'>".number_format($qty,4,'.',',')."</td>";
-                                $table .= "<td class='text-right'>".number_format($item->price,4,'.',',')."</td>";
-                                $table .= "<td class='text-right'>".number_format(($qty * $item->price),4,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format($qty,2,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format($item->price,2,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format(($qty * $item->price),2,'.',',')."</td>";
                                 $table .= "</tr>";
                                 $total_qty += $qty;
                                 $total_value += $qty * $item->price;
                             }
                             $table .= "<tr>";
                             $table .= "<td><b>Total</b></td>";
-                            $table .= "<td class='text-right'><b>".number_format($total_qty,4,'.',',')."</b></td>";
+                            $table .= "<td class='text-right'><b>".number_format($total_qty,2,'.',',')."</b></td>";
                             $table .= "<td></td>";
-                            $table .= "<td class='text-right'><b>".number_format($total_value,4,'.',',')."</b></td>";
+                            $table .= "<td class='text-right'><b>".number_format($total_value,2,'.',',')."</b></td>";
                             $table .= "</tr>";
                             $table .= "<tr><td colspan='4' style='padding: 20px;border: 0 !important;'></td></tr>";
                         }else{
@@ -104,18 +104,18 @@ class InventoryValuationSummaryController extends BaseController
                                 $qty = DB::table("site_product")->where(['product_id'=>$item->id])->sum('qty');
                                 $table .= "<tr>";
                                 $table .= "<td>$item->name</td>";
-                                $table .= "<td class='text-right'>".number_format($qty,4,'.',',')."</td>";
-                                $table .= "<td class='text-right'>".number_format($item->price,4,'.',',')."</td>";
-                                $table .= "<td class='text-right'>".number_format(($qty * $item->price),4,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format($qty,2,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format($item->price,2,'.',',')."</td>";
+                                $table .= "<td class='text-right'>".number_format(($qty * $item->price),2,'.',',')."</td>";
                                 $table .= "</tr>";
                                 $total_qty += $qty;
                                 $total_value += $qty * $item->price;
                             }
                             $table .= "<tr>";
                             $table .= "<td><b>Total</b></td>";
-                            $table .= "<td class='text-right'><b>".number_format($total_qty,4,'.',',')."</b></td>";
+                            $table .= "<td class='text-right'><b>".number_format($total_qty,2,'.',',')."</b></td>";
                             $table .= "<td></td>";
-                            $table .= "<td class='text-right'><b>".number_format($total_value,4,'.',',')."</b></td>";
+                            $table .= "<td class='text-right'><b>".number_format($total_value,2,'.',',')."</b></td>";
                             $table .= "</tr>";
                             $table .= "<tr><td colspan='4' style='padding: 20px;border: 0 !important;'></td></tr>";
                         }else{
@@ -138,18 +138,18 @@ class InventoryValuationSummaryController extends BaseController
                                 $qty = DB::table("site_product")->where(['product_id'=>$item->id])->sum('qty');
                                 $by_product .= "<tr>";
                                 $by_product .= "<td>$item->name</td>";
-                                $by_product .= "<td class='text-right'>".number_format($qty,4,'.',',')."</td>";
-                                $by_product .= "<td class='text-right'>".number_format($item->price,4,'.',',')."</td>";
-                                $by_product .= "<td class='text-right'>".number_format(($qty * $item->price),4,'.',',')."</td>";
+                                $by_product .= "<td class='text-right'>".number_format($qty,2,'.',',')."</td>";
+                                $by_product .= "<td class='text-right'>".number_format($item->price,2,'.',',')."</td>";
+                                $by_product .= "<td class='text-right'>".number_format(($qty * $item->price),2,'.',',')."</td>";
                                 $by_product .= "</tr>";
                                 $total_qty += $qty;
                                 $total_value += $qty * $item->price;
                             }
                             $by_product .= "<tr>";
                             $by_product .= "<td><b>Total</b></td>";
-                            $by_product .= "<td class='text-right'><b>".number_format($total_qty,4,'.',',')."</b></td>";
+                            $by_product .= "<td class='text-right'><b>".number_format($total_qty,2,'.',',')."</b></td>";
                             $by_product .= "<td></td>";
-                            $by_product .= "<td class='text-right'><b>".number_format($total_value,4,'.',',')."</b></td>";
+                            $by_product .= "<td class='text-right'><b>".number_format($total_value,2,'.',',')."</b></td>";
                             $by_product .= "</tr>";
                             $by_product .= "<tr><td colspan='4' style='padding: 20px;border: 0 !important;'></td></tr>";
                         }else{

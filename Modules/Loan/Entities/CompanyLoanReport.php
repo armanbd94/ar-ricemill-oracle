@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Account\Entities\ChartOfAccount;
 
-class LoanReport extends BaseModel
+class CompanyLoanReport extends BaseModel
 {
     protected $table = 'transactions';
     protected $fillable = ['chart_of_account_id','voucher_no', 'voucher_type', 'voucher_date', 'description', 'debit', 
@@ -37,10 +37,6 @@ class LoanReport extends BaseModel
     {
         $this->_end_date = $end_date;
     }
-    public function setEmployee($employee_id)
-    {
-        $this->_employee_id = $employee_id;
-    }
     public function setPerson($person_id)
     {
         $this->_person_id = $person_id;
@@ -55,7 +51,7 @@ class LoanReport extends BaseModel
         $query =  DB::table('transactions as t')
         ->select('t.voucher_no',DB::raw('SUM(t.debit) as debit'),DB::raw('SUM(t.credit) as credit'),'t.voucher_date','chart_of_accounts.name','t.description')
         ->leftJoin('chart_of_accounts', 't.chart_of_account_id', '=', 'chart_of_accounts.id')
-        ->whereIn('t.voucher_type',['PL','PLI','OL','EMPSALOLI'])
+        ->whereIn('t.voucher_type',['PL','PLI'])
         ->groupBy('t.voucher_no','t.voucher_date','chart_of_accounts.name','t.description');
         //search query
         if (!empty($this->_start_date)) {
@@ -64,8 +60,8 @@ class LoanReport extends BaseModel
         if (!empty($this->_end_date)) {
             $query->where('t.voucher_date', '<=',$this->_end_date);
         }
-        if (!empty($this->_employee_id)) {
-            $query->where('t.chart_of_account_id', '=',$this->_employee_id);
+        if (!empty($this->_person_id)) {
+            $query->where('t.chart_of_account_id', '=',$this->_person_id);
         }
 
         //order by data fetching code

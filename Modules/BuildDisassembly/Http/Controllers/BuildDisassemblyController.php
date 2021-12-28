@@ -11,6 +11,7 @@ use Modules\Setting\Entities\Batch;
 use Modules\Product\Entities\Product;
 use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
+use App\Models\ItemClass;
 use Modules\Product\Entities\SiteProduct;
 use Modules\Material\Entities\SiteMaterial;
 use Modules\BuildDisassembly\Entities\SiloProduct;
@@ -106,8 +107,8 @@ class BuildDisassemblyController extends BaseController
                 'batches'   => Batch::allBatches(),
                 'sites'     => Site::allSites(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
-                'products'  => Product::where('status',1)->get(),
-                'categories'     => Category::allProductCategories(),
+                'products'  => Product::where([['status',1],['category_id',4]])->get(),
+                'classes'     => ItemClass::allItemClass(),
             ];
             
             return view('builddisassembly::create',$data);

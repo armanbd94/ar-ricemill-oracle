@@ -77,12 +77,11 @@ class PersonalLoanPeopleController extends BaseController
     
     public function store_or_update_data(PersonalLoanPeopleFormRequest $request)
     {
-        if($request->ajax()){
+        if($request->ajax()){ 
             if(permission('personal-loan-person-add')){
                 $collection   = collect($request->validated());
                 $collection   = $this->track_data($collection,$request->update_id);
-                $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());   
-
+                $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());  
                 if (empty($request->update_id)) {
                     if($request->loan_term_type == 1){
                         $coa_max_code      = ChartOfAccount::where('level', 3)->where('code', 'like', '502040201%')->max('code');
