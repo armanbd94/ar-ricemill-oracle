@@ -12,7 +12,7 @@ class TodaysPurchaseOrderReportController extends BaseController
         if(permission('todays-purchase-order-report-access')){
             $this->setPageData('Today\'s Purchase Order Report','Today\'s Purchase Order Report','fas fa-file',[['name' => 'Today\'s Purchase Order Report']]);
 
-            return view('report::todays-purchase-report.index');
+            return view('report::todays-purchase-order-report.index');
         }else{
             return $this->access_blocked();
         }
@@ -26,7 +26,7 @@ class TodaysPurchaseOrderReportController extends BaseController
         ->orderBy('id','asc')
         ->get();
         // dd($report_data);
-        return view('report::todays-purchase-report.report',compact('report_data','date'))->render();
+        return view('report::todays-purchase-order-report.report',compact('report_data','date'))->render();
 
     }
 }

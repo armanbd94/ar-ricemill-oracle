@@ -14,16 +14,11 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
-                    <!--begin::Button-->
-                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
-
-                    <!--end::Button-->
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="print-invoice"> <i
+                            class="fas fa-print"></i> Print</button>
                 </div>
             </div>
         </div>
@@ -42,13 +37,16 @@
                         </div>
 
                         <div class="col-md-8">
-                            <div style="margin-top:28px;">     
-                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
-                                    data-toggle="tooltip" data-theme="dark" title="Reset">
+                            <div style="margin-top:28px;">
+                                <button id="btn-reset"
+                                    class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn"
+                                    type="button" data-toggle="tooltip" data-theme="dark" title="Reset">
                                     <i class="fas fa-undo-alt"></i></button>
-    
-                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
-                                    data-toggle="tooltip" data-theme="dark" onclick="report_data()" title="Search">
+
+                                <button id="btn-filter"
+                                    class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn"
+                                    type="button" data-toggle="tooltip" data-theme="dark" onclick="report_data()"
+                                    title="Search">
                                     <i class="fas fa-search"></i></button>
                             </div>
                         </div>
@@ -60,7 +58,7 @@
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                     <div class="col-md-12" style="position: relative;">
                         <div class="row" id="report_data">
-                        
+
                         </div>
                         <div class="col-md-12 d-none" id="table-loader" style="position: absolute;top:80px;left:0;">
                             <div style="width: 120px;

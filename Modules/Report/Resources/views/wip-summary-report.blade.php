@@ -7,12 +7,9 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
 
@@ -28,11 +25,6 @@
                     <div class="col-sm-12 table-responsive">
                         <div id="invoice">
                             <style>
-                                body,html {
-                                    background: #fff !important;
-                                    -webkit-print-color-adjust: exact !important;
-                    
-                                }
                     
                                 .invoice {
                                     /* position: relative; */
@@ -237,7 +229,7 @@
                     
                                     body,
                                     html {
-                                        /* background: #fff !important; */
+                                        background: #fff !important;
                                         -webkit-print-color-adjust: exact !important;
                                         font-family: sans-serif;
                                         /* font-size: 12px !important; */

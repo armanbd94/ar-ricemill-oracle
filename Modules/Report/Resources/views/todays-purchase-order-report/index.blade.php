@@ -6,14 +6,11 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
 
                     <!--end::Button-->
                 </div>
@@ -71,7 +68,7 @@ report_data();
 function report_data()
 {
     $.ajax({
-        url:"{{ route('todays.purchase.report.data') }}",
+        url:"{{ route('todays.purchase.order.report.data') }}",
         type:"POST",
         data:{_token:_token},
         beforeSend: function(){

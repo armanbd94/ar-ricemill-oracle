@@ -4,11 +4,6 @@
 <div class="col-sm-12 table-responsive">
     <div id="invoice">
         <style>
-            body,html {
-                background: #fff !important;
-                -webkit-print-color-adjust: exact !important;
-
-            }
 
             .invoice {
                 /* position: relative; */
@@ -213,7 +208,7 @@
 
                 body,
                 html {
-                    /* background: #fff !important; */
+                    background: #fff !important;
                     -webkit-print-color-adjust: exact !important;
                     font-family: sans-serif;
                     /* font-size: 12px !important; */
