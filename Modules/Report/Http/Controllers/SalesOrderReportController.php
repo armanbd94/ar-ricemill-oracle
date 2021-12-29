@@ -6,7 +6,7 @@ use Modules\Sale\Entities\Sale;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\BaseController;
 
-class SalesReportController extends BaseController
+class SalesOrderReportController extends BaseController
 {
 
     public function index()

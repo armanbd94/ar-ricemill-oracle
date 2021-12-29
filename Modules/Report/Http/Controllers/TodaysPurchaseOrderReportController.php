@@ -3,13 +3,14 @@ namespace Modules\Report\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
+use Modules\Purchase\Entities\PurchaseOrder;
 
-class TodaysPurchaseReportController extends BaseController
+class TodaysPurchaseOrderReportController extends BaseController
 {
     public function index()
     {
-        if(permission('todays-purchase-report-access')){
-            $this->setPageData('Today\'s Purchase Report','Today\'s Purchase Report','fas fa-file',[['name' => 'Today\'s Purchase Report']]);
+        if(permission('todays-purchase-order-report-access')){
+            $this->setPageData('Today\'s Purchase Order Report','Today\'s Purchase Order Report','fas fa-file',[['name' => 'Today\'s Purchase Order Report']]);
 
             return view('report::todays-purchase-report.index');
         }else{
@@ -20,8 +21,8 @@ class TodaysPurchaseReportController extends BaseController
     public function report_data(Request $request)
     {
         $date = date('Y-m-d');
-        $report_data = Purchase::with('supplier')
-        ->whereDate('purchase_date',$date)
+        $report_data = PurchaseOrder::with('vendor','via_vendor','materials')
+        ->whereDate('order_date',$date)
         ->orderBy('id','asc')
         ->get();
         // dd($report_data);
