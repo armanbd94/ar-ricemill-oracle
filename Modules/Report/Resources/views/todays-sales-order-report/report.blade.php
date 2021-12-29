@@ -1,5 +1,5 @@
 @php
-    $grand_total = $total_commission = $net_total = 0;
+    $grand_total = 0;
 @endphp
 <div class="col-sm-12 table-responsive">
     <div id="invoice">
@@ -88,7 +88,19 @@
                 border: 1px solid #000 !important;
             }
             #info-table td{padding:0px !important;}
-
+            .invoice #product_table ul{
+                margin: 0;padding: 0;list-style: none;
+            }
+            .invoice #product_table ul li{
+                padding: 5px;
+                margin: 0;
+                border-bottom: 1px solid black;
+            }
+            .invoice #product_table ul li:last-child{
+                padding: 5px;
+                margin: 0;
+                border-bottom: 0 !important;
+            }
             .invoice table th {
                 white-space: nowrap;
             }
@@ -292,6 +304,19 @@
                 .dashed-border{
                     width:180px;height:2px;margin:0 auto;padding:0;border-top:1px dashed #454d55 !important;
                 }
+                .invoice #product_table ul{
+                    margin: 0;padding: 0;list-style: none;
+                }
+                .invoice #product_table ul li{
+                    padding: 5px;
+                    margin: 0;
+                    border-bottom: 1px solid black;
+                }
+                .invoice #product_table ul li:last-child{
+                    padding: 5px;
+                    margin: 0;
+                    border-bottom: 0 !important;
+                }
             }
 
             @page {
@@ -305,16 +330,9 @@
                 <table style="margin-bottom:10px !important;">
                     <tr>
                         <td class="text-center">
-                            @if (config('settings.logo'))
-                            <a href="{{ url('dashboard') }}">
-                                <img src="{{ asset('storage/'.LOGO_PATH.config('settings.logo'))}}" style="max-width: 60px;" alt="Logo" />
-                            </a>
-                            @endif
                             <h2 class="name m-0" style="text-transform: uppercase;"><b>{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</b></h2>
-                            {{-- @if(config('settings.contact_no'))<p style="font-weight: normal;margin:0;"><b>Contact No.: </b>{{ config('settings.contact_no') }}, @if(config('settings.email'))<b>Email: </b>{{ config('settings.email') }}@endif</p>@endif --}}
-                            @if(config('settings.address'))<p style="font-weight: normal;margin:0;">{{ config('settings.address') }}</p>@endif
                             <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto;
-                            font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">TODAYS SALES REPORT</p>
+                            font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">TODAY'S SALES ORDER REPORT</p>
                             <p style="font-weight: normal;margin:0;font-weight:bold;">Date: {{ date('d-M-Y',strtotime($date))  }}</p>
                             
                         </td>
@@ -322,50 +340,80 @@
                 </table>
                 <table cellspacing="0" cellpadding="0" id="product_table">
                     <tbody>
-                        <tr>
-                            <td class="text-center font-weight-bolder">Sl</td>
-                            <td class="text-center font-weight-bolder">Memo No.</td>
-                            <td class="text-center font-weight-bolder">Dealer Name</td>
-                            <td class="text-center font-weight-bolder">Depo Name</td>
-                            <td class="text-center font-weight-bolder">District</td>
-                            <td class="text-center font-weight-bolder">Item</td>
-                            <td class="text-center font-weight-bolder">Total Qty</td>
-                            <td class="text-center font-weight-bolder">Grand Total</td>
-                            <td class="text-center font-weight-bolder">Commission Rate(%)</td>
-                            <td class="text-center font-weight-bolder">Total Commission</td>
-                            <td class="text-right font-weight-bolder">Net Total</td>
+                        <tr style='background: black;color: white;'>
+                            <td class="text-center font-weight-bolder" rowspan="2">Sl</td>
+                            <td class="text-center font-weight-bolder" rowspan="2">Order Date</td>
+                            <td class="text-center font-weight-bolder" rowspan="2">Memo No.</td>
+                            <td class="text-left font-weight-bolder" rowspan="2">Customer</td>
+                            <td class="text-left font-weight-bolder" rowspan="2">Via Customer</td>
+                            <td class="text-center font-weight-bolder" colspan="4">Item</td>
+                            <td class="text-center font-weight-bolder" rowspan="2">Grand Total</td>
+                        </tr>
+                        <tr style='background: black;color: white;'>
+                            <td class="font-weight-bolder">Name</td>
+                            <td class="text-center font-weight-bolder">Qty</td>
+                            <td class="text-right font-weight-bolder">Rate</td>
+                            <td class="text-right font-weight-bolder">Amount</td>
                         </tr>
                         @if (!$report_data->isEmpty())
                         @foreach ($report_data as $key => $value)
                         <tr>
                             <td class="text-center"> {{ $key + 1 }} </td>
+                            <td class="text-center"> {{ date('d-m-Y',strtotime($value->order_date)) }} </td>
                             <td class="text-center"> {{ $value->memo_no }} </td>
-                            <td class="text-center"> {{ $value->dealer->name }} </td>
-                            <td class="text-center"> {{ $value->depo->name }} </td>
-                            <td class="text-center"> {{ $value->district->name }} </td>
-                            <td class="text-center"> {{ number_format($value->item,2,'.',',') }} </td>
-                            <td class="text-center"> {{ number_format(($value->total_qty + ($value->total_free_qty ?? 0)),2,'.',',') }} </td>
+                            <td class="text-left"> {{ $value->customer->trade_name.' ('.$value->customer->name.')' }} </td>
+                            <td class="text-left"> {{ $value->via_customer->name ? ($value->via_customer->trade_name ? $value->via_customer->trade_name.' ('.$value->via_customer->name.')' : $value->via_customer->name) : '' }} </td>
+                            <td style="padding: 0 !important;">
+                                @if (!$value->products->isEmpty())
+                                <ul>
+                                    @foreach ($value->products as $item)
+                                        <li class="text-left">{{ $item->name }}</li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </td>
+                            <td style="padding: 0 !important;">
+                                @if (!$value->products->isEmpty())
+                                <ul>
+                                    @foreach ($value->products as $item)
+                                        <li class="text-center">{{ number_format($item->pivot->qty,2,'.',',') }}</li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </td>
+                            <td style="padding: 0 !important;">
+                                @if (!$value->products->isEmpty())
+                                <ul>
+                                    @foreach ($value->products as $item)
+                                        <li class="text-right">{{ number_format($item->pivot->net_unit_price,2,'.',',') }}</li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </td>
+                            <td style="padding: 0 !important;">
+                                @if (!$value->products->isEmpty())
+                                <ul>
+                                    @foreach ($value->products as $item)
+                                        <li class="text-right">{{ number_format($item->pivot->total,2,'.',',') }}</li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </td>
                             <td class="text-right"> {{ number_format($value->grand_total,2,'.',',') }} </td>
-                            <td class="text-right"> {{ number_format(($value->commission_rate ?? 0),2,'.',',') }} </td>
-                            <td class="text-right"> {{ number_format($value->total_commission,2,'.',',') }} </td>
-                            <td class="text-right"> {{ number_format($value->net_total,2,'.',',') }} </td>
                         </tr>
                         @php
-                            $grand_total += $value->grand_total;
-                            $total_commission += $value->total_commission;
-                            $net_total += $value->net_total;
+                        $grand_total += $value->grand_total;
                         @endphp
                         @endforeach
                         @else
-                        <tr><td colspan="11" class="text-center" style="color: red;font-weight:bold;">No Data Found</td></tr>
+                        <tr><td colspan="10" class="text-center" style="color: red;font-weight:bold;">No Data Found</td></tr>
                         @endif
+                        @if (!$report_data->isEmpty())
                         <tr>
-                            <td style="font-weight:bold;" colspan="7">Total</td>
+                            <td style="font-weight:bold;text-align:right;" colspan="9">Total</td>
                             <td style="text-align: right !important;font-weight:bold;">{{ number_format($grand_total,2,'.',',') }}</td>
-                            <td style="text-align: center !important;font-weight:bold;"></td>
-                            <td style="text-align: right !important;font-weight:bold;">{{ number_format($total_commission,2,'.',',') }}</td>
-                            <td style="text-align: right !important;font-weight:bold;">{{ number_format($net_total,2,'.',',') }}</td>
                         </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>

@@ -26,7 +26,7 @@ class SaleOrder extends BaseModel
     }
     public function via_customer()
     {
-        return $this->belongsTo(ViaCustomer::class,'via_customer_id','id');
+        return $this->belongsTo(ViaCustomer::class,'via_customer_id','id')->withDefault(['name'=>'','trade_name'=>'','code'=>'']);
     }
     /******************************************
      * * * Begin :: Custom Datatable Code * * *

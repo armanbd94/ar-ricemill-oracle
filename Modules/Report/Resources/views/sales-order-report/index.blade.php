@@ -14,16 +14,10 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-                <div class="card-toolbar">
-                    <!--begin::Button-->
-                    <button type="button" class="btn btn-primary btn-sm mr-3" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
-
-                    <!--end::Button-->
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
+                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="print-invoice"> <i class="fas fa-print"></i> Print</button>
                 </div>
             </div>
         </div>
@@ -43,11 +37,11 @@
 
                         <div class="col-md-8">
                             <div style="margin-top:28px;">     
-                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Reset">
                                     <i class="fas fa-undo-alt"></i></button>
     
-                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
                                     data-toggle="tooltip" data-theme="dark" onclick="report_data()" title="Search">
                                     <i class="fas fa-search"></i></button>
                             </div>
@@ -129,7 +123,7 @@ function report_data()
     if (start_date && end_date) {
 
         $.ajax({
-            url:"{{ route('sales.report.data') }}",
+            url:"{{ route('sales.order.report.data') }}",
             type:"POST",
             data:{start_date:start_date,end_date:end_date,_token:_token},
             beforeSend: function(){

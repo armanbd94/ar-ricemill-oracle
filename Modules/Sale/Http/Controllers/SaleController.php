@@ -106,7 +106,7 @@ class SaleController extends BaseController
             $this->setPageData('Sale Order Form','Sale Order Form','fab fa-opencart',[['name' => 'Sale Order Form']]);
             $data = [
                 'customers'    => Customer::allCustomers(),
-                'categories'   => Category::with('products')->whereHas('products')->where('type',2)->orderBy('id','desc')->get(),
+                'categories'   => Category::with('products')->whereHas('products')->where([['type',2],['id','!=',4]])->orderBy('id','desc')->get(),
                 'classes'      => ItemClass::allItemClass()
             ];
             return view('sale::sale-order.create',$data);
