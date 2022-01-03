@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Vendor\Entities\Vendor;
 use Modules\Material\Entities\Material;
 use App\Http\Controllers\BaseController;
+use App\Models\ItemClass;
 use Modules\Purchase\Entities\PurchaseOrder;
 use Modules\Purchase\Entities\PurchaseOrderMaterial;
 use Modules\Purchase\Http\Requests\PurchaseOrderFormRequest;
@@ -108,6 +109,7 @@ class PurchaseController extends BaseController
             $data = [
                 'vendors'   => Vendor::allVendors(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
             
             return view('purchase::purchase-order.create',$data);
@@ -150,6 +152,7 @@ class PurchaseController extends BaseController
                                     'material_id'      => $value['id'],
                                     'qty'              => $value['qty'],
                                     'purchase_unit_id' => $value['purchase_unit_id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'net_unit_cost'    => $value['net_unit_cost'],
                                     'total'            => $value['subtotal'],
                                     'description'      => $value['description'],
@@ -201,6 +204,7 @@ class PurchaseController extends BaseController
                 'purchase'  => $this->model->with('materials')->find($id),
                 'vendors'   => Vendor::allVendors(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('purchase::purchase-order.edit',$data);
         }else{
@@ -239,6 +243,7 @@ class PurchaseController extends BaseController
                             $materials[$value['id']] = [
                                 'qty'              => $value['qty'],
                                 'purchase_unit_id' => $value['purchase_unit_id'],
+                                'item_class_id'    => $value['item_class_id'],
                                 'net_unit_cost'    => $value['net_unit_cost'],
                                 'total'            => $value['subtotal'],
                                 'description'      => $value['description'],

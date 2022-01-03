@@ -1,7 +1,3 @@
-@php
-    use Modules\HRM\Entities\SalaryGenerate;
-    use Illuminate\Support\Facades\DB;
-@endphp
 @extends('layouts.app')
 
 @section('title', $page_title)
@@ -26,9 +22,8 @@
         <div class="card card-custom">
             <div class="card-header flex-wrap py-5">
              <form method="GET" action="{{ route('salary.generate.report.data') }}" id="form-filter" class="col-md-12 px-0">
-                    <div class="row justify-content-center">
-                        
-                    <div class="form-group col-md-3">
+                    <div class="row">                        
+                    <div class="form-group col-md-4">
                             <label for="name">Choose Your Date</label>
                             <div class="input-group">
                                 <input type="text" class="form-control daterangepicker-filed" value="{{ date('Y-m-d') }} To {{ date('Y-m-d') }}">
@@ -36,14 +31,14 @@
                                 <input type="hidden" id="end_date" name="end_date" value="{{ date('Y-m-d')}}">
                             </div>
                         </div>
-                        <x-form.selectbox labelName="Employee" name="employee_id" col="col-md-3" class="selectpicker">
+                        <x-form.selectbox labelName="Employee" name="employee_id" col="col-md-4" class="selectpicker">
                             @if (!$employees->isEmpty())
                                 @foreach ($employees as $value)
-                                    <option value="{{ $value->id }}">{{ $value->name.' - '.$value->employee_id  }}</option>
+                                    <option value="{{ $value->id }}">{{ $value->name.' - '.$value->employee_id.' | '.$value->department->name.' | '.$value->current_designation->name  }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
-                        <x-form.selectbox labelName="Department" name="department_id" col="col-md-3" onchange="getDivisionList(this.value)" class="selectpicker">
+                        <!--<x-form.selectbox labelName="Department" name="department_id" col="col-md-3" onchange="getDivisionList(this.value)" class="selectpicker">
                             @if (!$departments->isEmpty())
                             @foreach ($departments as $department)
                             <option value="{{ $department->id }}">{{ $department->name }}</option>
@@ -56,8 +51,8 @@
                                     <option value="{{ $value->id }}">{{ $value->name }}</option>
                                 @endforeach
                             @endif
-                        </x-form.selectbox>                        
-                        <div class="col-md-1">
+                        </x-form.selectbox>-->                        
+                        <div class="col-md-4">
                             <div style="margin-top:28px;">    
                                 <div style="margin-top:28px;">        
                                     <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="submit"
@@ -143,17 +138,17 @@
                                                         <tr>
                                                             <th class="text-center">ABS</th>
                                                             <th class="text-center">LATE</th>
-                                                            <th class="text-center">TK</th>
+                                                            <th class="text-center">Tk</th>
                                                             <?php $orleaves=array();?>
                                                             @if (!$leaves->isEmpty())
                                                                 @foreach ($leaves as $value)
                                                                 <th class="text-center">{{ $value->short_name }}</th>
                                                                 @endforeach
                                                             @endif
-                                                            <th class="text-center">TK</th>
+                                                            <th class="text-center">Tk</th>
                                                             <th class="text-center">HOUR</th>
                                                             <th class="text-center">DAY</th>
-                                                            <th class="text-center">TK</th>
+                                                            <th class="text-center">Tk</th>
                                                             <th class="text-center">Loan</th>
                                                             <!-- <th class="text-center">Adv</th>
                                                             <th class="text-center">PF</th> -->
@@ -163,7 +158,7 @@
                                                 <?php
                                                 $sl = 1;
                                                 $total_net_payable_amount = 0;
-                                                $noDays = SalaryGenerate::getNumberOfActiveDays();
+                                                $noDays = Modules\HRM\Entities\SalaryGenerate::getNumberOfActiveDays();
                                                 if (!empty($all_employee)):
                                                     $sd = date('Y-m-d', strtotime('-1 day', strtotime($start_date)));
                                                     $ed = $end_date;
@@ -187,25 +182,50 @@
                                                     $loan_start_month = date('F-Y', strtotime($start_date));
                                                     $salary_month = date('F-Y', strtotime($start_date));
                                                     foreach ($all_employee as $emp_val):
-                                                    
-                                                        $daily_attendance = DB::select(DB::raw("SELECT MIN(att.id),MAX(att.id),MIN(att.time_str_am_pm) as in_time_str,MAX(att.time_str_am_pm) as out_time_str,MIN(att.time) as in_time,MAX(att.time) as out_time,
-                                                        att.employee_id,att.date_time,att.date,att.time,att.am_pm,att.time_str,
-                                                        att.time_str_am_pm,reg.shift_id,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name FROM `attendances` as att 
-                                                        LEFT JOIN employees as reg ON reg.id=att.employee_id JOIN shifts as shift ON shift.id=reg.shift_id WHERE att.date >='" . $sd . "' 
-                                                        AND att.date <='" . $ed . "' AND att.employee_id='" . $emp_val->id . "' 
-                                                        group by att.date,att.employee_id")); 
 
-                                                        $leave_info = DB::select(DB::raw("SELECT employee_id,start_date,end_date,leave_id,leave_status FROM `leave_application_manages`
-                                                        WHERE employee_id='" . $emp_val->id . "' AND start_date >='" . $sd . "' 
-                                                        AND end_date <='" . $ed . "'"));
+                                                        $latestAttendance = Illuminate\Support\Facades\DB::table('attendances')
+                                                        ->select('employee_id',Illuminate\Support\Facades\DB::raw("MIN(id) as min_id,MAX(id) as max_id,MIN(time_str_am_pm) as in_time_str,MAX(time_str_am_pm) as out_time_str,
+                                                        MIN(time) as in_time,MAX(time) as out_time"),'date')
+                                                        ->where('date','>=',$sd)
+                                                        ->where('date','<=',$ed)
+                                                        ->groupBy('employee_id','date');
+                                                        
+                                                        $daily_attendance = Illuminate\Support\Facades\DB::table('employees')
+                                                        ->selectRaw("employees.id,employees.name as employee_name,employees.phone,attendance.*,shift.start_time as shift_start_time,shift.end_time as shift_end_time,shift.name as shift_name")
+                                                        ->join('shifts as shift','employees.shift_id','=','shift.id')
+                                                        ->leftjoinSub($latestAttendance, 'attendance', function ($join) {
+                                                            $join->on('employees.id', '=', 'attendance.employee_id');
+                                                        })
+                                                        ->where('employees.id',$emp_val->id)
+                                                        ->get();
 
-                                                        $shift_info = DB::select(DB::raw("SELECT change_shift.shift_id,shift.start_time,shift.end_time,shift.night_status,change_shift.start_date,change_shift.end_date FROM `shift_manages` as change_shift 
-                                                        JOIN `shifts` as shift on shift.id=change_shift.shift_id WHERE change_shift.employee_id='" . $emp_val->id . "' 
-                                                        and change_shift.start_date >='" . $sd . "' AND change_shift.end_date <='" . $ed . "'"));
+                                                        $leave_info = Illuminate\Support\Facades\DB::table('leave_application_manages')
+                                                        ->selectRaw("employee_id,start_date,end_date,leave_id,leave_status")
+                                                        ->where('employee_id',$emp_val->id)
+                                                        ->where('start_date','>=',$sd)
+                                                        ->where('end_date','<=',$ed)
+                                                        ->get();
 
-                                                        $allallowance = DB::select(DB::raw("SELECT SUM(allowAmount.amount) as amount,allowAmount.employee_id,allow.id,allow.name as aname,allow.short_name as asname,allow.type as atype FROM `allowance_deduction_manages` as allowAmount 
-                                                        JOIN `allowance_deductions` as allow ON allow.id=allowAmount.allowance_deduction_id WHERE allowAmount.employee_id='" . $emp_val->id . "' 
-                                                        group by allowAmount.employee_id,atype"));
+                                                        $shift_info = Illuminate\Support\Facades\DB::table('shift_manages as change_shift')
+                                                        ->selectRaw("change_shift.shift_id,shift.start_time,shift.end_time,shift.night_status,change_shift.start_date,change_shift.end_date")
+                                                        ->join('shifts as shift','change_shift.shift_id','=','shift.id')
+                                                        ->where('change_shift.employee_id',$emp_val->id)
+                                                        ->where('change_shift.start_date','>=',$sd)
+                                                        ->where('change_shift.end_date','<=',$ed)
+                                                        ->get();
+
+                                                        $allallowance = Illuminate\Support\Facades\DB::table('allowance_deduction_manages as allowAmount')
+                                                        ->select('allowAmount.employee_id',Illuminate\Support\Facades\DB::raw("SUM(allowAmount.amount) as amount,allowAmount.employee_id,allow.id,allow.name as aname,allow.short_name as asname,allow.type as atype"),'allow.type')
+                                                        ->join('allowance_deductions as allow','allowAmount.allowance_deduction_id','=','allow.id')
+                                                        ->where('allowAmount.employee_id',$emp_val->id)
+                                                        ->groupBy('allowAmount.employee_id','allow.type','allow.id','allowAmount.amount','allow.name','allow.short_name')
+                                                        ->get();
+
+                                                        //dd($allallowance);
+
+                                                        // $allallowance = Illuminate\Support\Facades\DB::select(Illuminate\Support\Facades\DB::raw("SELECT SUM(allowAmount.amount) as amount,allowAmount.employee_id,allow.id,allow.name as aname,allow.short_name as asname,allow.type as atype FROM `allowance_deduction_manages` as allowAmount 
+                                                        // JOIN `allowance_deductions` as allow ON allow.id=allowAmount.allowance_deduction_id WHERE allowAmount.employee_id='" . $emp_val->id . "' 
+                                                        // group by allowAmount.employee_id,atype"));
                                                         $allowanceAmount=0;
                                                         $deductionAmount=0;
                                                         $otherAmount=0;
@@ -220,9 +240,13 @@
                                                         endforeach;
                                                         $holiday=array();
                                                         $holi=0;
-                                                        $weekholiday = DB::select(DB::raw("SELECT wholi.employee_id,wholi.weekly_holiday_id,holi.id,holi.name as hname,holi.short_name as same FROM `weekly_holiday_assigns` as wholi 
-                                                            JOIN holidays as holi ON holi.id=wholi.weekly_holiday_id WHERE wholi.employee_id='" . $emp_val->id . "' 
-                                                            group by wholi.weekly_holiday_id"));
+                                                        $weekholiday = Illuminate\Support\Facades\DB::table('weekly_holiday_assigns as wholi')
+                                                        ->selectRaw("wholi.employee_id,wholi.weekly_holiday_id,holi.id,holi.name as hname,holi.short_name as same")
+                                                        ->join('holidays as holi','weekly_holiday_id','=','holi.id')
+                                                        ->where('wholi.employee_id',$emp_val->id)
+                                                        ->groupBy('wholi.weekly_holiday_id','wholi.employee_id','holi.id','holi.name','holi.short_name')
+                                                        ->get();
+
                                                         foreach($weekholiday as $holidays):
                                                             $holi++;
                                                             $holiday[$holi]=$holidays->weekly_holiday_id;
@@ -233,15 +257,22 @@
                                                             ${'totalAmount-' . $ls->id}=0;
                                                         endforeach;
 
-                                                        $holyday_info = DB::select(DB::raw("SELECT total_holiday.id,total_holiday.name,total_holiday.short_name,total_holiday.start_date,total_holiday.end_date,
-                                                        total_holiday.status FROM `holidays` as total_holiday 
-                                                        WHERE total_holiday.start_date>='" . $sd . "' 
-                                                        and total_holiday.end_date <='" . $ed . "'"));
+                                                        $holyday_info = Illuminate\Support\Facades\DB::table('holidays as total_holiday')
+                                                        ->selectRaw("total_holiday.id,total_holiday.name,total_holiday.short_name,total_holiday.start_date,total_holiday.end_date,total_holiday.status")
+                                                        ->where('total_holiday.start_date','>=',$sd)
+                                                        ->where('total_holiday.end_date','<=',$ed)
+                                                        ->get();
 
                                                         $adjust_amount = 0;
 
-                                                        $loan_info = DB::select(DB::raw("SELECT t_ln.* FROM `loans` as t_ln WHERE t_ln.employee_id='" . $emp_val->id . "' 
-                                                        AND t_ln.loan_status='2'  and (t_ln.month_year ='" . $loan_start_month . "') "));
+
+                                                        $loan_info = Illuminate\Support\Facades\DB::table('loans as t_ln')
+                                                        ->selectRaw("t_ln.*")
+                                                        ->where('t_ln.employee_id',$emp_val->id)
+                                                        ->where('t_ln.loan_status',2)
+                                                        ->where('t_ln.month_year',$loan_start_month)
+                                                        ->get();
+
                                                         $total_loan_adjust_amount = 0;
                                                         if (!empty($loan_info)) {
                                                             $loan_adjust_info = array();
@@ -296,7 +327,7 @@
                                                                 $total_holyday = 0;
                                                                 $gross_salary = 0;
                                                                 foreach ($daily_attendance as $rowp) {
-                                                                    if ($rowp->date == $current_date) {
+                                                                    if (date('Y-m-d', strtotime($rowp->date)) == $current_date) {
                                                                         $in_time_with_date = $rowp->in_time_str;
                                                                         $out_time_with_date = $rowp->out_time_str;
                                                                         $in_time_str = $rowp->in_time;
@@ -308,7 +339,7 @@
                                                                     }
                                                                 }
                                                                 foreach ($daily_attendance as $rown) {
-                                                                    if ($rown->date == $next_day) {
+                                                                    if (date('Y-m-d', strtotime($rown->date)) == $next_day) {
                                                                         $out_time_with_next_date = $rown->in_time_str;// because next date 1st min is the previous day out time
                                                                         $in_time_with_next_date = $rown->out_time_str;// because next date max time is the current day in time
                                                                         $next_day_in_time_str = $rown->in_time;
@@ -320,7 +351,7 @@
                                                                     }
                                                                 }
                                                                 foreach ($daily_attendance as $rowpre) {
-                                                                    if ($rowpre->date == $previous_day) {
+                                                                    if (date('Y-m-d', strtotime($rowpre->date)) == $previous_day) {
                                                                         $out_time_with_previous_date = $rowpre->in_time_str;// because next date 1st min is the previous day out time
                                                                         $in_time_with_previous_date = $rowpre->out_time_str;// because next date max time is the current day in time
                                                                         $previous_day_in_time_str = $rowpre->in_time;
@@ -333,7 +364,7 @@
                                                                 }
                                                                 $leave_data = array();
                                                                 foreach ($leave_info as $val) {
-                                                                    $leave_exists = SalaryGenerate::getDatesFromRange($val->start_date, $val->end_date, $current_date);
+                                                                    $leave_exists = Modules\HRM\Entities\SalaryGenerate::getDatesFromRange($val->start_date, $val->end_date, $current_date);
                                                                     if ($leave_exists == true) {
                                                                         $leave_data = $val->leave_id;
                                                                     }
@@ -341,27 +372,27 @@
 
                                                                 $holyday_data = array();
                                                                 foreach ($holyday_info as $valhol) {
-                                                                    $holyday_exists = SalaryGenerate::getDatesFromRange($valhol->start_date, $valhol->end_date, $current_date);
+                                                                    $holyday_exists = Modules\HRM\Entities\SalaryGenerate::getDatesFromRange($valhol->start_date, $valhol->end_date, $current_date);
                                                                     if ($holyday_exists == true) {
                                                                         $holyday_data = $valhol->id;
                                                                     }
                                                                 }
                                                                 foreach ($shift_info as $shift_val) {
-                                                                    $shift_exists = SalaryGenerate::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $current_date);
+                                                                    $shift_exists = Modules\HRM\Entities\SalaryGenerate::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $current_date);
                                                                     if ($shift_exists == true) {
                                                                         $check_shift_id = $shift_val->shift_id;
                                                                         $check_shift_start_time = $shift_val->start_time;
                                                                         $check_shift_end_time = $shift_val->end_time;
                                                                         $check_shift_night_status = $shift_val->night_status;
                                                                     }
-                                                                    $shift_exists_next_day = SalaryGenerate::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $next_day);
+                                                                    $shift_exists_next_day = Modules\HRM\Entities\SalaryGenerate::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $next_day);
                                                                     if ($shift_exists_next_day == true) {
                                                                         $next_check_shift_id = $shift_val->shift_id;
                                                                         $next_check_shift_start_time = $shift_val->start_time;
                                                                         $next_check_shift_end_time = $shift_val->end_time;
                                                                         $next_check_shift_night_status = $shift_val->night_status;
                                                                     }
-                                                                    $shift_exists_previous_day = SalaryGenerate::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $previous_day);
+                                                                    $shift_exists_previous_day = Modules\HRM\Entities\SalaryGenerate::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $previous_day);
                                                                     if ($shift_exists_previous_day == true) {
                                                                         $previous_check_shift_id = $shift_val->shift_id;
                                                                         $previous_check_shift_start_time = $shift_val->start_time;
@@ -405,7 +436,7 @@
                                                                     } else {
                                                                         $current_date_check_shift_start_time = strtotime($current_date . " " . date('H:i:s', strtotime($check_shift_start_time) - (60 * 60)));
                                                                         if (!empty($previous_check_shift_night_status) && $previous_check_shift_night_status == 1) {
-                                                                            $get_current_day_second_in_time = SalaryGenerate::get_current_day_second_in_time('attendences', $emp_val->id, $current_date, $current_date_check_shift_start_time);
+                                                                            $get_current_day_second_in_time = Modules\HRM\Entities\SalaryGenerate::get_current_day_second_in_time('attendences', $emp_val->id, $current_date, $current_date_check_shift_start_time);
 
                                                                             if (!empty($get_current_day_second_in_time)) { // if previous day shift is night shift then current date out time(max time) is the current day in time
                                                                                 $in_time_date_with_shift = $get_current_day_second_in_time;
@@ -611,7 +642,7 @@
                                                             </td>
                                                             <td>
                                                                 <?php 
-                                                                $designation = SalaryGenerate::getAnyRowInfos('designations','id',$emp_val->current_designation_id);
+                                                                $designation = Modules\HRM\Entities\SalaryGenerate::getAnyRowInfos('designations','id',$emp_val->current_designation_id);
                                                                 echo $designation->name ?>
                                                                 <input type="hidden" name="designation[]"
                                                                         value="<?php echo $emp_val->current_designation_id; ?>"/>
@@ -773,8 +804,6 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-md-12 pt-5 text-center">
-                                        <button type="button" class="btn btn-danger btn-sm mr-3"><i class="fas fa-sync-alt"></i>
-                                            Reset</button>
                                         <button type="button" class="btn btn-primary btn-sm mr-3" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
                                     </div>
                                 </div>

@@ -19,6 +19,8 @@ class CreatePurchaseOrderMaterialsTable extends Migration
             $table->foreign('order_id')->references('id')->on('purchase_orders');
             $table->unsignedBigInteger('material_id');
             $table->foreign('material_id')->references('id')->on('materials');
+            $table->unsignedBigInteger('item_class_id');
+            $table->foreign('item_class_id')->references('id')->on('item_classes');
             $table->double('qty',12,0);
             $table->unsignedBigInteger('purchase_unit_id')->nullable();
             $table->foreign('purchase_unit_id')->references('id')->on('units');

@@ -14,17 +14,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('production', 'ProductionController@index')->name('production');
-    Route::get('production/create', 'ProductionController@create')->name('production.create');
+    // Route::get('production', 'ProductionController@index')->name('production');
+    // Route::get('production/create', 'ProductionController@create')->name('production.create');
     
     // Route::get('received-item', 'ReceivedItemController@index')->name('received.item');
     // Route::get('received-item/create', 'ReceivedItemController@create')->name('received.item.create');
     
-    Route::get('build-disassembly', 'DisassemblyController@create')->name('build.disassembly');
+    // Route::get('build-disassembly', 'DisassemblyController@create')->name('build.disassembly');
 
-    Route::get('build-reprocess', 'BuilReProcessController@create')->name('build.reprocess');
+    // Route::get('build-reprocess', 'BuilReProcessController@create')->name('build.reprocess');
 
-    Route::get('bom-process', 'BOMProcessController@create')->name('bom.process');
+    // Route::get('bom-process', 'BOMProcessController@create')->name('bom.process');
 
-    Route::get('bom-repacking', 'BOMRePackingController@create')->name('bom.repacking');
+    // Route::get('bom-repacking', 'BOMRePackingController@create')->name('bom.repacking');
 });

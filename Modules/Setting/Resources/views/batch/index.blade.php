@@ -4,6 +4,7 @@
 
 @push('styles')
 <link href="plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
 @endpush
 
 @section('content')
@@ -28,8 +29,9 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
-                        <x-form.textbox labelName="WIP Batch No." name="batch_no" col="col-md-4" />
-                        <div class="col-md-8">
+                        <x-form.textbox labelName="Batch Start Date" name="batch_start_date" class="date" col="col-md-4" />
+                        <x-form.textbox labelName="Packaging Batch No." name="batch_no" col="col-md-4" />
+                        <div class="col-md-4">
                             <div style="margin-top:28px;">       
                                 <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -60,7 +62,8 @@
                                         </th>
                                         @endif
                                         <th>Sl</th>
-                                        <th>WIP Batch No.</th>
+                                        <th>Batch Start Date</th>
+                                        <th>Packaging Batch No.</th>
                                         <th>Status</th>
                                         <th>Created By</th>
                                         <th>Modified By</th>
@@ -85,10 +88,12 @@
 
 @push('scripts')
 <script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+<script src="js/moment.js"></script>
+<script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
     var table;
     $(document).ready(function(){
-    
+        $('.date').datetimepicker({format: 'DD-MM-YYYY'});
         table = $('#dataTable').DataTable({
             "processing": true, //Feature control the processing indicator
             "serverSide": true, //Feature control DataTable server side processing mode
@@ -111,24 +116,25 @@
                 "url": "{{route('wip.batch.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
+                    data.batch_start_date = $("#form-filter #batch_start_date").val();
                     data.batch_no = $("#form-filter #batch_no").val();
                     data._token    = _token;
                 }
             },
             "columnDefs": [{
                     @if (permission('wip-batch-bulk-delete'))
-                    "targets": [0,8],
+                    "targets": [0,9],
                     @else 
-                    "targets": [7],
+                    "targets": [8],
                     @endif
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
                     @if (permission('wip-batch-bulk-delete'))
-                    "targets": [1,2,3,4,5,6,7],
+                    "targets": [1,4,5,6,7,8],
                     @else 
-                    "targets": [0,1,2,3,4,5,6],
+                    "targets": [0,3,4,5,6,7],
                     @endif
                     "className": "text-center"
                 }
@@ -150,9 +156,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('wip-batch-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     },
                     customize: function (win) {
@@ -167,9 +173,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                          @if (permission('wip-batch-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     }
                 },
@@ -181,9 +187,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                          @if (permission('wip-batch-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     }
                 },
@@ -197,9 +203,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                          @if (permission('wip-batch-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(8))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else
-                        columns: ':visible:not(:eq(7))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     },
                 },
@@ -301,6 +307,7 @@
                             notification(data.status,data.message)
                         }else{
                             $('#store_or_update_form #update_id').val(data.id);
+                            $('#store_or_update_form #batch_start_date').val(data.batch_start_date);
                             $('#store_or_update_form #batch_no').val(data.batch_no);
                             $('#store_or_update_modal').modal({
                                 keyboard: false,

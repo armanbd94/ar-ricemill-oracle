@@ -25,9 +25,9 @@
         <div class="card card-custom">
             <div class="card-header flex-wrap py-5">
              <form method="GET" action="{{ route('salary.generate.report.data') }}" id="form-filter" class="col-md-12 px-0">
-                    <div class="row justify-content-center">
+                    <div class="row">                     
                         
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-4">
                             <label for="name">Choose Your Date</label>
                             <div class="input-group">
                                 <input type="text" class="form-control daterangepicker-filed" value="{{ date('Y-m-d') }} To {{ date('Y-m-d') }}">
@@ -35,14 +35,14 @@
                                 <input type="hidden" id="end_date" name="end_date" value="{{ date('Y-m-d')}}">
                             </div>
                         </div>
-                        <x-form.selectbox labelName="Employee" name="employee_id" col="col-md-3" class="selectpicker">
+                        <x-form.selectbox labelName="Employee" name="employee_id" col="col-md-4" class="selectpicker">
                             @if (!$employees->isEmpty())
                                 @foreach ($employees as $value)
-                                    <option value="{{ $value->id }}">{{ $value->name.' - '.$value->employee_id  }}</option>
+                                    <option value="{{ $value->id }}">{{ $value->name.' - '.$value->employee_id.' | '.$value->department->name.' | '.$value->current_designation->name  }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
-                        <x-form.selectbox labelName="Department" name="department_id" col="col-md-3" onchange="getDivisionList(this.value)" class="selectpicker">
+                        <!--<x-form.selectbox labelName="Department" name="department_id" col="col-md-3" onchange="getDivisionList(this.value)" class="selectpicker">
                             @if (!$departments->isEmpty())
                             @foreach ($departments as $department)
                             <option value="{{ $department->id }}">{{ $department->name }}</option>
@@ -55,8 +55,8 @@
                                     <option value="{{ $value->id }}">{{ $value->name }}</option>
                                 @endforeach
                             @endif
-                        </x-form.selectbox>                        
-                        <div class="col-md-1">
+                        </x-form.selectbox> -->                       
+                        <div class="col-md-4">
                             <div style="margin-top:28px;">    
                                 <div style="margin-top:28px;">        
                                     <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="submit"
@@ -113,16 +113,16 @@
                                         <tr>
                                             <th class="text-center">ABS</th>
                                             <th class="text-center">LATE</th>
-                                            <th class="text-center">TK</th>
+                                            <th class="text-center">Tk</th>
                                             @if (!$leaves->isEmpty())
                                                 @foreach ($leaves as $value)
                                                 <th class="text-center">{{ $value->short_name }}</th>
                                                 @endforeach
                                             @endif
-                                            <th class="text-center">TK</th>
+                                            <th class="text-center">Tk</th>
                                             <th class="text-center">HOUR</th>
                                             <th class="text-center">DAY</th>
-                                            <th class="text-center">TK</th>
+                                            <th class="text-center">Tk</th>
                                             <th class="text-center">Loan</th>
                                             <!-- <th class="text-center">Adv</th>
                                             <th class="text-center">Loan</th>

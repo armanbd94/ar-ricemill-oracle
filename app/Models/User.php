@@ -3,6 +3,7 @@
 namespace App\Models;
 
 
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;

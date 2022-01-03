@@ -3,6 +3,7 @@
 namespace Modules\Purchase\Http\Controllers;
 
 use Exception;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -35,7 +36,7 @@ class ReceivedItemController extends BaseController
     public function purchase_received_memo_form()
     {
         if(permission('purchase-received-add')){
-            $this->setPageData('Purchase Received Form','Purchase Received Form','fas fa-truck-loading',[['name' => 'Purchase Received Form']]);
+            $this->setPageData('Purchase Order Memo Form','Purchase Order Memo Form','fas fa-truck-loading',[['name' => 'Purchase Order Memo Form']]);
             return view('purchase::purchase-received.form');
         }else{
             return $this->access_blocked();
@@ -114,6 +115,7 @@ class ReceivedItemController extends BaseController
                     $data = [
                         'purchase' => $purchase,
                         'sites' => Site::allSites(),
+                        'classes'   => ItemClass::allItemClass()
                     ];
                     return view('purchase::purchase-received.create',$data);
                 }else{
@@ -180,6 +182,7 @@ class ReceivedItemController extends BaseController
                                     'order_id'         => $request->order_id,
                                     'received_id'      => $order_received->id,
                                     'material_id'      => $value['id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
                                     'received_qty'     => $value['qty'],
@@ -263,6 +266,7 @@ class ReceivedItemController extends BaseController
                 'purchase' => $purchase,
                 'sites'    => Site::allSites(),
                 'receive'  => $receive,
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('purchase::purchase-received.edit',$data);
         }else{
@@ -333,6 +337,7 @@ class ReceivedItemController extends BaseController
 
                             $materials[$value['id']] = [
                                 'order_id'         => $orderReceivedData->order_id,
+                                'item_class_id'    => $value['item_class_id'],
                                 'site_id'          => $value['site_id'],
                                 'location_id'      => $value['location_id'],
                                 'received_qty'     => $value['qty'],
@@ -379,10 +384,10 @@ class ReceivedItemController extends BaseController
                     $purchase = $orderReceivedData->update($order_received);
                     $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
                     $purchase_order = PurchaseOrder::find($order_id);
-                    if($total_received_qty >= $purchase_order->order_total_qty)
+                    if($total_received_qty >= $purchase_order->total_qty)
                     {
                         $purchase_order->purchase_status = 1;
-                    }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                    }elseif (($total_received_qty < $purchase_order->total_qty) && ($total_received_qty > 0)) {
                         $purchase_order->purchase_status = 2;
                     }else{
                         $purchase_order->purchase_status = 3;
@@ -449,10 +454,10 @@ class ReceivedItemController extends BaseController
                     {
                         $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
                         $purchase_order = PurchaseOrder::find($order_id);
-                        if($total_received_qty >= $purchase_order->order_total_qty)
+                        if($total_received_qty >= $purchase_order->total_qty)
                         {
                             $purchase_order->purchase_status = 1;
-                        }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                        }elseif (($total_received_qty < $purchase_order->total_qty) && ($total_received_qty > 0)) {
                             $purchase_order->purchase_status = 2;
                         }else{
                             $purchase_order->purchase_status = 3;
@@ -520,10 +525,10 @@ class ReceivedItemController extends BaseController
                         {
                             $total_received_qty = $this->model->where('order_id',$order_id)->sum('total_qty');
                             $purchase_order = PurchaseOrder::find($order_id);
-                            if($total_received_qty >= $purchase_order->order_total_qty)
+                            if($total_received_qty >= $purchase_order->total_qty)
                             {
                                 $purchase_order->purchase_status = 1;
-                            }elseif (($total_received_qty < $purchase_order->order_total_qty) && ($total_received_qty > 0)) {
+                            }elseif (($total_received_qty < $purchase_order->total_qty) && ($total_received_qty > 0)) {
                                 $purchase_order->purchase_status = 2;
                             }else{
                                 $purchase_order->purchase_status = 3;

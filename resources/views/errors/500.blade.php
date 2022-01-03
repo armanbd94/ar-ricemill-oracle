@@ -42,6 +42,8 @@
         background: #39ac31;
         margin: 20px 0;
         display: inline-block;
+        border:0;
+        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.5);
     }
 
     .contant_box_404 {
@@ -70,7 +72,7 @@
 
                             <h5 style="font-size: 25px;margin:0;">We are currently trying to fix the problem.</h5>
 
-                            <a href="{{ url('/') }}" class="link_404" style="text-decoration: none;">Go to Home</a>
+                            <a href="{{ url('/') }}" class="link_404 custom-btn" style="text-decoration: none;">Go to Home</a>
                         </div>
                     </div>
                 </div>

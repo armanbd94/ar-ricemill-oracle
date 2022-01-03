@@ -8,6 +8,6 @@ class TransferInventoryItem extends Model
 {
     protected $table = 'transfer_inventory_items';
     protected $fillable = [
-        'transfer_id','material_id','qty','description'
+        'transfer_id','material_id','item_class_id','qty','description'
     ];
 }

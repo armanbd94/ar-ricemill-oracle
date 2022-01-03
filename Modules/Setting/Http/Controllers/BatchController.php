@@ -32,6 +32,9 @@ class BatchController extends BaseController
                 if (!empty($request->batch_no)) {
                     $this->model->setBatchNo($request->batch_no);
                 }
+                if (!empty($request->batch_start_date)) {
+                    $this->model->setBatchStartDate($request->batch_start_date);
+                }
 
                 $this->set_datatable_default_properties($request);//set datatable default properties
                 $list = $this->model->getDatatableList();//get table data
@@ -53,6 +56,7 @@ class BatchController extends BaseController
                         $row[] = row_checkbox($value->id);//custom helper function to show the table each row checkbox
                     }
                     $row[] = $no;
+                    $row[] = date('d-m-Y',strtotime($value->batch_start_date));
                     $row[] = $value->batch_no;
                     $row[] = permission('wip-batch-edit') ? change_status($value->id,$value->status, $value->batch_no) : STATUS_LABEL[$value->status];
                     $row[] = $value->created_by;
@@ -74,7 +78,8 @@ class BatchController extends BaseController
     {
         if($request->ajax()){
             if(permission('wip-batch-add')){
-                $collection   = collect($request->validated());
+                $collection   = collect($request->validated())->except('batch_start_date');
+                $collection   = $collection->merge(['batch_start_date'=>date('Y-m-d',strtotime($request->batch_start_date))]);
                 $collection   = $this->track_data($collection,$request->update_id);
                 $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());
                 $output       = $this->store_message($result, $request->update_id);
@@ -93,7 +98,11 @@ class BatchController extends BaseController
         if($request->ajax()){
             if(permission('wip-batch-edit')){
                 $data   = $this->model->findOrFail($request->id);
-                $output = $this->data_message($data); //if data found then it will return data otherwise return error message
+                $output = [
+                    'id'=>$data->id,
+                    'batch_start_date'=>date('d-m-Y',strtotime($data->batch_start_date)),
+                    'batch_no'=>$data->batch_no,
+                ]; //if data found then it will return data otherwise return error message
             }else{
                 $output       = $this->unauthorized();
             }

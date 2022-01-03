@@ -1,6 +1,3 @@
-@php
-    use Modules\HRM\Entities\AttendanceReport;
-@endphp
 @extends('layouts.app')
 
 @section('title', $page_title)
@@ -140,9 +137,9 @@
                                     $weekend = 0;
                                     $weekends = 0;
                                     $total_holyday = 0;
-                                    
+                                    //dd($daily_attendance);
                                     foreach ($daily_attendance as $rowp) {
-                                        if ($rowp->date == $current_date) {
+                                        if (date('Y-m-d', strtotime($rowp->date)) == $current_date) {
                                             $in_time_with_date = $rowp->in_time_str;
                                             $out_time_with_date = $rowp->out_time_str;
                                             $in_time_str = $rowp->in_time;
@@ -155,7 +152,7 @@
                                     }
 
                                     foreach ($daily_attendance as $rown) {
-                                        if ($rown->date == $next_day) {
+                                        if (date('Y-m-d', strtotime($rown->date)) == $next_day) {
                                             $out_time_with_next_date = $rown->in_time_str;// because next date 1st min is the previous day out time
                                             $in_time_with_next_date = $rown->out_time_str;// because next date max time is the current day in time
                                             $next_day_in_time_str = $rown->in_time;
@@ -167,7 +164,7 @@
                                         }
                                     }
                                     foreach ($daily_attendance as $rowpre) {
-                                        if ($rowpre->date == $previous_day) {
+                                        if (date('Y-m-d', strtotime($rowpre->date)) == $previous_day) {
                                             $out_time_with_previous_date = $rowpre->in_time_str;// because next date 1st min is the previous day out time
                                             $in_time_with_previous_date = $rowpre->out_time_str;// because next date max time is the current day in time
                                             $previous_day_in_time_str = $rowpre->in_time;
@@ -180,35 +177,35 @@
                                     }
                                     $leave_data = array();
                                     foreach ($leave_info as $val) {
-                                        $leave_exists = AttendanceReport::getDatesFromRange($val->start_date, $val->end_date, $current_date);
+                                        $leave_exists = Modules\HRM\Entities\AttendanceReport::getDatesFromRange($val->start_date, $val->end_date, $current_date);
                                         if ($leave_exists == true) {
                                             $leave_data = $val->leave_id;
                                         }
                                     }
                                     $holyday_data = array();
                                     foreach ($holyday_info as $valhol) {
-                                        $holyday_exists = AttendanceReport::getDatesFromRange($valhol->start_date, $valhol->end_date, $current_date);
+                                        $holyday_exists = Modules\HRM\Entities\AttendanceReport::getDatesFromRange($valhol->start_date, $valhol->end_date, $current_date);
                                         if ($holyday_exists == true) {
                                             $holyday_data = $valhol->name;
                                         }
                                     }
 
                                     foreach ($shift_info as $shift_val) {
-                                        $shift_exists = AttendanceReport::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $current_date);
+                                        $shift_exists = Modules\HRM\Entities\AttendanceReport::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $current_date);
                                         if ($shift_exists == true) {
                                             $check_shift_id = $shift_val->shift_id;
                                             $check_shift_start_time = $shift_val->start_time;
                                             $check_shift_end_time = $shift_val->end_time;
                                             $check_shift_night_status = $shift_val->night_status;
                                         }
-                                        $shift_exists_next_day = AttendanceReport::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $next_day);
+                                        $shift_exists_next_day = Modules\HRM\Entities\AttendanceReport::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $next_day);
                                         if ($shift_exists_next_day == true) {
                                             $next_check_shift_id = $shift_val->shift_id;
                                             $next_check_shift_start_time = $shift_val->start_time;
                                             $next_check_shift_end_time = $shift_val->end_time;
                                             $next_check_shift_night_status = $shift_val->night_status;
                                         }
-                                        $shift_exists_previous_day = AttendanceReport::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $previous_day);
+                                        $shift_exists_previous_day = Modules\HRM\Entities\AttendanceReport::getDatesFromRange($shift_val->start_date, $shift_val->end_date, $previous_day);
                                         if ($shift_exists_previous_day == true) {
                                             $previous_check_shift_id = $shift_val->shift_id;
                                             $previous_check_shift_start_time = $shift_val->start_time;
@@ -274,6 +271,7 @@
                                                     }
                                                 }
                                             } else {
+                                                //dd($in_time_with_date);
                                                 if (!empty($in_time_with_date))
                                                     $in_time = date('h:i:s a', $in_time_with_date);
                                                 else
@@ -325,7 +323,7 @@
                                         <td class="text-nowrap">                                            
                                         <?php
                                             if (!empty($check_shift_id)) {
-                                                $check_shift_info = AttendanceReport::getAnyRowInfos('shifts', 'id', $check_shift_id);
+                                                $check_shift_info = Modules\HRM\Entities\AttendanceReport::getAnyRowInfos('shifts', 'id', $check_shift_id);
                                                 echo $check_shift_info->name . "(" . date('h:i:s a', strtotime($check_shift_info->start_time)) . "-" . date('h:i:s a', strtotime($check_shift_info->end_time)) . ")";
                                             } else {
                                                 if (!empty($default_shift_name)) {

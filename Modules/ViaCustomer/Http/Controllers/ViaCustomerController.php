@@ -184,4 +184,10 @@ class ViaCustomerController extends BaseController
             return response()->json($this->unauthorized());
         }
     }
+
+    public function customer_wise_list(int $customer_id)
+    {
+        $via_customers = $this->model->where([['customer_id',$customer_id],['status',1]])->get();
+        return json_encode($via_customers);
+    }
 }

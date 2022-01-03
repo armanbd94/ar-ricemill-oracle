@@ -79,11 +79,9 @@ class ProductController extends BaseController
                     $row[] = $value->name;
                     $row[] = $value->code;
                     $row[] = $value->category->name;
-                    $row[] = $value->cost ? number_format($value->cost,2,'.',',') : 0;
-                    $row[] = $value->cost ? number_format($value->price,2,'.',',') : 0;
+                    $row[] = $value->price ? number_format($value->price,2,'.',',') : 0;
                     $row[] = $value->unit->unit_name;
-                    $row[] = $value->qty ? $value->qty : "<span class='label label-rounded label-danger'>0</span>";
-                    $row[] = $value->alert_qty ? $value->alert_qty : "<span class='label label-rounded label-danger'>0</span>";
+                    $row[] = $value->alert_qty ? $value->alert_qty : 0;
                     $row[] = permission('product-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
@@ -207,5 +205,45 @@ class ProductController extends BaseController
         }else{
             return response()->json($code);
         }
+    }
+
+    public function product_list(Request $request)
+    {
+        $category_id = $request->category_id;
+        $products = DB::table('site_product as sp')
+        ->select('p.id','p.name as product_name','c.name as category_name','u.unit_name','u.unit_code','sp.qty')
+        ->leftJoin('products as p','sp.product_id','=','p.id')
+        ->leftJoin('categories as c','p.category_id','=','c.id')
+        ->leftJoin('units as u','p.unit_id','=','u.id')
+        ->where([
+            'sp.site_id'     => $request->site_id,
+            'sp.location_id' => $request->location_id,
+        ])
+        ->when( $category_id,function($q) use ($category_id){
+            $q->where('p.category_id','!=',$category_id);
+        })
+        ->orderBy('p.category_id','desc')
+        ->orderBy('p.id','asc')
+        ->get();
+
+        $output = '<option value="">Select Please</option>';
+        if(!$products->isEmpty())
+        {
+            foreach ($products as $value) {
+                $output .= '<option value="'.$value->id.'" data-stockqty="'.$value->qty.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'" data-unitcode="'.$value->unit_code.'">'.$value->product_name.'</option>';
+            }
+        }
+        return $output;
+    }
+
+    public function stock_qty(Request $request)
+    {
+        $stock_qty = DB::table('site_product')->where([
+            'site_id'     => $request->site_id,
+            'location_id' => $request->location_id,
+            'product_id' => $request->product_id,
+        ])->value('qty');
+
+        return response()->json($stock_qty ?? 0);
     }
 }

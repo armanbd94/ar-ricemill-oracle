@@ -10,7 +10,13 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('role') }}" class="btn btn-secondary btn-sm font-weight-bolder"> 
+                    @if(isset($role))
+                    <a href="{{ route('role') }}" class="btn btn-danger btn-sm custom-btn mr-3"><i class="fas fa-window-close"></i> Cancel</a>
+                    @else
+                    <button type="reset" class="btn btn-danger btn-sm  custom-btn mr-3"><i class="fas fa-sync-alt"></i> Reset</button>
+                    @endif
+                    <button type="button" class="btn btn-primary btn-sm custom-btn mr-3" id="save-btn"><i class="fas fa-save"></i> @if(isset($role)) {{ 'Update' }} @else {{ 'Save' }} @endif</button>
+                    <a href="{{ route('role') }}" class="btn btn-secondary btn-sm font-weight-bold  custom-btn"> 
                         <i class="fas fa-arrow-circle-left"></i> Back
                     </a>
                     <!--end::Button-->
@@ -106,14 +112,6 @@
                                             @endforeach
                                         @endif
                                     </ul>
-                                </div>
-                                <div class="col-md-12 pt-4 text-center">
-                                    @if(isset($role))
-                                    <a href="{{ route('role') }}" class="btn btn-danger btn-sm font-weight-bolder">Cancel</a>
-                                    @else
-                                    <button type="reset" class="btn btn-danger btn-sm">Reset</button>
-                                    @endif
-                                    <button type="button" class="btn btn-primary btn-sm" id="save-btn">@if(isset($role)) {{ 'Update' }} @else {{ 'Save' }} @endif</button>
                                 </div>
                             </div>
                         </form>

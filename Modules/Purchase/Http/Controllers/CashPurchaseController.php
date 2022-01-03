@@ -3,6 +3,7 @@
 namespace Modules\Purchase\Http\Controllers;
 
 use Exception;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -99,7 +100,8 @@ class CashPurchaseController extends BaseController
             $data = [
                 'job_types' => JobType::allJobTypes(),
                 'sites'     => Site::allSites(),
-                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'materials' => Material::with('category')->where([['status',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
             
             return view('purchase::cash-purchase.create',$data);
@@ -152,6 +154,7 @@ class CashPurchaseController extends BaseController
                                 $materials[] = [
                                     'cash_id'         => $cashPurchase->id,
                                     'material_id'      => $value['id'],
+                                    'item_class_id'    => $value['item_class_id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
                                     'qty'              => $value['qty'],
@@ -236,6 +239,7 @@ class CashPurchaseController extends BaseController
                 'job_types' => JobType::allJobTypes(),
                 'sites'     => Site::allSites(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'classes'   => ItemClass::allItemClass()
             ];
             return view('purchase::cash-purchase.edit',$data);
         }else{
@@ -311,6 +315,7 @@ class CashPurchaseController extends BaseController
                                 }
 
                                 $materials[$value['id']] = [
+                                    'item_class_id'    => $value['item_class_id'],
                                     'site_id'          => $value['site_id'],
                                     'location_id'      => $value['location_id'],
                                     'qty'              => $value['qty'],

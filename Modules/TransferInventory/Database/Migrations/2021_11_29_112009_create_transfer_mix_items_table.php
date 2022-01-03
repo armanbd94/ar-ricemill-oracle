@@ -23,6 +23,8 @@ class CreateTransferMixItemsTable extends Migration
             $table->foreign('from_location_id')->references('id')->on('locations');
             $table->unsignedBigInteger('material_id');
             $table->foreign('material_id')->references('id')->on('materials');
+            $table->unsignedBigInteger('item_class_id');
+            $table->foreign('item_class_id')->references('id')->on('item_classes');
             $table->double('qty',12,0);
             $table->text('description')->nullable();
             $table->timestamps();

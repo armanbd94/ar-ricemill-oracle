@@ -22,6 +22,16 @@ class Category extends BaseModel
     {
         return $this->hasManyThrough(WarehouseProduct::class, Product::class,'category_id','product_id','id','id');
     }
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_id','id');
+    }
+    public function materials()
+    {
+        return $this->hasMany(Material::class, 'category_id','id');
+    }
+
+
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/

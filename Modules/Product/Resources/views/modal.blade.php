@@ -49,7 +49,7 @@
                         
                         <x-form.textbox labelName="Stock Alert Quantity" name="alert_qty" col="col-md-6" placeholder="0"/>
                         <div class="col-md-6 form-group">
-                            <label for="tax_id">Material Tax</label>
+                            <label for="tax_id">Product Tax</label>
                             <select name="tax_id" id="tax_id" required="required" class="form-control selectpicker">
                                 <option value="0" selected>No Tax</option>
                                 @if (!$taxes->isEmpty())
@@ -75,8 +75,8 @@
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary btn-sm" id="save-btn"></button>
+            <button type="button" class="btn btn-danger btn-sm custom-btn" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary btn-sm custom-btn" id="save-btn"></button>
             </div>
             <!-- /modal footer -->
         </form>

@@ -18,14 +18,12 @@ class TransferInventoryMixFormRequest extends FormRequest
         $this->rules['memo_no']        = ['nullable'];
         $this->rules['transfer_date']  = ['required','date_format:Y-m-d'];
         $this->rules['batch_id']       = ['required'];
-        $this->rules['product_id']     = ['required'];
-        $this->rules['category_id']    = ['required'];
+        $this->rules['material_id']     = ['required'];
         $this->rules['to_site_id']     = ['required'];
         $this->rules['to_location_id'] = ['required'];
 
         $this->messages['batch_id.required']       = 'This wip batch field is required';
-        $this->messages['product_id.required']     = 'This mix item field is required';
-        $this->messages['category_id.required']    = 'This class field is required';
+        $this->messages['material_id.required']     = 'This mix item field is required';
         $this->messages['to_site_id.required']     = 'This transfer to field is required';
         $this->messages['to_location_id.required'] = 'This to location field is required';
         // if(request()->purchase_id)

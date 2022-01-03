@@ -15,6 +15,7 @@ use Modules\HRM\Entities\SalaryGeneratePayment;
 
 class SalaryGenerate extends BaseModel
 {
+    protected $table = "salary_generates";
     protected $fillable = ['employee_id','designation_id','department_id','division_id','date', 'salary_month', 'basic_salary', 'allowance_amount', 'deduction_amount', 'absent', 'absent_amount', 'late_count', 'leave', 'leave_amount', 'ot_hour', 'ot_day', 'ot_amount', 'gross_salary', 'add_deduct_amount', 'adjusted_advance_amount', 'adjusted_loan_amount', 'net_salary', 'paid_amount', 'payment_status', 'payment_method', 'status','deletable ', 'created_by', 'modified_by'];
 
     public function employee_get()
@@ -23,7 +24,7 @@ class SalaryGenerate extends BaseModel
     }
     public function salary_payments()
     {
-        return $this->hasMany(SalaryGeneratePayment::class);
+        return $this->hasMany(SalaryGeneratePayment::class,'salary_generated_id','id');
     }
 
     public function department()

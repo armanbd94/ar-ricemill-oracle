@@ -165,6 +165,7 @@ class EmployeeController extends BaseController
             if (permission('employee-add') || permission('employee-edit')) {
                 DB::beginTransaction();
                 try {
+                    //dd($request->all());
                     $collection = collect($request->validated())->except(['nid_photo', 'photograph']);
                     // dd($request->all());
                     $nid_photo = !empty($request->old_nid_photo) ? $request->old_nid_photo : null;
@@ -271,6 +272,7 @@ class EmployeeController extends BaseController
                             //$head_name         = $employee->id . '-' . $employee->name . '-' . $employee->wallet_number;
                             $head_name         = $employee->id . '-' . $employee->name . '-E';
                             $employee_coa_data = $this->employee_coa($code, $head_name);
+                            //dd($employee_coa_data);
                             $employee_coa      = ChartOfAccount::create($employee_coa_data);
                         } else {
                             //$old_head_name = $request->update_id . '-' . $request->old_name . '-' . $request->old_wallet_number;

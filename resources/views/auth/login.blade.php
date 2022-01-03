@@ -114,7 +114,7 @@
 										
 									</div>
 									<div class="form-group d-flex flex-wrap justify-content-center align-items-center mt-2">
-										<button type="submit" class="btn btn-primary font-weight-bold px-9 py-4 my-3 w-100"><i class="fa fa-sign-in"></i> Sign In</button>
+										<button type="submit" class="btn btn-primary font-weight-bold px-9 py-4 my-3 w-100 custom-btn"><i class="fa fa-sign-in"></i> Sign In</button>
 									</div>
 								</form>
 							</div>

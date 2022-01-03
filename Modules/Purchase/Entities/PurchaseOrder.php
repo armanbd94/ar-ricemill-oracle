@@ -27,7 +27,7 @@ class PurchaseOrder extends BaseModel
     public function  materials()
     {
         return $this->belongsToMany(Material::class,'purchase_order_materials','order_id','material_id','id','id')
-        ->withPivot('id', 'qty', 'purchase_unit_id', 'net_unit_cost', 'total', 'description')
+        ->withPivot('id', 'qty','item_class_id', 'purchase_unit_id', 'net_unit_cost', 'total', 'description')
         ->withTimeStamps(); 
     }
 
@@ -36,7 +36,7 @@ class PurchaseOrder extends BaseModel
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     //custom search column property
-    protected $_memo_no; 
+    protected $_memo_no;  
     protected $_from_date; 
     protected $_to_date; 
     protected $_vendor_id; 

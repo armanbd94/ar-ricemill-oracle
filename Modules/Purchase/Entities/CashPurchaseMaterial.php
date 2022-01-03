@@ -14,7 +14,7 @@ class CashPurchaseMaterial extends Model
 {
     protected $table = 'cash_purchase_materials';
     protected $fillable = [
-        'cash_id','material_id', 'site_id', 'location_id','qty','purchase_unit_id','net_unit_cost','old_cost','total','description',
+        'cash_id','material_id','item_class_id', 'site_id', 'location_id','qty','purchase_unit_id','net_unit_cost','old_cost','total','description',
     ];
 
     public function cash_purchase()

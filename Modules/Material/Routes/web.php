@@ -27,6 +27,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('generate-code', 'MaterialController@generateMaterialCode')->name('generate.code');
         Route::post('stock-data', 'MaterialController@material_stock_data')->name('stock.data');
         Route::post('list', 'MaterialController@material_list')->name('list');
+        Route::post('bag-list', 'MaterialController@bag_list')->name('bag.list');
     });
 
 });

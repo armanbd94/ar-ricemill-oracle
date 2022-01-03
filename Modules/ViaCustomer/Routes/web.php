@@ -22,5 +22,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('delete', 'ViaCustomerController@delete')->name('delete');
         Route::post('bulk-delete', 'ViaCustomerController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'ViaCustomerController@change_status')->name('change.status');
+        
     });
+    Route::get('customer-wise-via-customer-list/{customer_id}', 'ViaCustomerController@customer_wise_list')->name('customer.wise.via.customer.list');
 });

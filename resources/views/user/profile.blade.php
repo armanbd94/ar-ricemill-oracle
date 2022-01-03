@@ -64,7 +64,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-md-12" style="padding-top:20px;">
-                                        <button type="button" class="btn btn-primary btn-sm" id="save-profile" onclick="save_data('profile')"><i class="far fa-save"></i> Save</button>
+                                        <button type="button" class="btn btn-primary btn-sm custom-btn" id="save-profile" onclick="save_data('profile')"><i class="far fa-save"></i> Save</button>
                                     </div>
                                 </div>
                                
@@ -115,7 +115,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-md-12" style="padding-top:20px;">
-                                    <button type="button" class="btn btn-primary btn-sm" id="save-password" onclick="save_data('password')"><i class="far fa-save"></i> Save</button>
+                                    <button type="button" class="btn btn-primary btn-sm custom-btn" id="save-password" onclick="save_data('password')"><i class="far fa-save"></i> Save</button>
                                 </div>
                             </form>
                         </div>

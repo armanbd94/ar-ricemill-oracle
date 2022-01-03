@@ -15,7 +15,7 @@
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('product-add'))
-                    <a href="javascript:void(0);" onclick="showNewFormModal('Add New Material','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="javascript:void(0);" onclick="showNewFormModal('Add New Product','Save')" class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
                     <!--end::Button-->
@@ -41,11 +41,11 @@
                             @endforeach
                         </x-form.selectbox>
                         <div class="col-md-12">      
-                            <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                            <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                             data-toggle="tooltip" data-theme="dark" title="Reset">
                             <i class="fas fa-undo-alt"></i></button>
 
-                            <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                            <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
                             data-toggle="tooltip" data-theme="dark" title="Search">
                             <i class="fas fa-search"></i></button>
                         </div>
@@ -72,10 +72,8 @@
                                         <th>Name</th>
                                         <th>Code</th>
                                         <th>Category</th>
-                                        <th>Cost</th>
                                         <th>Price</th>
                                         <th>Stock Unit</th>
-                                        <th>Stock Qty</th>
                                         <th>Alert Qty</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -133,26 +131,26 @@
             },
             "columnDefs": [{
                     @if (permission('product-bulk-delete'))
-                    "targets": [0,11],
+                    "targets": [0,9],
                     @else 
-                    "targets": [10],
+                    "targets": [8],
                     @endif
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
                     @if (permission('product-bulk-delete'))
-                    "targets": [1,2,3,4,7,8,9,10],
+                    "targets": [1,3,4,6,7,8],
                     @else 
-                    "targets": [0,1,2,3,6,7,8,9]
+                    "targets": [0,2,3,5,6,7]
                     @endif
                     "className": "text-center"
                 },
                 {
                     @if (permission('product-bulk-delete'))
-                    "targets": [5,6],
+                    "targets": [5],
                     @else 
-                    "targets": [4,5],
+                    "targets": [4],
                     @endif
                     "className": "text-right"
                 }
@@ -163,20 +161,20 @@
     
             "buttons": [
                 {
-                    'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
+                    'extend':'colvis','className':'btn btn-secondary btn-sm text-white custom-btn','text':'Column','columns': ':gt(0)'
                 },
                 {
                     "extend": 'print',
                     'text':'Print',
-                    'className':'btn btn-secondary btn-sm text-white',
+                    'className':'btn btn-secondary btn-sm text-white custom-btn',
                     "title": "{{ $page_title }} List",
                     "orientation": "landscape", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else 
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     },
                     customize: function (win) {
@@ -191,44 +189,44 @@
                 {
                     "extend": 'csv',
                     'text':'CSV',
-                    'className':'btn btn-secondary btn-sm text-white',
+                    'className':'btn btn-secondary btn-sm text-white custom-btn',
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                         @if (permission('product-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else 
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     }
                 },
                 {
                     "extend": 'excel',
                     'text':'Excel',
-                    'className':'btn btn-secondary btn-sm text-white',
+                    'className':'btn btn-secondary btn-sm text-white custom-btn',
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                         @if (permission('product-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else 
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     }
                 },
                 {
                     "extend": 'pdf',
                     'text':'PDF',
-                    'className':'btn btn-secondary btn-sm text-white',
+                    'className':'btn btn-secondary btn-sm text-white custom-btn',
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "orientation": "landscape", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(11))' 
+                         @if (permission('product-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(9))' 
                         @else 
-                        columns: ':visible:not(:eq(10))' 
+                        columns: ':visible:not(:eq(8))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -239,7 +237,7 @@
                 },
                 @if (permission('product-bulk-delete'))
                 {
-                    'className':'btn btn-danger btn-sm delete_btn d-none text-white',
+                    'className':'btn btn-danger btn-sm delete_btn d-none text-white custom-btn',
                     'text':'Delete',
                     action:function(e,dt,node,config){
                         multi_delete();

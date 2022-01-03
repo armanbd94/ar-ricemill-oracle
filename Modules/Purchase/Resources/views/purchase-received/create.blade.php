@@ -79,13 +79,22 @@
                                                         @php
                                                         $unit_name = DB::table('units')->where('id',$material->pivot->purchase_unit_id)->value('unit_name');
                                                         @endphp
-                                                            <option value="{{ $material->id }}" data-unitid="{{ $material->pivot->purchase_unit_id }}" data-unitname="{{ $unit_name }}" data-category="{{ $material->category->name }}" data-rate={{ $material->pivot->net_unit_cost }}>{{ $material->material_name }}</option>
+                                                            <option value="{{ $material->id }}" data-unitid="{{ $material->pivot->purchase_unit_id }}" data-unitname="{{ $unit_name }}" data-classid="{{ $material->pivot->item_class_id }}" data-rate={{ $material->pivot->net_unit_cost }}>{{ $material->material_name }}</option>
                                                         @endforeach
                                                     @endif
                                                 </select>
                                             </td>    
                                             <td><input type="text" class="form-control" style="width: 150px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                            <td class="category_name_1 text-center" style="min-width: 120px;" id="category_name_1"  data-row="1"></td>
+                                            <td>
+                                                <select name="materials[1][item_class_id]" id="materials_1_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+                                                    @if (!$classes->isEmpty())
+                                                        @foreach ($classes as $class)
+                                                            <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </td>
                                             <td>                                                  
                                                 <select name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
                                                     <option value="">Select Please</option>  
@@ -167,13 +176,22 @@ $(document).ready(function () {
                                     @php
                                     $unit_name = DB::table('units')->where('id',$material->pivot->purchase_unit_id)->value('unit_name');
                                     @endphp
-                                        <option value="{{ $material->id }}" data-unitid="{{ $material->pivot->purchase_unit_id }}" data-unitname="{{ $unit_name }}" data-category="{{ $material->category->name }}" data-rate={{ $material->pivot->net_unit_cost }}>{{ $material->material_name }}</option>
+                                        <option value="{{ $material->id }}" data-unitid="{{ $material->pivot->purchase_unit_id }}" data-unitname="{{ $unit_name }}" data-classid="{{ $material->pivot->item_class_id }}" data-rate={{ $material->pivot->net_unit_cost }}>{{ $material->material_name }}</option>
                                     @endforeach
                                 @endif
                             </select>
                         </td>    
                         <td><input type="text" class="form-control" style="width: 150px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
-                        <td class="category_name_${count} text-center" style="min-width: 120px;" id="category_name_${count}"  data-row="${count}"></td>
+                        <td>
+                            <select name="materials[${count}][item_class_id]" id="materials_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                                <option value="">Select Please</option>                                        
+                                @if (!$classes->isEmpty())
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>
                         <td>                                                  
                             <select name="materials[${count}][site_id]" id="materials_${count}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
@@ -204,12 +222,13 @@ $(document).ready(function () {
 function setMaterialDetails(row){
     let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
     let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
-    let category_name = $(`#materials_${row}_id option:selected`).data('category');
+    let classid       = $(`#materials_${row}_id option:selected`).data('classid');
     let net_unit_cost = $(`#materials_${row}_id option:selected`).data('rate');
 
     $(`.unit_name_${row}`).text(unit_name);
-    $(`.category_name_${row}`).text(category_name);
     $(`#materials_${row}_received_unit_id`).val(unit_id);
+    $(`#materials_${row}_item_class_id`).val(classid);
+    $(`#materials_${row}_item_class_id.selectpicker`).selectpicker('refresh');
     $(`#materials_${row}_net_unit_cost`).val(parseFloat(net_unit_cost));
 } 
 function calculateRowTotal(row)

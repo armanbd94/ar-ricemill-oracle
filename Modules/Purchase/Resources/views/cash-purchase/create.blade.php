@@ -85,7 +85,16 @@
                                                 </select>
                                             </td>    
                                             <td><input type="text" class="form-control" style="width: 150px;" name="materials[1][description]" id="materials_1_description" data-row="1"></td>                                    
-                                            <td class="category_name_1 text-center" style="min-width: 120px;" id="category_name_1"  data-row="1"></td>
+                                            <td>
+                                                <select name="materials[1][item_class_id]" id="materials_1_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                                    <option value="">Select Please</option>                                        
+                                                    @if (!$classes->isEmpty())
+                                                        @foreach ($classes as $class)
+                                                            <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </td>
                                             <td>                                                  
                                                 <select name="materials[1][site_id]" id="materials_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
                                                     <option value="">Select Please</option>  
@@ -170,7 +179,16 @@ $(document).ready(function () {
                             </select>
                         </td>    
                         <td><input type="text" class="form-control" style="width: 150px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
-                        <td class="category_name_${count} text-center" style="min-width: 120px;" id="category_name_${count}"  data-row="${count}"></td>
+                        <td>
+                            <select name="materials[${count}][item_class_id]" id="materials_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                                <option value="">Select Please</option>                                        
+                                @if (!$classes->isEmpty())
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>
                         <td>                                                  
                             <select name="materials[${count}][site_id]" id="materials_${count}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
@@ -201,10 +219,8 @@ $(document).ready(function () {
 function setMaterialDetails(row){
     let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
     let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
-    let category_name = $(`#materials_${row}_id option:selected`).data('category');
 
     $(`.unit_name_${row}`).text(unit_name);
-    $(`.category_name_${row}`).text(category_name);
     $(`#materials_${row}_purchase_unit_id`).val(unit_id);
 } 
 function calculateRowTotal(row)

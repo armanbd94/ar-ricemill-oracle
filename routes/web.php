@@ -90,17 +90,27 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('general-setting', 'SettingController@general_setting')->name('general.setting');
     Route::post('mail-setting', 'SettingController@mail_setting')->name('mail.setting');
 
-     //Category Routes
-      //Category Routes
-      Route::get('{type}/class', 'CategoryController@index')->name('class');
-      Route::group(['prefix' => 'class', 'as'=>'class.'], function () {
-          Route::post('datatable-data', 'CategoryController@get_datatable_data')->name('datatable.data');
-          Route::post('store-or-update', 'CategoryController@store_or_update_data')->name('store.or.update');
-          Route::post('edit', 'CategoryController@edit')->name('edit');
-          Route::post('delete', 'CategoryController@delete')->name('delete');
-          Route::post('bulk-delete', 'CategoryController@bulk_delete')->name('bulk.delete');
-          Route::post('change-status', 'CategoryController@change_status')->name('change.status');
-      });
+    //Category Routes
+    Route::get('{type}/category', 'CategoryController@index')->name('category');
+    Route::group(['prefix' => 'category', 'as'=>'category.'], function () {
+        Route::post('datatable-data', 'CategoryController@get_datatable_data')->name('datatable.data');
+        Route::post('store-or-update', 'CategoryController@store_or_update_data')->name('store.or.update');
+        Route::post('edit', 'CategoryController@edit')->name('edit');
+        Route::post('delete', 'CategoryController@delete')->name('delete');
+        Route::post('bulk-delete', 'CategoryController@bulk_delete')->name('bulk.delete');
+        Route::post('change-status', 'CategoryController@change_status')->name('change.status');
+    });
+
+    //Class Routes
+    Route::get('class', 'ItemClassController@index')->name('class');
+    Route::group(['prefix' => 'class', 'as'=>'class.'], function () {
+        Route::post('datatable-data', 'ItemClassController@get_datatable_data')->name('datatable.data');
+        Route::post('store-or-update', 'ItemClassController@store_or_update_data')->name('store.or.update');
+        Route::post('edit', 'ItemClassController@edit')->name('edit');
+        Route::post('delete', 'ItemClassController@delete')->name('delete');
+        Route::post('bulk-delete', 'ItemClassController@bulk_delete')->name('bulk.delete');
+        Route::post('change-status', 'ItemClassController@change_status')->name('change.status');
+    });
 
     //Unit Group Routes
     Route::get('unit', 'UnitController@index')->name('unit');

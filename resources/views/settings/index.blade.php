@@ -94,8 +94,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-12">
-                                        <button type="reset" class="btn btn-danger btn-sm">Reset</button>
-                                        <button type="button" class="btn btn-primary btn-sm" onclick="save_data('general')" id="general-save-btn">Save</button>
+                                        <button type="reset" class="btn btn-danger btn-sm custom-btn">Reset</button>
+                                        <button type="button" class="btn btn-primary btn-sm custom-btn" onclick="save_data('general')" id="general-save-btn">Save</button>
                                     </div>
                                 </div>
                             </form>
@@ -129,8 +129,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-12">
-                                        <button type="reset" class="btn btn-danger btn-sm">Reset</button>
-                                        <button type="button" class="btn btn-primary btn-sm" onclick="save_data('mail')" id="mail-save-btn">Save</button>
+                                        <button type="reset" class="btn btn-danger btn-sm custom-btn">Reset</button>
+                                        <button type="button" class="btn btn-primary btn-sm custom-btn" onclick="save_data('mail')" id="mail-save-btn">Save</button>
                                     </div>
                                 </div>
                             </form>

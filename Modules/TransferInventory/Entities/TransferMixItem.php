@@ -2,6 +2,7 @@
 
 namespace Modules\TransferInventory\Entities;
 
+use App\Models\ItemClass;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Location;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ class TransferMixItem extends Model
 {
     protected $table = 'transfer_mix_items';
     protected $fillable = [
-        'transfer_id','from_site_id','from_location_id', 'material_id','qty','description'
+        'transfer_id','from_site_id','from_location_id', 'material_id','item_class_id','qty','description'
     ];
 
     public function from_site()
@@ -25,5 +26,9 @@ class TransferMixItem extends Model
     public function material()
     {
         return $this->belongsTo(Material::class,'material_id','id');
+    }
+    public function item_class()
+    {
+        return $this->belongsTo(ItemClass::class,'item_class_id','id');
     }
 }

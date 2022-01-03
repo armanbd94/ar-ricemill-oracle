@@ -19,6 +19,8 @@ class CreateTransferInventoryItemsTable extends Migration
             $table->foreign('transfer_id')->references('id')->on('transfer_inventories');
             $table->unsignedBigInteger('material_id');
             $table->foreign('material_id')->references('id')->on('materials');
+            $table->unsignedBigInteger('item_class_id');
+            $table->foreign('item_class_id')->references('id')->on('item_classes');
             $table->double('qty',12,0);
             $table->text('description')->nullable();
             $table->timestamps();

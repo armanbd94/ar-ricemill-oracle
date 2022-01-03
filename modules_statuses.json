@@ -13,7 +13,17 @@
     "Expense": true,
     "Product": true,
     "HRM": true,
+<<<<<<< HEAD
     "TransferInventory": true,
     "BuildDisassembly": true,
     "BuildReProcess": true
+=======
+    "Loan": true,
+    "TransferInventory": true,
+    "BuildDisassembly": true,
+    "BOM": true,
+    "BuildReProcess": true,
+    "Sale": true,
+    "Report": true
+>>>>>>> 21f3983e888b56601e339fadd0d8362bb84631aa
 }

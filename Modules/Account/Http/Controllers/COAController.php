@@ -58,7 +58,7 @@ class COAController extends BaseController
                     $parent_name  = DB::table('chart_of_accounts')->where('id',$request->parent_name)->value('name');
                     $collection   = $collection->merge([
                         'parent_name'       => $parent_name ? $parent_name : 'COA',
-                        'is_transaction'    => $request->transaction ? $request->transaction : 2,
+                        'is_transaction'    => $request->is_transaction ? $request->is_transaction : 2,
                         'general_ledger'    => $request->general_ledger ? $request->general_ledger : 2,
                         'budget'            => 2,
                         'depreciation'      => 2,

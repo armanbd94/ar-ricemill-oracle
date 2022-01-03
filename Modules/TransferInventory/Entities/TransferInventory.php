@@ -41,7 +41,7 @@ class TransferInventory extends BaseModel
     public function materials()
     {
         return $this->belongsToMany(Material::class,'transfer_inventory_items','transfer_id','material_id','id','id')
-        ->withPivot('id', 'qty','description')
+        ->withPivot('id','item_class_id', 'qty','description')
         ->withTimeStamps(); 
     }
 
@@ -52,6 +52,7 @@ class TransferInventory extends BaseModel
     protected $order = ['ti.id' => 'desc'];
     //custom search column property
     protected $_memo_no; 
+    protected $_batch_id; 
     protected $_from_date; 
     protected $_to_date; 
 
@@ -59,6 +60,10 @@ class TransferInventory extends BaseModel
     public function setMemoNo($memo_no)
     {
         $this->_memo_no = $memo_no;
+    }
+    public function setBatchID($batch_id)
+    {
+        $this->_batch_id = $batch_id;
     }
 
     public function setFromDate($from_date)
@@ -89,11 +94,14 @@ class TransferInventory extends BaseModel
         ->leftJoin('locations as tl','ti.to_location_id','=','tl.id')
         ->select('ti.id', 'ti.memo_no','ti.batch_id', 'ti.from_site_id', 'ti.from_location_id','ti.to_site_id',
         'ti.to_location_id','ti.item','ti.total_qty','ti.transfer_date','ti.transfer_number','ti.created_by',
-        'b.batch_no','fs.name as from_site','ts.name as to_site','fl.name as from_location','tl.name as to_location');
+        'b.batch_no','b.batch_start_date','fs.name as from_site','ts.name as to_site','fl.name as from_location','tl.name as to_location');
 
         //search query
         if (!empty($this->_memo_no)) {
             $query->where('ti.memo_no', 'like', '%' . $this->_memo_no . '%');
+        }
+        if (!empty($this->_batch_id)) {
+            $query->where('ti.batch_id', $this->_batch_id);
         }
 
         if (!empty($this->_from_date)) {

@@ -2,14 +2,6 @@
 
 @section('title', $page_title)
 
-@push('styles')
-<link rel="stylesheet" href="css/jquery-ui.css" />
-<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-<style>
-    .dropdown.bootstrap-select{width: 300px;}
-</style>
-@endpush
-
 @section('content')
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
@@ -18,7 +10,7 @@
             <div class="card-header flex-wrap p-0">
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
-                    <a href="{{ route('transfer.inventory.mix') }}" class="btn btn-warning btn-sm font-weight-bolder">
+                    <a href="{{ route('transfer.inventory.mix') }}" class="btn btn-warning btn-sm font-weight-bolder custom-btn">
                         <i class="fas fa-arrow-left"></i> Back</a>
                 </div>
             </div>
@@ -38,19 +30,19 @@
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>WIP Batch</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $transfer->batch->batch_no }}</div>
+                                <div class="col-md-8"><b>:</b> {{ $transfer->batch->batch_no.' ('.date('d-m-Y',strtotime($transfer->batch->batch_start_date)).')' }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>Mix Item</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $transfer->product->name }}</div>
+                                <div class="col-md-8"><b>:</b> {{ $transfer->material->material_name }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>Mix Item Class</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $transfer->category->name }}</div>
+                                <div class="col-md-8"><b>:</b> {{ $transfer->item_class->name }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -103,7 +95,7 @@
                                                 <td>{{ $item->from_site->name }}</td>
                                                 <td>{{ $item->from_location->name }}</td>
                                                 <td>{{ $item->description }}</td>
-                                                <td class="text-center">{{ $item->material->category->name }}</td>
+                                                <td class="text-center">{{ $item->item_class->name }}</td>
                                                 <td class="text-center">{{ $item->material->unit->unit_name }}</td>
                                                 <td class="text-center">{{ $item->qty }}</td>
                                             </tr>

@@ -31,9 +31,8 @@ class SalaryGenerateController extends BaseController
     {
         if (permission('salary-generate-access')) {
             $this->setPageData('Salary Generate Manage', 'Salary Generate Manage', 'fas fa-shopping-cart', [['name' => 'Salary Generate Manage']]);
-            $employees = Employee::where('status', 1)->get();
-            $employees_route = EmployeeRoute::toBase()->where('status', 1)->get();
-            return view('hrm::salary-generate.index', compact('employees', 'employees_route'));
+            $employees = Employee::with('current_designation','department')->where('status', 1)->get();
+            return view('hrm::salary-generate.index', compact('employees'));
         } else {
             return $this->access_blocked();
         }
@@ -108,7 +107,7 @@ class SalaryGenerateController extends BaseController
                     $row[] = number_format(($value->net_salary - $value->paid_amount), 2);
                     $row[] = date(config('settings.date_format'), strtotime($value->date));
                     $row[] = APPROVE_STATUS_LABEL[$value->status];
-                    $row[] = PURCHASE_STATUS_LABEL[$value->salary_status];
+                    $row[] = SALARY_STATUS_LABEL[$value->salary_status];
                     $row[] = PAYMENT_STATUS_LABEL[$value->payment_status];
                     $row[] = action_button($action); //custom helper function for action button
                     $data[] = $row;
@@ -135,8 +134,7 @@ class SalaryGenerateController extends BaseController
                 'employees'  => Employee::where('status', 1)->get(),
                 'designations'  => Designation::activeDesignations(),
                 'departments'  => Department::activeDepartments(),
-                'leaves'  => Leave::activeLeaves(),
-                'employees_route'    => EmployeeRoute::toBase()->where('status', 1)->get()
+                'leaves'  => Leave::activeLeaves()
             ];
             return view('hrm::salary-generate.create', $data);
         } else {
@@ -158,8 +156,7 @@ class SalaryGenerateController extends BaseController
                 'designations'  => Designation::activeDesignations(),
                 'departments'  => Department::activeDepartments(),
                 'leaves'  => Leave::activeLeaves(),
-                'company_condition'  => SalaryGenerate::get_company_condition(),
-                'employees_route'    => EmployeeRoute::toBase()->where('status', 1)->get()
+                'company_condition'  => SalaryGenerate::get_company_condition()
             ];
             if ($v->fails()) {
                 $data['start_date'] = date('Y-m-d');
@@ -297,42 +294,6 @@ class SalaryGenerateController extends BaseController
                                 }
                             }
                         }
-
-                        /*if(isset($request->loan_id_adjust_amount)){  
-                            for ($k = 0; $k < count($loan_id_adjust_amount); $k++) {
-                                $loan_id_adjust_amount_data = explode("-", $loan_id_adjust_amount[$k]);
-                                $count_employee = count($emp_code);
-                                 for ($i = 0; $i < $count_employee; $i++) {
-                                     $check_loan_info = Loans::where('employee_id',$emp_code[$i])->where('loan_status',2)->get();
-                                     if (!empty($check_loan_info)) {
-                                        $loan_id_adjust_amount = $request->loan_id_adjust_amount;
-                                        foreach($check_loan_info as $check_loan_infos):
-                                            if ($loan_id_adjust_amount_data[0] == $check_loan_infos->id) {
-                                                $total_adjusted_loan_amount = $check_loan_infos->total_adjusted_amount + $loan_id_adjust_amount_data[1];
-                                                    if ($total_adjusted_loan_amount >= $check_loan_infos->amount) {
-                                                        $loan_status = '1';
-                                                    } else {
-                                                        $loan_status = '2';
-                                                    }
-                                                    if(!empty($loan_id_adjust_amount_data[0])){
-                                                        $loans_udate = Loans::where('id',$check_loan_infos->id)->update(['total_adjusted_amount' => $total_adjusted_loan_amount, 'adjusted_date' =>  date('Y-m-d'), 'loan_status' => $loan_status]);
-                                                    }
-                                                    if($loans_udate){
-                                                        $voucher_no = self::VOUCHER_PREFIX.'-'.date('Ymd').rand(1,999);
-
-                                                        $getAcc = $this->official_loan_installment($emp_code[$i],date('Y-m-d'),$total_adjusted_loan_amount,$voucher_no,$loan_id_adjust_amount_data[0]);
-                                                        
-                                                        if($getAcc){
-                                                            $this->official_loan_installment_coa($emp_code[$i],date('Y-m-d'),$total_adjusted_loan_amount,$voucher_no);
-                                                        }
-                                                    }
-                                            }
-                                        endforeach;
-                                     }
-                                 }
-                            }
-                        }*/
-
                         $output = $this->store_message($results, null);
                         DB::commit();
                     } else {
@@ -358,9 +319,6 @@ class SalaryGenerateController extends BaseController
         if (permission('official-loan-installment-add')) {
             try {
                 $employeeInfo = Employee::find($employee_id);
-
-                //$debit_account = ChartOfAccount::where('name', $employeeInfo->id . '-' . $employeeInfo->name . '-' . $employeeInfo->wallet_number)->first();
-                //$credit_account = ChartOfAccount::where('name',$employeeInfo->id.'-'.$employeeInfo->name.'-'.$employeeInfo->wallet_number)->first();
                 $credit_account = ChartOfAccount::where('name',$employeeInfo->id.'-'.$employeeInfo->name.'-E')->first();
                 //Official Loan People which is Debit for the company
                 $credit_voucher_transaction[] = array(
@@ -423,8 +381,6 @@ class SalaryGenerateController extends BaseController
         if (permission('official-loan-installment-add')) {
             try {
                 $employeeInfo = Employee::find($employee_id);
-
-                //$debit_account = ChartOfAccount::where('name', $employeeInfo->id . '-' . $employeeInfo->name . '-' . $employeeInfo->wallet_number)->first();
                 $debit_account = ChartOfAccount::where('name',$employeeInfo->id.'-'.$employeeInfo->name.'-OLR')->first();
                 $account_id = 23;
                 //Official Loan People which is Debit for the company

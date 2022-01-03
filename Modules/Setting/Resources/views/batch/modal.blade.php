@@ -18,7 +18,8 @@
             <div class="modal-body">
                 <div class="row">
                     <input type="hidden" name="update_id" id="update_id"/>
-                    <x-form.textbox labelName="WIP Batch No." name="batch_no" required="required" col="col-md-12" placeholder="Enter wip batch no."/>
+                    <x-form.textbox labelName="Barch Start Date" name="batch_start_date" required="required" class="date" col="col-md-12" />
+                    <x-form.textbox labelName="Packaging Batch No." name="batch_no" required="required" col="col-md-12"/>
                 </div>
             </div>
             <!-- /modal body -->

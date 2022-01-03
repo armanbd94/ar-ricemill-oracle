@@ -20,7 +20,7 @@ class OrderReceived extends BaseModel
     public function received_materials()
     {
         return $this->belongsToMany(Material::class,'received_materials','received_id','material_id','id','id')
-        ->withPivot('id', 'order_id', 'site_id', 'location_id','received_qty','received_unit_id','net_unit_cost','total','description')
+        ->withPivot('id', 'order_id','item_class_id', 'site_id', 'location_id','received_qty','received_unit_id','net_unit_cost','total','description')
         ->withTimeStamps(); 
     }
 
