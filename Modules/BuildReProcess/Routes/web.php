@@ -1,10 +1,7 @@
 <?php
 
-<<<<<<< HEAD
-=======
 use Illuminate\Support\Facades\Route;
 
->>>>>>> 21f3983e888b56601e339fadd0d8362bb84631aa
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,11 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-<<<<<<< HEAD
-Route::prefix('buildreprocess')->group(function() {
-    Route::get('/', 'BuildReProcessController@index');
-});
-=======
 
 Route::group(['middleware' => ['auth']], function () {
 
@@ -38,4 +30,3 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
 });
->>>>>>> 21f3983e888b56601e339fadd0d8362bb84631aa
