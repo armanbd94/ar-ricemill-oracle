@@ -1,0 +1,13 @@
+{
+    "name": "BuildDisassembly",
+    "alias": "builddisassembly",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\BuildDisassembly\\Providers\\BuildDisassemblyServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
