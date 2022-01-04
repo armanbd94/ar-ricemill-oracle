@@ -116,9 +116,9 @@ class BuildDisassembly extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('build-disassembly-bulk-delete')){
-            $this->column_order = ['bd.id', 'bd.id', 'bd.memo_no','bd.batch_id', 'bd.material_id','bd.product_id','bd.from_site_id', 'bd.from_location_id','convertion_ratio','converted_qty','bd.build_date','bd.created_by', null];
+            $this->column_order = ['bd.id', 'bd.id', 'bd.memo_no','bd.batch_id', 'bd.material_id','bd.product_id','bd.from_site_id', 'bd.from_location_id','bd.to_site_id','bd.to_location_id','bd.required_qty','bd.converted_qty','bd.build_date','bd.created_by', null];
         }else{
-            $this->column_order = ['bd.id', 'bd.memo_no','bd.batch_id', 'bd.material_id','bd.product_id','bd.from_site_id', 'bd.from_location_id','convertion_ratio','converted_qty','bd.build_date','bd.created_by', null];
+            $this->column_order = ['bd.id', 'bd.memo_no','bd.batch_id', 'bd.material_id','bd.product_id','bd.from_site_id', 'bd.from_location_id','bd.to_site_id','bd.to_location_id','bd.required_qty','bd.converted_qty','bd.build_date','bd.created_by', null];
         }
         
         $query = DB::table('build_disassemblies as bd')

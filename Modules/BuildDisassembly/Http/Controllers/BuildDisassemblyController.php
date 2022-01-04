@@ -18,6 +18,7 @@ use Modules\BuildDisassembly\Entities\SiloProduct;
 use Modules\BuildDisassembly\Entities\BuildDisassembly;
 use Modules\BuildDisassembly\Entities\BuildDisassemblyByProduct;
 use Modules\BuildDisassembly\Http\Requests\BuildDisassemblyFormRequest;
+use Modules\Setting\Entities\Location;
 
 class BuildDisassemblyController extends BaseController
 {
@@ -84,8 +85,10 @@ class BuildDisassemblyController extends BaseController
                     $row[] = $value->product_name;
                     $row[] = $value->from_site;
                     $row[] = $value->from_location;
-                    $row[] = $value->convertion_ratio;
-                    $row[] = $value->converted_qty;
+                    $row[] = $value->to_site;
+                    $row[] = $value->to_location;
+                    $row[] = number_format($value->required_qty,2,'.',',');
+                    $row[] = number_format($value->converted_qty,2,'.',',');
                     $row[] = date(config('settings.date_format'),strtotime($value->build_date));
                     $row[] = $value->created_by;
                     $row[] = action_button($action);//custom helper function for action button
@@ -158,6 +161,8 @@ class BuildDisassemblyController extends BaseController
                     ]);
 
                     if($buildDisassemblyData){
+                        $product->cost = $product_new_cost;
+                        $product->update();
                         //Subtract Material From Stock
                         $material = Material::find($request->material_id);
                         if($material)
@@ -256,7 +261,7 @@ class BuildDisassemblyController extends BaseController
     {
         if(permission('build-disassembly-view')){
             $this->setPageData('Build Disassembly Details','Build Disassembly Details','fas fa-file',[['name' => 'Build Disassembly Details']]);
-            $data = $this->model->with('by_products','batch','material','product','from_site','category','from_location','bp_site','bp_location')->find($id);
+            $data = $this->model->with('by_products','batch','material','product','from_site','to_site','item_class','from_location','to_location','bp_site','bp_location')->find($id);
             return view('builddisassembly::details',compact('data'));
         }else{
             return $this->access_blocked();
@@ -267,14 +272,18 @@ class BuildDisassemblyController extends BaseController
     {
         if(permission('build-disassembly-edit')){
             $this->setPageData('Build Disassembly Edit Form','Build Disassembly Edit Form','fas fa-edit',[['name' => 'Build Disassembly Edit Form']]);
+            $disassembly_data = $this->model->with('by_products')->find($id);
             $data = [
-                'data'       => $this->model->with('by_products')->find($id),
-                'batches'    => Batch::allBatches(),
-                'sites'      => Site::allSites(),
-                'materials'  => Material::with('category')->where([['status',1],['type',1]])->get(),
-                'products'   => Product::where('status',1)->get(),
-                'categories' => Category::allProductCategories(),
+                'data'      => $disassembly_data,
+                'batches'   => Batch::allBatches(),
+                'sites'     => Site::allSites(),
+                'locations' => Location::whereIn('site_id',[$disassembly_data->from_site_id,$disassembly_data->to_site_id,$disassembly_data->bp_site_id])->get(),
+                'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
+                'material_qty'=>SiteMaterial::where(['site_id'=>$disassembly_data->from_site_id,'location_id'=>$disassembly_data->from_location_id,'material_id'=>$disassembly_data->material_id])->value('qty'),
+                'products'  => Product::where('status',1)->whereIn('category_id',[3,4])->get(),
+                'classes'   => ItemClass::allItemClass(),
             ];
+            
             return view('builddisassembly::edit',$data);
         }else{
             return $this->access_blocked();
@@ -289,28 +298,10 @@ class BuildDisassemblyController extends BaseController
                 DB::beginTransaction();
                 try {
                     $buildDisassemblyData = $this->model->with('by_products')->find($request->build_id);
-
-                    $build_data = [
-                        'memo_no'             => $request->memo_no,
-                        'batch_id'            => $request->batch_id,
-                        'from_site_id'        => $request->from_site_id,
-                        'from_location_id'    => $request->from_location_id,
-                        'material_id'         => $request->material_id,
-                        'product_id'          => $request->product_id,
-                        'build_ratio'         => $request->build_ratio,
-                        'build_qty'           => $request->build_qty,
-                        'required_qty'        => $request->required_qty,
-                        'category_id'         => $request->category_id,
-                        'build_date'          => $request->build_date,
-                        'convertion_ratio'    => $request->rice_convertion_ratio,
-                        'converted_qty'       => $request->fine_rice_qty,
-                        'total_milling_qty'   => $request->milling_qty,
-                        'total_milling_ratio' => $request->milling_ratio,
-                        'bp_site_id'          => $request->bp_site_id,
-                        'bp_location_id'      => $request->bp_location_id,
-                        'modified_by'         => auth()->user()->name
-                    ];
-
+                    //Re Store Previous Data
+                    $converted_product  = Product::findOrFail($buildDisassemblyData->product_id);
+                    $converted_product->cost = $buildDisassemblyData->product_old_cost;
+                    $converted_product->update();
                     $material = Material::find($buildDisassemblyData->material_id);
                     if($material)
                     {
@@ -330,12 +321,15 @@ class BuildDisassemblyController extends BaseController
                     }
 
                     //Subtract Product From Silo
-                    $silo_product = SiloProduct::where('product_id',$buildDisassemblyData->product_id)->first();
-                        
-                    if($silo_product)
+                    $site_product = SiteProduct::where([
+                        ['site_id',$buildDisassemblyData->to_site_id],
+                        ['location_id',$buildDisassemblyData->to_location_id],
+                        ['product_id',$buildDisassemblyData->product_id],
+                    ])->first();
+                    if($site_product)
                     {
-                        $silo_product->qty -= $buildDisassemblyData->converted_qty;
-                        $silo_product->update();
+                        $site_product->qty -= $buildDisassemblyData->converted_qty;
+                        $site_product->update();
                     }
 
                     if(!$buildDisassemblyData->by_products->isEmpty())
@@ -355,10 +349,42 @@ class BuildDisassemblyController extends BaseController
                         }
                     }
 
-
-
+                    $material                = Material::findOrFail($request->material_id);
+                    $product                 = Product::findOrFail($request->product_id);
+                    $product_qty             = SiteProduct::where('product_id',$request->product_id)->sum('qty');
+                    $product_old_stock_value = ($product->cost ? $product->cost : 0) * ($product_qty ?? 0);
+                    $converted_stock_value   = $request->fine_rice_qty * ($material->cost ? $material->cost : 0);
+                    $product_new_cost        = ($product_old_stock_value + $converted_stock_value) / (($product_qty ?? 0) + $request->fine_rice_qty);
+                    $product->cost           = $product_new_cost;
+                    $product->update();
+                    $build_data = [
+                        'memo_no'             => $request->memo_no,
+                        'batch_id'            => $request->batch_id,
+                        'from_site_id'        => $request->from_site_id,
+                        'from_location_id'    => $request->from_location_id,
+                        'to_site_id'          => $request->to_site_id,
+                        'to_location_id'      => $request->to_location_id,
+                        'material_id'         => $request->material_id,
+                        'product_id'          => $request->product_id,
+                        'material_cost'       => $material->cost ? $material->cost : 0,
+                        'product_cost'        => $product_new_cost,
+                        'product_old_cost'    => $product->cost ? $product->cost : 0,
+                        'build_ratio'         => $request->build_ratio,
+                        'build_qty'           => $request->build_qty,
+                        'required_qty'        => $request->required_qty,
+                        'item_class_id'       => $request->item_class_id,
+                        'build_date'          => $request->build_date,
+                        'convertion_ratio'    => $request->rice_convertion_ratio,
+                        'converted_qty'       => $request->fine_rice_qty,
+                        'total_milling_qty'   => $request->milling_qty,
+                        'total_milling_ratio' => $request->milling_ratio,
+                        'bp_site_id'          => $request->bp_site_id,
+                        'bp_location_id'      => $request->bp_location_id,
+                        'created_by'          => auth()->user()->name
+                    ];
+                    
                     //Subtract Material From Stock
-                    $material = Material::find($request->material_id);
+                   
                     if($material)
                     {
                         $material->qty -= $request->required_qty;
@@ -377,16 +403,21 @@ class BuildDisassemblyController extends BaseController
                     }
 
                     //Add Fine Rice Into Silo
-                    $silo_product = SiloProduct::where('product_id',$request->product_id)->first();
-                    
-                    if($silo_product)
+                    $site_product = SiteProduct::where([
+                        ['site_id',$request->to_site_id],
+                        ['location_id',$request->to_location_id],
+                        ['product_id',$request->product_id],
+                    ])->first();
+                    if($site_product)
                     {
-                        $silo_product->qty += $request->fine_rice_qty;
-                        $silo_product->update();
+                        $site_product->qty += $request->fine_rice_qty;
+                        $site_product->update();
                     }else{
-                        SiloProduct::create([
-                            'product_id' => $request->product_id,
-                            'qty'        => $request->fine_rice_qty
+                        SiteProduct::create([
+                            'site_id'     => $request->to_site_id,
+                            'location_id' => $request->to_location_id,
+                            'product_id'  => $request->product_id,
+                            'qty'         => $request->fine_rice_qty
                         ]);
                     }
 
@@ -451,6 +482,11 @@ class BuildDisassemblyController extends BaseController
                 DB::beginTransaction();
                 try {
                     $buildDisassemblyData = $this->model->with('by_products')->find($request->id);
+                    
+                    $converted_product  = Product::findOrFail($buildDisassemblyData->product_id);
+                    $converted_product->cost = $buildDisassemblyData->product_old_cost;
+                    $converted_product->update();
+
                     //Re Addition Material To Old Stock
                     $material = Material::find($buildDisassemblyData->material_id);
                     if($material)
@@ -471,12 +507,15 @@ class BuildDisassemblyController extends BaseController
                     }
 
                     //Subtract Product From Silo
-                    $silo_product = SiloProduct::where('product_id',$buildDisassemblyData->product_id)->first();
-                        
-                    if($silo_product)
+                   $site_product = SiteProduct::where([
+                        ['site_id',$buildDisassemblyData->to_site_id],
+                        ['location_id',$buildDisassemblyData->to_location_id],
+                        ['product_id',$buildDisassemblyData->product_id],
+                    ])->first();
+                    if($site_product)
                     {
-                        $silo_product->qty -= $buildDisassemblyData->converted_qty;
-                        $silo_product->update();
+                        $site_product->qty -= $buildDisassemblyData->converted_qty;
+                        $site_product->update();
                     }
 
                     if(!$buildDisassemblyData->by_products->isEmpty())
@@ -526,6 +565,11 @@ class BuildDisassemblyController extends BaseController
                 try {
                     foreach ($request->ids as $id) {
                         $buildDisassemblyData = $this->model->with('by_products')->find($id);
+                        
+                        $converted_product  = Product::findOrFail($buildDisassemblyData->product_id);
+                        $converted_product->cost = $buildDisassemblyData->product_old_cost;
+                        $converted_product->update();
+                        
                         //Re Addition Material To Old Stock
                         $material = Material::find($buildDisassemblyData->material_id);
                         if($material)
@@ -546,12 +590,15 @@ class BuildDisassemblyController extends BaseController
                         }
 
                         //Subtract Product From Silo
-                        $silo_product = SiloProduct::where('product_id',$buildDisassemblyData->product_id)->first();
-                            
-                        if($silo_product)
+                        $site_product = SiteProduct::where([
+                            ['site_id',$buildDisassemblyData->to_site_id],
+                            ['location_id',$buildDisassemblyData->to_location_id],
+                            ['product_id',$buildDisassemblyData->product_id],
+                        ])->first();
+                        if($site_product)
                         {
-                            $silo_product->qty -= $buildDisassemblyData->converted_qty;
-                            $silo_product->update();
+                            $site_product->qty -= $buildDisassemblyData->converted_qty;
+                            $site_product->update();
                         }
 
                         if(!$buildDisassemblyData->by_products->isEmpty())

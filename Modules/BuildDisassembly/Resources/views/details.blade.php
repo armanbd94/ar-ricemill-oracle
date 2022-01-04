@@ -47,8 +47,14 @@
                         </div>
                         <div class="col-md-6">
                             <div class="row">
-                                <div class="col-md-4"><b>To Location (Storage)</b></div>
-                                <div class="col-md-8"><b>:</b> Silo</div>
+                                <div class="col-md-4"><b>To Site</b></div>
+                                <div class="col-md-8"><b>:</b> {{ $data->to_site->name }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-4"><b>To Location</b></div>
+                                <div class="col-md-8"><b>:</b> {{ $data->to_location->name }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -66,7 +72,7 @@
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>Class</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $data->category->name }}</div>
+                                <div class="col-md-8"><b>:</b> {{ $data->item_class->name }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -78,13 +84,13 @@
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>Quantity To Build (KGs)</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $data->build_qty }}</div>
+                                <div class="col-md-8"><b>:</b> {{ number_format($data->build_qty,2,'.',',') }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-4"><b>RM Needed (KGs)</b></div>
-                                <div class="col-md-8"><b>:</b> {{ $data->required_qty }}</div>
+                                <div class="col-md-8"><b>:</b> {{ number_format($data->required_qty,2,'.',',') }}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -97,7 +103,7 @@
                     <div class="row pt-5">
                         <div class="col-md-12 table-responsive pt-5">
                             <table class="table table-bordered">
-                                <thead class="bg-primary">
+                                <thead class="bg-dark">
                                     <th></th>
                                     <th class="text-center">Fine Rice</th>
                                     @if (!$data->by_products->isEmpty())
@@ -109,24 +115,24 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="bg-primary text-white font-weight-bold">Converted Quantity</td>
-                                        <td class="text-center">{{ $data->converted_qty }}</td>
+                                        <td class="font-weight-bold">Converted Quantity</td>
+                                        <td class="text-right">{{ number_format($data->converted_qty,2,'.',',') }}</td>
                                         @if (!$data->by_products->isEmpty())
                                             @foreach ($data->by_products as $by_product)
-                                                <td class="text-center">{{ $by_product->pivot->qty }}</td>
+                                                <td class="text-right">{{ number_format($by_product->pivot->qty,2,'.',',') }}</td>
                                             @endforeach
                                         @endif
-                                        <td class="text-center">{{ $data->total_milling_qty }}</td>
+                                        <td class="text-right">{{ number_format($data->total_milling_qty,2,'.',',') }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="bg-primary text-white font-weight-bold">Convertion Ratio(%)</td>
-                                        <td class="text-center">{{ $data->convertion_ratio }}</td>
+                                        <td class="font-weight-bold">Convertion Ratio(%)</td>
+                                        <td class="text-right">{{ $data->convertion_ratio }}</td>
                                         @if (!$data->by_products->isEmpty())
                                             @foreach ($data->by_products as $by_product)
-                                                <td class="text-center">{{ $by_product->pivot->ratio }}</td>
+                                                <td class="text-right">{{ $by_product->pivot->ratio }}</td>
                                             @endforeach
                                         @endif
-                                        <td class="text-center">{{ $data->total_milling_ratio }}</td>
+                                        <td class="text-right">{{ $data->total_milling_ratio }}</td>
                                     </tr>
                                     
                                 </tbody>

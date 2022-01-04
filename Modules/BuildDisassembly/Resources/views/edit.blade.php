@@ -56,16 +56,45 @@
                                 @endif
                             </x-form.selectbox>
 
-                            <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="material_list()" class="selectpicker" col="col-md-3"/>
+                            <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="material_list()" class="selectpicker" col="col-md-3">
+                                @if(!$locations->isEmpty())  
+                                    @foreach ($locations as $location)
+                                        @if ($data->from_site_id == $location->site_id)
+                                        <option value="{{ $location->id }}"  {{ $data->from_location_id == $location->id ? 'selected' : '' }}>{{ $location->name }}</option>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
                             
-                            <x-form.textbox labelName="To Location (Storage)" name="to_location" value="Silo" property="readonly" required="required"  col="col-md-3"/>
+                            <x-form.selectbox labelName="Transfer To" name="to_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
+                                @if(!$sites->isEmpty())  
+                                    @foreach ($sites as $site)
+                                        <option value="{{ $site->id }}"  {{ $data->to_site_id == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
+                            <x-form.selectbox labelName="To Location (Storage)" name="to_location_id" required="required" class="selectpicker" col="col-md-3">
+                                @if(!$locations->isEmpty())  
+                                    @foreach ($locations as $location)
+                                        @if ($data->to_site_id == $location->site_id)
+                                        <option value="{{ $location->id }}"  {{ $data->to_location_id == $location->id ? 'selected' : '' }}>{{ $location->name }}</option>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
 
-                            <x-form.selectbox labelName="Raw Material Item" required="required" name="material_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker"/>
+                            <x-form.selectbox labelName="Raw Material Item" required="required" name="material_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker">
+                                @if (!$materials->isEmpty())
+                                    @foreach ($materials as $material)
+                                    <option value="{{ $material->id }}"  {{ $data->material_id == $material->id ? 'selected' : '' }}>{{ $material->material_name }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
 
                             
                             <div class="form-group col-md-3">
                                 <label for="memo_no">Availbale Qty <span class="material_unit"></span></label>
-                                <input type="text" class="form-control" name="available_qty" id="available_qty" readonly />
+                                <input type="text" class="form-control" name="available_qty" id="available_qty" value="{{ number_format(($material_qty + $data->required_qty),2,'.','') }}" readonly />
                             </div>
                             <x-form.selectbox labelName="Converted Item" name="product_id" onchange="setCategory()" col="col-md-3" class="selectpicker" required="required">
                                 @if (!$products->isEmpty())
@@ -82,10 +111,10 @@
                                 <label for="memo_no">RM Needed <span class="material_unit"></span></label>
                                 <input type="text" class="form-control" name="required_qty" id="required_qty"  value="{{ $data->required_qty }}" readonly />
                             </div>
-                            <x-form.selectbox labelName="Class" name="category_id" required="required" class="selectpicker" col="col-md-3">
-                                @if(!$categories->isEmpty())  
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}" {{ $data->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                            <x-form.selectbox labelName="Class" name="item_class_id" required="required" class="selectpicker" col="col-md-3">
+                                @if(!$classes->isEmpty())  
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}"  {{ $data->item_class_id == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
@@ -143,7 +172,15 @@
                                                         @endif
                                                     </x-form.selectbox>
                         
-                                                    <x-form.selectbox labelName="By Product Inventory Location" name="bp_location_id" required="required"  class="selectpicker" col="col-md-3"/>
+                                                    <x-form.selectbox labelName="By Product Inventory Location" name="bp_location_id" required="required"  class="selectpicker" col="col-md-3">
+                                                        @if(!$locations->isEmpty())  
+                                                            @foreach ($locations as $location)
+                                                                @if ($data->bp_site_id == $location->site_id)
+                                                                <option value="{{ $location->id }}"  {{ $data->bp_location_id == $location->id ? 'selected' : '' }}>{{ $location->name }}</option>
+                                                                @endif
+                                                            @endforeach
+                                                        @endif
+                                                    </x-form.selectbox>
                                                 </div>
                                             </div>
                                             <div class="col-md-12 by_product_section">
@@ -268,14 +305,13 @@ $(document).ready(function () {
         $('.by_product_section .selectpicker').selectpicker();
     }
 });
-getLocations("{{ $data->from_site_id }}",1,"{{ $data->from_location_id }}");
-getLocations("{{ $data->bp_site_id }}",2,"{{ $data->bp_location_id }}");
-setTimeout(() => {
-    material_list("{{ $data->material_id }}");
-}, 2000);
-setTimeout(() => {
-    setMaterialData();
-}, 3500);
+
+// setTimeout(() => {
+//     material_list("{{ $data->material_id }}");
+// }, 2000);
+// setTimeout(() => {
+//     setMaterialData();
+// }, 3500);
 
 
 function material_list(material_id='')

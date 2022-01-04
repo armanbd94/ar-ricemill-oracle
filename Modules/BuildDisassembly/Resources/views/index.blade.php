@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-@extends('builddisassembly::layouts.master')
-
-@section('content')
-    <h1>Hello World</h1>
-
-    <p>
-        This view is loaded from module: {!! config('builddisassembly.name') !!}
-    </p>
-@endsection
-=======
 
 
 @extends('layouts.app')
@@ -29,7 +18,7 @@
                 <div class="card-toolbar m-0">
                     <!--begin::Button-->
                     @if (permission('build-disassembly-add'))
-                    <a href="{{ route('build.disassembly.create') }}"  class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="{{ route('build.disassembly.create') }}"  class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                     @endif
                     <!--end::Button-->
@@ -60,11 +49,11 @@
                         </x-form.selectbox>
                         <div class="col-md-3">
                             <div style="margin-top:28px;">    
-                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
                                 <i class="fas fa-undo-alt"></i></button>
 
-                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Search">
                                 <i class="fas fa-search"></i></button>
                             </div>
@@ -76,7 +65,7 @@
                 <!--begin: Datatable-->
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                     <div class="row">
-                        <div class="col-sm-12 table-responsive">
+                        <div class="col-sm-12 table-responsive" style="min-height: 400px;">
                             <table id="dataTable" class="table table-bordered table-hover">
                                 <thead class="bg-primary">
                                     <tr>
@@ -95,7 +84,9 @@
                                         <th>Product Name</th>
                                         <th>From Site</th>
                                         <th>From Location</th>
-                                        <th>Fine Rice Convrt. Ratio</th>
+                                        <th>To Site</th>
+                                        <th>To Location</th>
+                                        <th>Material Used Qty</th>
                                         <th>Fine Rice Convrt. Qty</th>
                                         <th>Date</th>
                                         <th>Created By</th>
@@ -165,20 +156,28 @@ $(document).ready(function(){
         },
         "columnDefs": [{
                 @if (permission('build-disassembly-bulk-delete'))
-                "targets": [0,12],
+                "targets": [0,14],
                 @else
-                "targets": [11],
+                "targets": [13],
                 @endif
                 "orderable": false,
                 "className": "text-center"
             },
             {
                 @if (permission('build-disassembly-bulk-delete'))
-                "targets": [1,2,3,4,5,6,7,8,9,10,11],
+                "targets": [1,2,3,4,5,6,7,8,9,12,13],
                 @else
-                "targets": [0,1,2,3,4,5,6,7,8,9,10],
+                "targets": [0,1,2,3,4,5,6,7,8,11,12],
                 @endif
                 "className": "text-center"
+            },
+            {
+                @if (permission('build-disassembly-bulk-delete'))
+                "targets": [10,11],
+                @else
+                "targets": [9,10],
+                @endif
+                "className": "text-right"
             },
 
         ],
@@ -188,20 +187,20 @@ $(document).ready(function(){
 
         "buttons": [
             {
-                'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
+                'extend':'colvis','className':'btn btn-secondary btn-sm text-white custom-btn','text':'Column','columns': ':gt(0)'
             },
             {
                 "extend": 'print',
                 'text':'Print',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
                     @if (permission('build-disassembly-bulk-delete'))
-                    columns: ':visible:not(:eq(0),:eq(12))' 
+                    columns: ':visible:not(:eq(0),:eq(14))' 
                     @else
-                    columns: ':visible:not(:eq(11))' 
+                    columns: ':visible:not(:eq(13))' 
                     @endif
                 },
                 customize: function (win) {
@@ -216,44 +215,44 @@ $(document).ready(function(){
             {
                 "extend": 'csv',
                 'text':'CSV',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
                       @if (permission('build-disassembly-bulk-delete'))
-                    columns: ':visible:not(:eq(0),:eq(12))' 
+                    columns: ':visible:not(:eq(0),:eq(14))' 
                     @else
-                    columns: ':visible:not(:eq(11))' 
+                    columns: ':visible:not(:eq(13))' 
                     @endif
                 }
             },
             {
                 "extend": 'excel',
                 'text':'Excel',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
                       @if (permission('build-disassembly-bulk-delete'))
-                    columns: ':visible:not(:eq(0),:eq(12))' 
+                    columns: ':visible:not(:eq(0),:eq(14))' 
                     @else
-                    columns: ':visible:not(:eq(11))' 
+                    columns: ':visible:not(:eq(13))' 
                     @endif
                 }
             },
             {
                 "extend": 'pdf',
                 'text':'PDF',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
                       @if (permission('build-disassembly-bulk-delete'))
-                    columns: ':visible:not(:eq(0),:eq(12))' 
+                    columns: ':visible:not(:eq(0),:eq(14))' 
                     @else
-                    columns: ':visible:not(:eq(11))' 
+                    columns: ':visible:not(:eq(13))' 
                     @endif
                 },
                 customize: function(doc) {
@@ -264,7 +263,7 @@ $(document).ready(function(){
             },
             @if (permission('build-disassembly-bulk-delete'))
             {
-                'className':'btn btn-danger btn-sm delete_btn d-none text-white',
+                'className':'btn btn-danger btn-sm delete_btn d-none text-white custom-btn',
                 'text':'Delete',
                 action:function(e,dt,node,config){
                     multi_delete();
@@ -317,4 +316,3 @@ $(document).ready(function(){
 });
 </script>
 @endpush
->>>>>>> 21f3983e888b56601e339fadd0d8362bb84631aa
