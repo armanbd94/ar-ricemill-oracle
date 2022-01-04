@@ -57,7 +57,7 @@
 
                             <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="material_list()" class="selectpicker" col="col-md-3"/>
                             
-                            <x-form.selectbox labelName="Transfer To" name="fto_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
+                            <x-form.selectbox labelName="Transfer To" name="to_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
                                         <option value="{{ $site->id }}">{{ $site->name }}</option>
@@ -76,7 +76,7 @@
                             <x-form.selectbox labelName="Converted Item" name="product_id"  col="col-md-3" class="selectpicker" required="required">
                                 @if (!$products->isEmpty())
                                     @foreach ($products as $product)
-                                        @if ($product->category_id != 3)
+                                        @if ($product->category_id == 4)
                                         <option value="{{ $product->id }}" data-category="{{ $product->category_id }}">{{ $product->name }}</option>
                                         @endif
                                     @endforeach
@@ -318,11 +318,11 @@ function calculateProductQty(type,row)
         {
             const ratio = $('#rice_convertion_ratio').val() ? parseFloat($('#rice_convertion_ratio').val()) : 0;
             const qty   = required_qty * (ratio/100);
-            $('#fine_rice_qty').val(parseFloat(qty));
+            $('#fine_rice_qty').val(parseFloat(qty).toFixed(2));
         }else{
             const ratio = $(`#by_products_${row}_ratio`).val() ? parseFloat($(`#by_products_${row}_ratio`).val()) : 0;
             const qty   = required_qty * (ratio/100);
-            $(`#by_products_${row}_qty`).val(parseFloat(qty));
+            $(`#by_products_${row}_qty`).val(parseFloat(qty).toFixed(2));
         }
         calculateTotal();
     }else{
@@ -345,7 +345,7 @@ function calculateTotal()
             total_qty += parseFloat($(this).val());
         }
     });
-    $('#milling_qty').val(total_qty);
+    $('#milling_qty').val(parseFloat(total_qty).toFixed(2));
     var total_ratio = 0;
     $('.ratio').each(function() {
         if($(this).val() == ''){

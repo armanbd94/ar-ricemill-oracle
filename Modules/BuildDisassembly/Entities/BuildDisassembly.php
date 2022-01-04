@@ -2,8 +2,8 @@
 
 namespace Modules\BuildDisassembly\Entities;
 
-use App\Models\Category;
 use App\Models\BaseModel;
+use App\Models\ItemClass;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
@@ -15,8 +15,9 @@ class BuildDisassembly extends BaseModel
 {
 
     protected $fillable = [
-        'memo_no', 'batch_id', 'from_site_id', 'from_location_id', 'material_id','product_id', 'build_ratio', 
-        'build_qty', 'required_qty','category_id','build_date','convertion_ratio','converted_qty','total_milling_qty','total_milling_ratio','bp_site_id',
+        'memo_no', 'batch_id', 'from_site_id', 'from_location_id','to_site_id', 'to_location_id', 'material_id','product_id',
+        'material_cost','product_cost','product_old_cost','build_ratio','build_qty', 'required_qty','item_class_id','build_date',
+        'convertion_ratio','converted_qty','total_milling_qty','total_milling_ratio','bp_site_id',
         'bp_location_id','created_by','modified_by',
     ];
     /****************************
@@ -31,6 +32,10 @@ class BuildDisassembly extends BaseModel
     {
         return $this->belongsTo(Site::class,'from_site_id','id');
     }
+    public function to_site()
+    {
+        return $this->belongsTo(Site::class,'to_site_id','id');
+    }
 
     public function bp_site()
     {
@@ -40,6 +45,10 @@ class BuildDisassembly extends BaseModel
     public function from_location()
     {
         return $this->belongsTo(Location::class,'from_location_id','id');
+    }
+    public function to_location()
+    {
+        return $this->belongsTo(Location::class,'to_location_id','id');
     }
 
     public function bp_location()
@@ -57,9 +66,9 @@ class BuildDisassembly extends BaseModel
         return $this->belongsTo(Product::class,'product_id','id');
     }
     
-    public function category()
+    public function item_class()
     {
-        return $this->belongsTo(Category::class,'category_id','id');
+        return $this->belongsTo(ItemClass::class,'item_class_id','id');
     }
 
     public function by_products()
@@ -117,10 +126,14 @@ class BuildDisassembly extends BaseModel
         ->leftJoin('materials as m','bd.material_id','=','m.id')
         ->leftJoin('products as p','bd.product_id','=','p.id')
         ->leftJoin('sites as fs','bd.from_site_id','=','fs.id')
+        ->leftJoin('sites as ts','bd.to_site_id','=','ts.id')
         ->leftJoin('sites as bps','bd.bp_site_id','=','bps.id')
         ->leftJoin('locations as fl','bd.from_location_id','=','fl.id')
+        ->leftJoin('locations as tl','bd.to_location_id','=','tl.id')
         ->leftJoin('locations as bpl','bd.bp_location_id','=','bpl.id')
-        ->select('bd.*','b.batch_no','m.material_name','p.name as product_name','fs.name as from_site','bps.name as bp_site','fl.name as from_location','bpl.name as bp_location');
+        ->leftJoin('item_classes as ic','bd.item_class_id','=','ic.id')
+        ->select('bd.*','b.batch_no','m.material_name','p.name as product_name','fs.name as from_site','ts.name as to_site',
+        'bps.name as bp_site','fl.name as from_location','tl.name as to_location','bpl.name as bp_location','ic.name as class_name');
 
         //search query
         if (!empty($this->_memo_no)) {
