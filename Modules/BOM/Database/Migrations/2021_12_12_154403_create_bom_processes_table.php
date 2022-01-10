@@ -50,6 +50,10 @@ class CreateBomProcessesTable extends Migration
             $table->double('bag_required_qty',12,0);
             $table->double('total_rice_qty',12,0);
             $table->float('total_bag_qty',8,0);
+            $table->float('from_product_cost',8,0);
+            $table->float('to_product_cost',8,0);
+            $table->float('to_product_old_cost',8,0);
+            $table->float('bag_cost',8,0);
             $table->date('process_date');
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();

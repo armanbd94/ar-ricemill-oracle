@@ -31,7 +31,7 @@ class BuildDisassemblyController extends BaseController
     {
         if(permission('build-disassembly-access')){
             $this->setPageData('Manage Build Disassembly','Manage Build Disassembly','fas fa-pallet',[['name' => 'Manage Build Disassembly']]);
-            $batches = Batch::allBatches();
+            $batches = Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get();
             return view('builddisassembly::index',compact('batches'));
         }else{
             return $this->access_blocked();
@@ -107,11 +107,11 @@ class BuildDisassemblyController extends BaseController
         if(permission('build-disassembly-add')){
             $this->setPageData('Build Disassembly Form','Build Disassembly Form','fas fa-pallet',[['name' => 'Build Disassembly Form']]);
             $data = [
-                'batches'   => Batch::allBatches(),
+                'batches'   => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'     => Site::allSites(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),
                 'products'  => Product::where('status',1)->whereIn('category_id',[3,4])->get(),
-                'classes'     => ItemClass::allItemClass(),
+                'classes'   => ItemClass::allItemClass(),
             ];
             
             return view('builddisassembly::create',$data);
@@ -275,7 +275,7 @@ class BuildDisassemblyController extends BaseController
             $disassembly_data = $this->model->with('by_products')->find($id);
             $data = [
                 'data'      => $disassembly_data,
-                'batches'   => Batch::allBatches(),
+                'batches'   => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'     => Site::allSites(),
                 'locations' => Location::whereIn('site_id',[$disassembly_data->from_site_id,$disassembly_data->to_site_id,$disassembly_data->bp_site_id])->get(),
                 'materials' => Material::with('category')->where([['status',1],['type',1]])->get(),

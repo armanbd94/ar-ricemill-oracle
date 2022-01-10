@@ -104,7 +104,7 @@
                                                             @if (!$products->isEmpty())
                                                             @foreach ($products as $product)
                                                                 @if ($product->category_id == 4)
-                                                                <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                                                <option value="{{ $product->id }}" data-cost="{{ $product->cost ? $product->cost : 0 }}">{{ $product->name }}</option>
                                                                 @endif
                                                             @endforeach
                                                         @endif
@@ -170,7 +170,12 @@
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Total Bag Used Quantity</td>
-                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty"  class="form-control text-right bg-secondary" readonly></td>
+                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty"  class="form-control text-right" onkeyup="perUnitCost()"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="4" class="text-right font-weight-bolder">Per Unit Cost</td>
+                                                    <td><input type="text" name="per_unit_cost" id="per_unit_cost"  class="form-control text-right bg-secondary" readonly></td>
                                                     <td></td>
                                                 </tr>
                                             </tbody>
@@ -282,7 +287,22 @@ function packetRiceCalculation()
     if(bag_per_unit_qty > 0)
     {
         $('#bag_required_qty').val(bag_required_qty);
-        $('#total_bag_qty').val(bag_required_qty);
+    }
+}
+
+function perUnitCost()
+{
+    const total_rice_qty = $('#total_rice_qty').val() ? parseFloat($('#total_rice_qty').val()) : 0;
+    if(total_rice_qty > 0)
+    {
+        const rice_cost = $('#from_product_id option:selected').data('cost') ? parseFloat($('#from_product_id option:selected').data('cost')) : 0;
+        const bag_cost = $('#bag_id option:selected').data('cost') ? parseFloat($('#bag_id option:selected').data('cost')) : 0;
+        const total_bag_qty = $('#total_bag_qty').val() ? parseFloat($('#total_bag_qty').val()) : 0;
+        const per_unit_cost = ((total_rice_qty * rice_cost) + (total_bag_qty * bag_cost)) / total_rice_qty;
+        $('#per_unit_cost').val(parseFloat(per_unit_cost).toFixed(2));
+
+    }else{
+        notification('error','Please insert fine rice qunatity!');
     }
 }
 

@@ -17,7 +17,8 @@ class BomProcess extends BaseModel
         'memo_no','batch_id','process_number','to_product_id',
         'to_site_id', 'to_location_id','from_product_id','item_class_id','from_site_id','from_location_id','product_particular','product_per_unit_qty',
         'product_required_qty','bag_site_id','bag_location_id','bag_id','bag_class_id','bag_particular','bag_per_unit_qty',
-        'bag_required_qty','total_rice_qty','total_bag_qty','process_date','created_by','modified_by','process_type'
+        'bag_required_qty','total_rice_qty','total_bag_qty','process_date','created_by','modified_by','process_type',
+        'from_product_cost','to_product_cost','to_product_old_cost','bag_cost','per_unit_cost'
     ];
 
     /****************************

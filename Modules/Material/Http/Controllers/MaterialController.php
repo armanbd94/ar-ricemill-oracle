@@ -244,7 +244,7 @@ class MaterialController extends BaseController
     public function bag_list(Request $request)
     {
         $materials = DB::table('site_material as sm')
-        ->select('m.id','m.material_name','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
+        ->select('m.id','m.material_name','m.cost','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
         ->leftJoin('materials as m','sm.material_id','=','m.id')
         ->leftJoin('categories as c','m.category_id','=','c.id')
         ->leftJoin('units as u','m.unit_id','=','u.id')
@@ -258,7 +258,7 @@ class MaterialController extends BaseController
         if(!$materials->isEmpty())
         {
             foreach ($materials as $value) {
-                $output .= '<option value="'.$value->id.'" data-stockqty="'.$value->qty.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'" data-unitcode="'.$value->unit_code.'">'.$value->material_name.'</option>';
+                $output .= '<option value="'.$value->id.'" data-cost="'.($value->cost ? $value->cost : 0 ).'" data-stockqty="'.$value->qty.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'" data-unitcode="'.$value->unit_code.'">'.$value->material_name.'</option>';
             }
         }
         return $output;

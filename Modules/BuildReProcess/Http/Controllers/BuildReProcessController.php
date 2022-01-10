@@ -28,7 +28,7 @@ class BuildReProcessController extends BaseController
     {
         if(permission('build-re-process-access')){
             $this->setPageData('Manage Build Re Process','Manage Build Re Process','fas fa-retweet',[['name' => 'Manage Build Re Process']]);
-            $batches = Batch::allBatches();
+            $batches = Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get();
             return view('buildreprocess::index',compact('batches'));
         }else{
             return $this->access_blocked();
@@ -102,7 +102,7 @@ class BuildReProcessController extends BaseController
         if(permission('build-re-process-add')){
             $this->setPageData('Build Disassembly Form','Build Disassembly Form','fas fa-pallet',[['name' => 'Build Disassembly Form']]);
             $data = [
-                'batches'   => Batch::allBatches(),
+                'batches'   => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'     => Site::allSites(),
                 'products'  => Product::where('status',1)->get(),
                 'categories'     => Category::allProductCategories(),
@@ -245,7 +245,7 @@ class BuildReProcessController extends BaseController
             $build_data = $this->model->with('by_products')->find($id);
             $data = [
                 'data'       => $build_data,
-                'batches'    => Batch::allBatches(),
+                'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
                 'site_products' => DB::table('site_product as sp')
                                     ->select('p.id','p.name as product_name','c.name as category_name','u.unit_name','u.unit_code','sp.qty')
