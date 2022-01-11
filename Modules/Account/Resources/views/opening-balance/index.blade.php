@@ -27,13 +27,6 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-12">
-                                <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required"  col="col-md-6" class="selectpicker">
-                                    @if (!$warehouses->isEmpty())
-                                    @foreach ($warehouses as $id => $name)
-                                        <option value="{{ $id }}">{{ $name }}</option>
-                                    @endforeach
-                                    @endif
-                                </x-form.selectbox>
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_no">Voucher No</label>
                                     <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}" readonly />
@@ -43,20 +36,7 @@
                                     <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ date('Y-m-d') }}" readonly />
                                 </div>
                                 <x-form.selectbox labelName="Account Head" name="chart_of_account_id" required="required"  col="col-md-6" class="selectpicker">
-                                    @if (!$coas->isEmpty())
-                                    @foreach ($coas as $coa)
-                                    @if (!empty($coa->customer_id) || !empty($coa->supplier_id))
-                                        @if ($coa->customer_id)
-                                        <option value="{{ $coa->id }}"> {{ $coa->name }} (Customer) - [{{ $coa->customer->district->name }}]</option>
-                                        @elseif($coa->supplier_id)
-                                        <option value="{{ $coa->id }}"> {{ $coa->name }} (Supplier)</option>
-                                        @endif
-                                    @else
-                                    <option value="{{ $coa->id }}"> {{ $coa->name }}</option>
-                                    @endif
-                                      
-                                    @endforeach
-                                    @endif
+                                    {!! $coas !!}
                                 </x-form.selectbox>
                                 <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-6" placeholder="0.00"/>
                                 <x-form.textarea labelName="Remarks" name="remarks" col="col-md-6"/>

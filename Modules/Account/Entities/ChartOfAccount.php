@@ -4,6 +4,7 @@ namespace Modules\Account\Entities;
 
 use App\Models\BaseModel;
 use Modules\Bank\Entities\Bank;
+use Illuminate\Support\Facades\DB;
 use Modules\Vendor\Entities\Vendor;
 use Modules\Customer\Entities\Customer;
 use Modules\Account\Entities\Transaction;
@@ -110,4 +111,70 @@ class ChartOfAccount extends BaseModel
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
+
+    public static function accounts()
+    {
+        // $accounts = '<pre><ul>';
+        $accounts = '';
+        $accounts .= (new self)->coa('COA');
+        // $accounts .= '</ul></pre>';
+        return $accounts;
+    }
+
+    private function coa($parent_name,$level = 0)
+    {
+        $module = '';
+        
+        if($parent_name == 'COA'){
+            $modules = self::where(['parent_name' => 'COA'])->orderBy('code','asc')->get(); //get module list whose parent id is 0
+        }else{
+            $modules = self::where(['parent_name' => $parent_name])->orderBy('code','asc')->get(); //get module list whose parent id is the given id
+        }
+        
+        if(!$modules->isEmpty()){
+            foreach ($modules as $value) {
+                $children = self::where(['parent_name' => $value->name])->get();
+                $amount = 0;
+                if(count($children) > 0)
+                {
+                    foreach ($children as $item) {
+                        $amount += $this->children($item);
+                    }
+                }else{
+                    $balance = DB::table('transactions')
+                    ->select(DB::raw("SUM(debit) - SUM(credit) as balance"))
+                    ->where([['chart_of_account_id',$value->id],['approve',1]])
+                    ->first();
+                    $amount += !empty($balance) ? $balance->balance : 0;
+                }
+                $module .= "<option value='".$value->id."'>".str_repeat("&#9866;", $level).' '.$value->name." [ Bl: ".$amount."Tk]";
+                $module .= $this->coa($value->name,$level+1);
+                $module .= "</option>";
+                // $module .= "<li>".$value->name."<b style='float:right'> Bl: ".$amount."</b>";
+                // $module .= "<ul>".$this->coa($value->name)."</ul>";
+                // $module .= "</li>";
+            }
+        }
+        return $module;
+    }
+
+    private function children($item)
+    {
+        $amount = 0;
+        
+        $children = self::where(['parent_name' => $item->name])->get();
+        if(count($children) > 0)
+        {
+            foreach ($children as $item) {
+                $amount += $this->children($item);
+            }
+        }else{
+            $transaction = DB::table('transactions as t')
+            ->select(DB::raw("SUM(t.debit) - SUM(t.credit) as balance"))
+            ->where([['t.chart_of_account_id',$item->id],['approve',1]])
+            ->first();
+            $amount += $transaction ? $transaction->balance : 0;
+        }
+        return $amount;
+    }
 }
