@@ -46,8 +46,8 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     //Supplier Payment Route
-    Route::resource('supplier-payment', 'SupplierPaymentController')->only(['index','store']);
-    Route::get('supplier-payment/{id}/{payment_type}', 'SupplierPaymentController@show');
+    Route::resource('vendor-payment', 'VendorPaymentController')->only(['index','store']);
+    Route::get('vendor-payment/{id}/{payment_type}', 'VendorPaymentController@show');
 
     //Customer Receive Route
     Route::resource('customer-receive', 'CustomerReceiveController')->only(['index','store']);

@@ -147,7 +147,7 @@ class ChartOfAccount extends BaseModel
                     ->first();
                     $amount += !empty($balance) ? $balance->balance : 0;
                 }
-                $module .= "<option value='".$value->id."'>".str_repeat("&#9866;", $level).' '.$value->name." [ Bl: ".$amount."Tk]";
+                $module .= "<option value='".$value->id."'>".str_repeat("&#9866;", $level).' '.$value->name." [ Balance: ".$amount."Tk]";
                 $module .= $this->coa($value->name,$level+1);
                 $module .= "</option>";
                 // $module .= "<li>".$value->name."<b style='float:right'> Bl: ".$amount."</b>";

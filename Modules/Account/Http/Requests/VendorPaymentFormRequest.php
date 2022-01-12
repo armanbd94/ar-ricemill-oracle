@@ -4,7 +4,7 @@ namespace Modules\Account\Http\Requests;
 
 use App\Http\Requests\FormRequest;
 
-class SupplierPaymentFormRequest extends FormRequest
+class VendorPaymentFormRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,7 +16,7 @@ class SupplierPaymentFormRequest extends FormRequest
         return [
             'voucher_no'   => 'required',
             'voucher_date' => 'required',
-            'supplier_id'  => 'required',
+            'vendor_id'    => 'required',
             'payment_type' => 'required',
             'account_id'   => 'required',
             'amount'       => 'required|numeric|gt:0',
@@ -26,7 +26,8 @@ class SupplierPaymentFormRequest extends FormRequest
     public function messages()
     {
         return [
-            'supplier_id.required'        => 'The supplier field is required',
+            'voucher_no.required' => 'The memo field is required',
+            'vendor_id.required'  => 'The vendor field is required',
             'account_id.required' => 'The account field is required'
         ];
     }

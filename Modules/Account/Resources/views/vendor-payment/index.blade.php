@@ -25,23 +25,23 @@
             <div class="card-body">
                 <!--begin: Datatable-->
                 <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                    <form id="supplier-payment-form" method="post">
+                    <form id="vendor-payment-form" method="post">
                         @csrf
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group col-md-6 required">
-                                    <label for="voucher_no">Voucher No</label>
-                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}" readonly />
+                                    <label for="voucher_no">Memo No</label>
+                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}"  />
                                 </div>
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_date">Date</label>
                                     <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ date('Y-m-d') }}" readonly />
                                 </div>
-                                <x-form.selectbox labelName="Supplier" name="supplier_id"  onchange="dueAmount(this.value)" required="required"  col="col-md-6" class="selectpicker">
-                                    @if (!$suppliers->isEmpty())
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->id }}">{{ $supplier->name.' - '.$supplier->mobile }}</option>
-                                    @endforeach
+                                <x-form.selectbox labelName="Vendor" name="vendor_id"  onchange="dueAmount(this.value)" required="required"  col="col-md-6" class="selectpicker">
+                                    @if (!$vendors->isEmpty())
+                                        @foreach ($vendors as $vendor)
+                                            <option value="{{ $vendor->id }}">{{ $vendor->trade_name.' - '.$vendor->name }}</option>
+                                        @endforeach
                                     @endif
                                 </x-form.selectbox>
                                 <div class="form-group col-md-6">
@@ -84,19 +84,19 @@ $(document).on('change', '#payment_type', function () {
         type: "POST",
         data: { payment_method: $('#payment_type option:selected').val(),_token: _token},
         success: function (data) {
-            $('#supplier-payment-form #account_id').html('');
-            $('#supplier-payment-form #account_id').html(data);
-            $('#supplier-payment-form #account_id.selectpicker').selectpicker('refresh');
+            $('#vendor-payment-form #account_id').html('');
+            $('#vendor-payment-form #account_id').html(data);
+            $('#vendor-payment-form #account_id.selectpicker').selectpicker('refresh');
         },
         error: function (xhr, ajaxOption, thrownError) {
             console.log(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);
         }
     });
 });
-function dueAmount(supplier_id)
+function dueAmount(vendor_id)
 {
     $.ajax({
-        url: "{{url('supplier/due-amount')}}/"+supplier_id,
+        url: "{{url('vendor/due-amount')}}/"+vendor_id,
         type: "GET",
         dataType: "JSON",
         success: function (data) {
@@ -108,9 +108,9 @@ function dueAmount(supplier_id)
     });
 }
 function store_data(){
-    let form = document.getElementById('supplier-payment-form');
+    let form = document.getElementById('vendor-payment-form');
     let formData = new FormData(form);
-    let url = "{{url('supplier-payment')}}";
+    let url = "{{url('vendor-payment')}}";
     $.ajax({
         url: url,
         type: "POST",
@@ -126,22 +126,22 @@ function store_data(){
             $('#save-btn').removeClass('spinner spinner-white spinner-right');
         },
         success: function (data) {
-            $('#supplier-payment-form').find('.is-invalid').removeClass('is-invalid');
-            $('#supplier-payment-form').find('.error').remove();
+            $('#vendor-payment-form').find('.is-invalid').removeClass('is-invalid');
+            $('#vendor-payment-form').find('.error').remove();
             if (data.status == false) {
                 $.each(data.errors, function (key, value) {
                     var key = key.split('.').join('_');
-                    $('#supplier-payment-form input#' + key).addClass('is-invalid');
-                    $('#supplier-payment-form textarea#' + key).addClass('is-invalid');
-                    $('#supplier-payment-form select#' + key).parent().addClass('is-invalid');
-                    $('#supplier-payment-form #' + key).parent().append(
+                    $('#vendor-payment-form input#' + key).addClass('is-invalid');
+                    $('#vendor-payment-form textarea#' + key).addClass('is-invalid');
+                    $('#vendor-payment-form select#' + key).parent().addClass('is-invalid');
+                    $('#vendor-payment-form #' + key).parent().append(
                         '<small class="error text-danger">' + value + '</small>');
                 });
             } else {
                 notification(data.status, data.message);
-                if (data.status == 'success' && data.supplier_transaction != '') {
+                if (data.status == 'success' && data.vendor_transaction != '') {
 
-                    window.location.replace("{{ url('supplier-payment') }}/"+data.supplier_transaction+'/'+$('#payment_type option:selected').val());
+                    window.location.replace("{{ url('vendor-payment') }}/"+data.vendor_transaction+'/'+$('#payment_type option:selected').val());
                     
                 }
             }

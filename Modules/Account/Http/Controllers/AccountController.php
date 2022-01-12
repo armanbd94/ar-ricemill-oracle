@@ -3,6 +3,7 @@
 namespace Modules\Account\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\ChartOfAccount;
 
@@ -18,7 +19,8 @@ class AccountController extends BaseController
         if ($request->ajax()) {
             if($request->payment_method == 1)
             {
-                $accounts = $this->model->where(['code' =>  $this->coa_head_code('cash_in_hand'),'status'=>1])->get();
+                $accounts = $this->model->where(['parent_name' =>  'Cash & Cash Equivalent','status'=>1])->get();
+
             }elseif ($request->payment_method == 2) {
                 $accounts = $this->model->where('code', 'like', $this->coa_head_code('cash_at_bank').'%')->where('status',1)->get();
             }elseif ($request->payment_method == 3) {
@@ -30,7 +32,11 @@ class AccountController extends BaseController
                 $output .= '<option value="">Select Please</option>';
                 foreach ($accounts as $account) {
                     if($account->code != 1020102 && $account->code != 1020103){
-                        $output .= "<option value='$account->id'>$account->name</option>";
+                        $balance = DB::table('transactions')
+                        ->select(DB::raw("SUM(debit) - SUM(credit) as balance"))
+                        ->where([['chart_of_account_id',$account->id],['approve',1]])
+                        ->first();
+                        $output .= "<option value='$account->id'>".$account->name." [ Balance: ".($balance ? number_format($balance->balance,2,'.',',') : '0.00')."Tk]</option>";
                     }
                 }
             }
