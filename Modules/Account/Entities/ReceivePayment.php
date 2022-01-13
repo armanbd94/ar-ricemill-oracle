@@ -105,12 +105,13 @@ class ReceivePayment extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
 
-        $this->column_order = ['t.id', 't.voucher_no','t.voucher_date','t.description','t.credit','t.created_by',null];
+        $this->column_order = ['t.id','t.voucher_date', 't.voucher_no','t.chart_of_account_id','','t.description','t.credit','t.created_by',null];
         
         
         $query = DB::table('transactions as t')
         ->join('chart_of_accounts as coa','t.chart_of_account_id','=','coa.id')
-        ->selectRaw("t.*,coa.id as coa_id,coa.customer_id,coa.name")
+        ->leftJoin('customers as c','coa.customer_id','=','c.id')
+        ->selectRaw("t.*,coa.id as coa_id,coa.customer_id,coa.name,c.trade_name")
         ->where('t.voucher_type',self::VOUCHER_PREFIX)
         ->whereNotNull('coa.customer_id');
         //search query

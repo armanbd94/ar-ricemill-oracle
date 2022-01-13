@@ -9,6 +9,7 @@ use Modules\Customer\Entities\Customer;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\ChartOfAccount;
 use Modules\Account\Entities\ReceivePayment;
+use Modules\Account\Entities\Transaction;
 use Modules\Account\Http\Requests\CustomerReceiveFormRequest;
 
 class CustomerReceiveController extends BaseController
@@ -60,10 +61,14 @@ class CustomerReceiveController extends BaseController
                         $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->voucher_no . '" data-name="' . $value->voucher_no . '">'.self::ACTION_BUTTON['Delete'].'</a>';
                     }
 
+                    $account_head = Transaction::with('coa')->where('voucher_no',$value->voucher_no)->orderBy('id','desc')->first();
+
                     $row = [];
                     $row[] = $no;
+                    $row[] = date('d-M-Y',strtotime($value->voucher_date));
                     $row[] = $value->voucher_no;
-                    $row[] = date('d-M-Y',strtotime($value->voucher_date));;
+                    $row[] = $value->trade_name;
+                    $row[] = $account_head ? $account_head->coa->name : '';
                     $row[] = $value->description;
                     $row[] = number_format($value->credit,2);
                     $row[] = $value->created_by;

@@ -67,8 +67,10 @@
                                     <thead class="bg-primary">
                                         <tr>
                                             <th>Sl</th>
-                                            <th>Memo No.</th>
                                             <th>Date</th>
+                                            <th>Memo No.</th>
+                                            <th>Payee Name</th>
+                                            <th>Account Head</th>  
                                             <th>Remark</th>
                                             <th>Amount</th>
                                             <th>Created By</th>
@@ -137,16 +139,16 @@ $(document).ready(function(){
         },
         "columnDefs": [
             {
-                "targets": [6],
+                "targets": [4,8],
                 "orderable": false,
                 "className": "text-center"
             },
             {
-                "targets": [0,1,2,5],
+                "targets": [0,1,2,3,7],
                 "className": "text-center"
             },
             {
-                "targets": [4],
+                "targets": [6],
                 "className": "text-right"
             },
 
@@ -167,7 +169,7 @@ $(document).ready(function(){
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
-                    columns: ':visible:not(:eq(6))' 
+                    columns: ':visible:not(:eq(8))' 
                 },
                 customize: function (win) {
                     $(win.document.body).addClass('bg-white');
@@ -185,7 +187,7 @@ $(document).ready(function(){
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
-                    columns: ':visible:not(:eq(6))' 
+                    columns: ':visible:not(:eq(8))' 
                 }
             },
             {
@@ -195,7 +197,7 @@ $(document).ready(function(){
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
-                    columns: ':visible:not(:eq(6))' 
+                    columns: ':visible:not(:eq(8))' 
                 }
             },
             {
@@ -207,7 +209,7 @@ $(document).ready(function(){
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
-                    columns: ':visible:not(:eq(6))' 
+                    columns: ':visible:not(:eq(8))' 
                 },
                 customize: function(doc) {
                     doc.defaultStyle.fontSize = 7; //<-- set fontsize to 16 instead of 10 

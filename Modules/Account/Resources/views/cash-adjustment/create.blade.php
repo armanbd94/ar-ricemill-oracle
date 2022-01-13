@@ -27,13 +27,6 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-12">
-                                <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-6" required="required" class="selectpicker">
-                                    @if (!$warehouses->isEmpty())
-                                    @foreach ($warehouses as $id => $name)
-                                        <option value="{{ $id }}" data-name="{{ $name }}">{{ $name }}</option>
-                                    @endforeach
-                                    @endif
-                                </x-form.selectbox>
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_no">Voucher No</label>
                                     <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}" readonly />

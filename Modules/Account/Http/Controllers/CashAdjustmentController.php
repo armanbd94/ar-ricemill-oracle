@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Warehouse;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\CashAdjustment;
+use Modules\Account\Entities\ChartOfAccount;
 use Modules\Account\Http\Requests\CashAdjustmentFormRequest;
 
 class CashAdjustmentController extends BaseController
@@ -23,8 +24,7 @@ class CashAdjustmentController extends BaseController
     {
         if(permission('cash-adjustment-access')){
             $this->setPageData('Cash Adjustment List','Cash Adjustment List','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Cash Adjustment List']]);
-            $warehouses = Warehouse::where('status',1)->pluck('name','id');
-            return view('account::cash-adjustment.list',compact('warehouses'));
+            return view('account::cash-adjustment.list');
         }else{
             return $this->access_blocked();
         }
@@ -35,8 +35,8 @@ class CashAdjustmentController extends BaseController
         if(permission('cash-adjustment-add')){
             $this->setPageData('Cash Adjustment','Cash Adjustment','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Cash Adjustment']]);
             $voucher_no = self::VOUCHER_PREFIX.'-'.date('Ymd').rand(1,999);
-            $warehouses = Warehouse::where('status',1)->pluck('name','id');
-            return view('account::cash-adjustment.create',compact('voucher_no','warehouses'));
+            $accounts = ChartOfAccount::where(['parent_name' =>  'Cash & Cash Equivalent','status'=>1])->get();
+            return view('account::cash-adjustment.create',compact('voucher_no','accounts'));
         }else{
             return $this->access_blocked();
         }
@@ -52,9 +52,6 @@ class CashAdjustmentController extends BaseController
                 }
                 if (!empty($request->end_date)) {
                     $this->model->setEndDate($request->end_date);
-                }
-                if (!empty($request->warehouse_id)) {
-                    $this->model->setWarehouseID($request->warehouse_id);
                 }
 
                 $this->set_datatable_default_properties($request);//set datatable default properties
@@ -143,7 +140,7 @@ class CashAdjustmentController extends BaseController
             if($voucher_data)
             {
                 $this->setPageData('Edit Cash Adjustment','Edit Cash Adjustment','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Edit Cash Adjustment']]);
-                $warehouses = Warehouse::where('status',1)->pluck('name','id');
+
                 return view('account::cash-adjustment.edit',compact('voucher_data','warehouses'));
             }else{
                 return redirect()->back();
