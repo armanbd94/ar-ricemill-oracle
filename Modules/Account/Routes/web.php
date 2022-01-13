@@ -45,17 +45,22 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('approve', 'VoucherApprovalController@approve')->name('approve');
     });
 
-    //Supplier Payment Route
-    Route::resource('vendor-payment', 'VendorPaymentController')->only(['index','store']);
-    Route::get('vendor-payment/{id}/{payment_type}', 'VendorPaymentController@show');
+    //Vendor Payment Route
+    Route::get('vendor-payment', 'VendorPaymentController@index')->name('vendor.payment');
+    Route::group(['prefix' => 'vendor-payment', 'as'=>'vendor.payment.'], function () {
+        Route::get('create', 'VendorPaymentController@create')->name('create');
+        Route::post('store', 'VendorPaymentController@store')->name('store');
+        Route::get('{id}/{payment_type}', 'VendorPaymentController@show')->name('show');
+        Route::get('edit/{id}', 'VendorPaymentController@edit')->name('edit');
+        Route::post('update', 'VendorPaymentController@update')->name('update');
+        Route::post('delete', 'VendorPaymentController@delete')->name('delete');
+        Route::post('datatable-data', 'VendorPaymentController@get_datatable_data')->name('datatable.data');
+    });
 
-    //Customer Receive Route
-    Route::resource('customer-receive', 'CustomerReceiveController')->only(['index','store']);
-    Route::get('customer-receive/{id}/{payment_type}', 'CustomerReceiveController@show');
-
-    //Supplier Payment Route
-    Route::resource('salesmen-payment', 'SalesmenPaymentController')->only(['index','store']);
-    Route::get('salesmen-payment/{id}/{payment_type}', 'SalesmenPaymentController@show');
+    //Receive Payment Route
+    Route::resource('receive-payment', 'CustomerReceiveController')->except(['show']);
+    Route::post('receive-payment/datatable-data', 'CustomerReceiveController@get_datatable_data')->name('receive.payment.datatable.data');
+    Route::get('receive-payment/{id}/{payment_type}', 'CustomerReceiveController@show');
 
     //Debit Voucher Route
     Route::get('debit-voucher', 'DebitVoucherController@index');
