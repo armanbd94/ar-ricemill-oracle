@@ -50,8 +50,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'vendor-payment', 'as'=>'vendor.payment.'], function () {
         Route::get('create', 'VendorPaymentController@create')->name('create');
         Route::post('store', 'VendorPaymentController@store')->name('store');
-        Route::get('{id}/{payment_type}', 'VendorPaymentController@show')->name('show');
-        Route::get('edit/{id}', 'VendorPaymentController@edit')->name('edit');
+        Route::get('show/{id}/{payment_type}', 'VendorPaymentController@show')->name('show');
+        Route::get('edit/{voucher_no}', 'VendorPaymentController@edit')->name('edit');
         Route::post('update', 'VendorPaymentController@update')->name('update');
         Route::post('delete', 'VendorPaymentController@delete')->name('delete');
         Route::post('datatable-data', 'VendorPaymentController@get_datatable_data')->name('datatable.data');

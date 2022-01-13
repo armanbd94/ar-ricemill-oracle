@@ -22,7 +22,7 @@ class Vendor extends BaseModel
         ->where('voucher_type','PR Balance')->withDefault(['debit' => '']);
     }
 
-    public function vendor_balance(int $id)
+    public static function vendor_balance(int $id)
     {
         $data = DB::table('vendors as v')
             ->selectRaw('v.id,b.id as coaid,b.code,

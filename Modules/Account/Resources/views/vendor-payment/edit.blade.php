@@ -20,34 +20,39 @@
                             <div class="col-md-12">
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_no">Memo No</label>
-                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}"  />
+                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_data[0]->voucher_no }}"  />
+                                    <input type="hidden" class="form-control" name="update_voucher_no" id="update_voucher_no" value="{{ $voucher_data[0]->voucher_no }}"  />
                                 </div>
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_date">Date</label>
-                                    <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ date('Y-m-d') }}" readonly />
+                                    <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ $voucher_data[0]->voucher_date }}" readonly />
                                 </div>
                                 <x-form.selectbox labelName="Vendor" name="vendor_coa_id"  onchange="dueAmount(this.value)" required="required"  col="col-md-6" class="selectpicker">
                                     @if (!$vendors->isEmpty())
                                         @foreach ($vendors as $vendor)
-                                            <option value="{{ $vendor->coa->id }}">{{ $vendor->trade_name.' - '.$vendor->name }}</option>
+                                            <option value="{{ $vendor->coa->id }}" {{ $voucher_data[0]->chart_of_account_id == $vendor->coa->id ? 'selected' : '' }}>{{ $vendor->trade_name.' - '.$vendor->name }}</option>
                                         @endforeach
                                     @endif
                                 </x-form.selectbox>
                                 <div class="form-group col-md-6">
                                     <label for="due_amount">Due Amount</label>
-                                    <input type="text" class="form-control"  id="due_amount" readonly />
+                                    <input type="text" class="form-control"  id="due_amount" value="{{ number_format($due_amount,2,'.','') }}" readonly />
                                 </div>
                                 <x-form.selectbox labelName="Payment Type" name="payment_type" required="required"  col="col-md-6" class="selectpicker">
                                     @foreach (PAYMENT_METHOD as $key => $value)
-                                    <option value="{{ $key }}">{{ $value }}</option>
+                                    <option value="{{ $key }}" {{ $key == $payment_method ? 'selected' : '' }}>{{ $value }}</option>
                                     @endforeach
                                 </x-form.selectbox>
-                                <x-form.selectbox labelName="Account" name="account_id" required="required"  col="col-md-6" class="selectpicker"/>
-                                <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-6" placeholder="0.00"/>
-                                <x-form.textarea labelName="Remarks" name="remarks" col="col-md-6"/>
+                                <x-form.selectbox labelName="Account" name="account_id" required="required"  col="col-md-6" class="selectpicker">
+                                    {!! $account_list !!}
+                                </x-form.selectbox>
+
+                                <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-6" value="{{ $voucher_data[0]->debit }}" />
+
+                                <x-form.textarea labelName="Remarks" name="remarks" col="col-md-6" value="{{ $voucher_data[0]->description }}" />
                                 <div class="form-group col-md-6 pt-5">
                                     <button type="button" class="btn btn-danger btn-sm mr-3 custom-btn"><i class="fas fa-sync-alt"></i> Reset</button>
-                                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Save</button>
+                                    <button type="button" class="btn btn-primary btn-sm mr-3 custom-btn" id="save-btn" onclick="store_data()"><i class="fas fa-save"></i> Update</button>
                                 </div>
                             </div>
                         </div>
@@ -99,7 +104,7 @@ function dueAmount(vendor_id)
 function store_data(){
     let form = document.getElementById('vendor-payment-form');
     let formData = new FormData(form);
-    let url = "{{url('vendor-payment/store')}}";
+    let url = "{{url('vendor-payment/update')}}";
     $.ajax({
         url: url,
         type: "POST",
@@ -130,7 +135,7 @@ function store_data(){
                 notification(data.status, data.message);
                 if (data.status == 'success' && data.vendor_transaction != '') {
 
-                    window.location.replace("{{ url('vendor-payment/show') }}/"+data.vendor_transaction+'/'+$('#payment_type option:selected').val());
+                    window.location.replace("{{ url('vendor-payment') }}");
                     
                 }
             }
