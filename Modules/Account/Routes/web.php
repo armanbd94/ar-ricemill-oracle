@@ -58,9 +58,17 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     //Receive Payment Route
-    Route::resource('receive-payment', 'CustomerReceiveController')->except(['show']);
-    Route::post('receive-payment/datatable-data', 'CustomerReceiveController@get_datatable_data')->name('receive.payment.datatable.data');
-    Route::get('receive-payment/{id}/{payment_type}', 'CustomerReceiveController@show');
+    Route::get('receive-payment', 'CustomerReceiveController@index')->name('receive.payment');
+    Route::group(['prefix' => 'receive-payment', 'as'=>'receive.payment.'], function () {
+        Route::get('create', 'CustomerReceiveController@create')->name('create');
+        Route::post('store', 'CustomerReceiveController@store')->name('store');
+        Route::get('show/{id}/{payment_type}', 'CustomerReceiveController@show')->name('show');
+        Route::get('edit/{voucher_no}', 'CustomerReceiveController@edit')->name('edit');
+        Route::post('update', 'CustomerReceiveController@update')->name('update');
+        Route::post('delete', 'CustomerReceiveController@delete')->name('delete');
+        Route::post('datatable-data', 'CustomerReceiveController@get_datatable_data')->name('datatable.data');
+    });
+
 
     //Debit Voucher Route
     Route::get('debit-voucher', 'DebitVoucherController@index');

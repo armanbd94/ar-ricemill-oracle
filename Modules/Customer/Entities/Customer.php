@@ -23,7 +23,7 @@ class Customer extends BaseModel
         ->where('voucher_type','PR Balance')->withDefault(['debit' => '']);
     }
 
-    public function customer_balance(int $id)
+    public static function customer_balance(int $id)
     {
         $data = DB::table('customers as c')
             ->selectRaw('c.id,b.id as coaid,b.code,((select sum(debit) from transactions where chart_of_account_id= b.id AND approve = 1)-(select sum(credit) from transactions where chart_of_account_id= b.id AND approve = 1)) as balance')
@@ -34,7 +34,7 @@ class Customer extends BaseModel
         {
             $balance = $data->balance ? $data->balance : 0;
         }
-        return number_format($balance,2,'.',',');
+        return number_format($balance,2,'.','');
     }
     /******************************************
      * * * Begin :: Custom Datatable Code * * *

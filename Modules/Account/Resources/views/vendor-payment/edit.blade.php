@@ -27,10 +27,10 @@
                                     <label for="voucher_date">Date</label>
                                     <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ $voucher_data[0]->voucher_date }}" readonly />
                                 </div>
-                                <x-form.selectbox labelName="Vendor" name="vendor_coa_id"  onchange="dueAmount(this.value)" required="required"  col="col-md-6" class="selectpicker">
+                                <x-form.selectbox labelName="Vendor" name="vendor_id"  onchange="dueAmount(this.value)" required="required"  col="col-md-6" class="selectpicker">
                                     @if (!$vendors->isEmpty())
                                         @foreach ($vendors as $vendor)
-                                            <option value="{{ $vendor->coa->id }}" {{ $voucher_data[0]->chart_of_account_id == $vendor->coa->id ? 'selected' : '' }}>{{ $vendor->trade_name.' - '.$vendor->name }}</option>
+                                            <option value="{{ $vendor->id }}" {{ $voucher_data[0]->chart_of_account_id == $vendor->coa->id ? 'selected' : '' }}>{{ $vendor->trade_name.' - '.$vendor->name }}</option>
                                         @endforeach
                                     @endif
                                 </x-form.selectbox>

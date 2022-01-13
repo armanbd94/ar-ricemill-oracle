@@ -98,9 +98,9 @@ class VendorPaymentController extends BaseController
             if(permission('vendor-payment-access')){
                 DB::beginTransaction();
                 try {
-
+                    $vendor = Vendor::with('coa')->find($request->vendor_id);
                     $transaction = VendorPayment::vendor_payment([
-                        'vendor_coa_id'      => $request->vendor_coa_id,
+                        'vendor_coa_id'      => $vendor->coa->id,
                         'payment_account_id' => $request->account_id,
                         'voucher_no'         => $request->voucher_no,
                         'voucher_date'       => $request->voucher_date,
@@ -139,7 +139,7 @@ class VendorPaymentController extends BaseController
             $voucher_data = $this->model->where('voucher_no',$voucher_no)->get();
             if($voucher_data)
             {
-                $this->setPageData('Edit Cash Adjustment','Edit Cash Adjustment','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Edit Cash Adjustment']]);
+                $this->setPageData('Edit Vendor Payment','Edit Vendor Payment','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Edit Vendor Payment']]);
                 $vendors = Vendor::with('coa')->get();
                 $due_amount = Vendor::vendor_balance($voucher_data[0]->coa->vendor_id);
                 if($due_amount < 0)
@@ -187,8 +187,9 @@ class VendorPaymentController extends BaseController
                 DB::beginTransaction();
                 try {
                     $this->model->where('voucher_no',$request->update_voucher_no)->delete();
+                    $$vendor = Vendor::with('coa')->find($request->vendor_id);
                     $transaction = VendorPayment::vendor_payment([
-                        'vendor_coa_id'      => $request->vendor_coa_id,
+                        'vendor_coa_id'      => $vendor->coa->id,
                         'payment_account_id' => $request->account_id,
                         'voucher_no'         => $request->voucher_no,
                         'voucher_date'       => $request->voucher_date,

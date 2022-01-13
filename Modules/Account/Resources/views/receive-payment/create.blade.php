@@ -26,10 +26,10 @@
                                     <label for="voucher_date">Date</label>
                                     <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ date('Y-m-d') }}" readonly />
                                 </div>
-                                <x-form.selectbox labelName="Vendor" name="vendor_id"  onchange="dueAmount(this.value)" required="required"  col="col-md-6" class="selectpicker">
-                                    @if (!$vendors->isEmpty())
-                                        @foreach ($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}">{{ $vendor->trade_name.' - '.$vendor->name }}</option>
+                                <x-form.selectbox labelName="Customer" name="customer_id"  onchange="dueAmount(this.value)" required="required"  col="col-md-6" class="selectpicker">
+                                    @if (!$customers->isEmpty())
+                                        @foreach ($customers as $customer)
+                                            <option value="{{ $customer->id }}">{{ $customer->trade_name.' - '.$customer->name }}</option>
                                         @endforeach
                                     @endif
                                 </x-form.selectbox>
@@ -42,7 +42,7 @@
                                     <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </x-form.selectbox>
-                                <x-form.selectbox labelName="Account" name="account_id" required="required"  col="col-md-6" class="selectpicker"/>
+                                <x-form.selectbox labelName="Deposit Account" name="account_id" required="required"  col="col-md-6" class="selectpicker"/>
                                 <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-6" placeholder="0.00"/>
                                 <x-form.textarea labelName="Remarks" name="remarks" col="col-md-6"/>
                                 <div class="form-group col-md-6 pt-5">
@@ -85,7 +85,7 @@ $(document).on('change', '#payment_type', function () {
 function dueAmount(vendor_id)
 {
     $.ajax({
-        url: "{{url('vendor/due-amount')}}/"+vendor_id,
+        url: "{{url('customer/previous-balance')}}/"+vendor_id,
         type: "GET",
         dataType: "JSON",
         success: function (data) {
@@ -99,7 +99,7 @@ function dueAmount(vendor_id)
 function store_data(){
     let form = document.getElementById('vendor-payment-form');
     let formData = new FormData(form);
-    let url = "{{url('vendor-payment/store')}}";
+    let url = "{{url('receive-payment/store')}}";
     $.ajax({
         url: url,
         type: "POST",
@@ -130,7 +130,7 @@ function store_data(){
                 notification(data.status, data.message);
                 if (data.status == 'success' && data.vendor_transaction != '') {
 
-                    window.location.replace("{{ url('vendor-payment/show') }}/"+data.vendor_transaction+'/'+$('#payment_type option:selected').val());
+                    window.location.replace("{{ url('receive-payment/show') }}/"+data.customer_transaction+'/'+$('#payment_type option:selected').val());
                     
                 }
             }

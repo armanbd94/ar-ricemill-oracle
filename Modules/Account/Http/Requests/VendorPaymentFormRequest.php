@@ -16,7 +16,7 @@ class VendorPaymentFormRequest extends FormRequest
         return [
             'voucher_no'    => 'required',
             'voucher_date'  => 'required',
-            'vendor_coa_id' => 'required',
+            'vendor_id' => 'required',
             'payment_type'  => 'required',
             'account_id'    => 'required',
             'amount'        => 'required|numeric|gt:0',
@@ -27,7 +27,7 @@ class VendorPaymentFormRequest extends FormRequest
     {
         return [
             'voucher_no.required'    => 'The memo field is required',
-            'vendor_coa_id.required' => 'The vendor field is required',
+            'vendor_id.required' => 'The vendor field is required',
             'account_id.required'    => 'The account field is required'
         ];
     }
