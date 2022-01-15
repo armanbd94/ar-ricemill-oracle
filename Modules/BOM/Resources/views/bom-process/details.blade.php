@@ -123,6 +123,13 @@
                                         <td class="text-right font-weight-bolder">{{ $data->total_bag_qty }}</td>
                                         <td></td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-right font-weight-bolder">Per Unit Cost</td>
+                                        <td class="text-right font-weight-bolder">{{ number_format($data->per_unit_cost,2,'.',',') }}</td>
+                                        <td></td>
+                                    </tr>
+                                    
+                                    
                                 </tbody>
                             </table>
                         </div>

@@ -118,15 +118,13 @@ class BOMController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $from_product = Product::findOrFail($request->from_product_id);
-                    $bag = Material::findOrFail($request->bag_id);
-                    $to_product = Product::findOrFail($request->to_product_id);
-                    $to_product_qty             = SiteProduct::where('product_id',$request->to_product_id)->sum('qty');
-                    $to_product_current_stock_value = ($to_product->cost ? $to_product->cost : 0) * ($to_product_qty ?? 0);
-
+                    $from_product                     = Product::findOrFail($request->from_product_id);
+                    $bag                              = Material::findOrFail($request->bag_id);
+                    $to_product                       = Product::findOrFail($request->to_product_id);
+                    $to_product_qty                   = SiteProduct::where('product_id',$request->to_product_id)->sum('qty');
+                    $to_product_current_stock_value   = ($to_product->cost ? $to_product->cost : 0) * ($to_product_qty ?? 0);
                     $to_product_converted_stock_value = (($from_product->cost ? $from_product->cost : 0) * $request->total_rice_qty) + (($bag->cost ? $bag->cost : 0) * $request->total_bag_qty);
-
-                    $to_product_new_cost = ($to_product_current_stock_value + $to_product_converted_stock_value) / (($to_product_qty ?? 0) + $request->total_rice_qty);
+                    $to_product_new_cost              = ($to_product_current_stock_value + $to_product_converted_stock_value) / (($to_product_qty ?? 0) + $request->total_rice_qty);
                     // $data = [
                     //     'to_product_cost' => $to_product->cost ? $to_product->cost : 0,
                     //     'to_product_qty' => $to_product_qty ?? 0,
@@ -297,35 +295,12 @@ class BOMController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $bomProcessData = $this->model->find($request->process_id);
+                    $bomProcessData            = $this->model->find($request->process_id);
+                    $packet_rice_product       = Product::findOrFail($bomProcessData->to_product_id);
+                    $packet_rice_product->cost = $bomProcessData->to_product_old_cost;
+                    $packet_rice_product->update();
 
-                    $bom_process_data = [
-                        'process_type'         => 1,
-                        'memo_no'              => $request->memo_no,
-                        'batch_id'             => $request->batch_id,
-                        'process_number'       => $request->process_number,
-                        'to_product_id'        => $request->to_product_id,
-                        'to_site_id'           => $request->to_site_id,
-                        'to_location_id'       => $request->to_location_id,
-                        'from_product_id'      => $request->from_product_id,
-                        'item_class_id'        => $request->item_class_id,
-                        'from_site_id'         => $request->from_site_id,
-                        'from_location_id'     => $request->from_location_id,
-                        'product_particular'   => $request->product_particular,
-                        'product_per_unit_qty' => $request->product_per_unit_qty,
-                        'product_required_qty' => $request->product_required_qty,
-                        'bag_site_id'          => $request->bag_site_id,
-                        'bag_location_id'      => $request->bag_location_id,
-                        'bag_id'               => $request->bag_id,
-                        'bag_class_id'         => $request->bag_class_id,
-                        'bag_particular'       => $request->bag_particular,
-                        'bag_per_unit_qty'     => $request->bag_per_unit_qty,
-                        'bag_required_qty'     => $request->bag_required_qty,
-                        'total_rice_qty'       => $request->total_rice_qty,
-                        'total_bag_qty'        => $request->total_bag_qty,
-                        'process_date'         => $request->process_date,
-                        'modified_by'         => auth()->user()->name
-                    ];
+                    
                     if($bomProcessData)
                     {
                         $bag = Material::find($bomProcessData->bag_id);
@@ -371,9 +346,53 @@ class BOMController extends BaseController
                         }
                     }
 
+                    $from_product                     = Product::findOrFail($request->from_product_id);
+                    $bag                              = Material::findOrFail($request->bag_id);
+                    $to_product                       = Product::findOrFail($request->to_product_id);
+                    $to_product_qty                   = SiteProduct::where('product_id',$request->to_product_id)->sum('qty');
+                    $to_product_current_stock_value   = ($to_product->cost ? $to_product->cost : 0) * ($to_product_qty ?? 0);
+                    $to_product_converted_stock_value = (($from_product->cost ? $from_product->cost : 0) * $request->total_rice_qty) + (($bag->cost ? $bag->cost : 0) * $request->total_bag_qty);
+                    $to_product_new_cost              = ($to_product_current_stock_value + $to_product_converted_stock_value) / (($to_product_qty ?? 0) + $request->total_rice_qty);
+
+                    $bom_process_data = [
+                        'process_type'         => 1,
+                        'memo_no'              => $request->memo_no,
+                        'batch_id'             => $request->batch_id,
+                        'process_number'       => $request->process_number,
+                        'to_product_id'        => $request->to_product_id,
+                        'to_site_id'           => $request->to_site_id,
+                        'to_location_id'       => $request->to_location_id,
+                        'from_product_id'      => $request->from_product_id,
+                        'item_class_id'        => $request->item_class_id,
+                        'from_site_id'         => $request->from_site_id,
+                        'from_location_id'     => $request->from_location_id,
+                        'product_particular'   => $request->product_particular,
+                        'product_per_unit_qty' => $request->product_per_unit_qty,
+                        'product_required_qty' => $request->product_required_qty,
+                        'bag_site_id'          => $request->bag_site_id,
+                        'bag_location_id'      => $request->bag_location_id,
+                        'bag_id'               => $request->bag_id,
+                        'bag_class_id'         => $request->bag_class_id,
+                        'bag_particular'       => $request->bag_particular,
+                        'bag_per_unit_qty'     => $request->bag_per_unit_qty,
+                        'bag_required_qty'     => $request->bag_required_qty,
+                        'total_rice_qty'       => $request->total_rice_qty,
+                        'total_bag_qty'        => $request->total_bag_qty,
+                        'process_date'         => $request->process_date,
+                        'from_product_cost'    => $from_product->cost ? $from_product->cost : 0,
+                        'to_product_cost'      => $to_product_new_cost,
+                        'to_product_old_cost'  => $to_product->cost ? $to_product->cost : 0,
+                        'bag_cost'             => $bag->cost ? $bag->cost : 0,
+                        'per_unit_cost'        => $request->per_unit_cost,
+                        'modified_by'           => auth()->user()->name
+                    ];
+
                     $result = $bomProcessData->update($bom_process_data);
                     if($result)
                     {
+                        $to_product->cost = $to_product_new_cost;
+                        $to_product->update();
+                        //Subtract Bag From Stock
                         $bag = Material::find($request->bag_id);
                         if($bag)
                         {
@@ -446,6 +465,9 @@ class BOMController extends BaseController
                 DB::beginTransaction();
                 try {
                     $bomProcessData = $this->model->find($request->id);
+                    $packet_rice_product       = Product::findOrFail($bomProcessData->to_product_id);
+                    $packet_rice_product->cost = $bomProcessData->to_product_old_cost;
+                    $packet_rice_product->update();
                     //Subtract Bag From Stock
                     $bag = Material::find($bomProcessData->bag_id);
                     if($bag)
@@ -519,6 +541,9 @@ class BOMController extends BaseController
                 try {
                     foreach ($request->ids as $id) {
                         $bomProcessData = $this->model->find($id);
+                        $packet_rice_product       = Product::findOrFail($bomProcessData->to_product_id);
+                        $packet_rice_product->cost = $bomProcessData->to_product_old_cost;
+                        $packet_rice_product->update();
                         //Subtract Bag From Stock
                         $bag = Material::find($bomProcessData->bag_id);
                         if($bag)

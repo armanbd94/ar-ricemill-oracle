@@ -55,6 +55,7 @@
 @endsection
 
 @push('scripts')
+<script src="js/moment.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
 $('.date').datetimepicker({format: 'YYYY-MM-DD',ignoreReadonly: true});
