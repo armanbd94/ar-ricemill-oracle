@@ -102,11 +102,7 @@ class BOMReProcessController extends BaseController
             $data = [
                 'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
-                'products'   => Product::where('status',1)
-                ->where(function($q){
-                    $q->where('category_id',4)->orWhere('category_id',5);
-                })
-                ->get(),
+                'products'   => Product::where('status',1)->whereIn('category_id',[4,5])->get(),
                 'classes'    => ItemClass::allItemClass()
             ];
             return view('bom::bom-re-process.create',$data);

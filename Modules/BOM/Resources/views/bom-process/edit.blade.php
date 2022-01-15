@@ -109,7 +109,7 @@
                                                             @if (!$products->isEmpty())
                                                                 @foreach ($products as $product)
                                                                     @if ($product->category_id == 4)
-                                                                    <option value="{{ $product->id }}" {{ $data->from_product_id == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+                                                                    <option value="{{ $product->id }}" {{ $data->from_product_id == $product->id ? 'selected' : '' }}  data-cost="{{ $product->cost ? $product->cost : 0 }}">{{ $product->name }}</option>
                                                                     @endif
                                                                 @endforeach
                                                             @endif
@@ -189,7 +189,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Total Bag Used Quantity</td>
-                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty" value="{{ $data->total_bag_qty }}"  class="form-control text-right bg-secondary" onkeyup="perUnitCost()"></td>
+                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty" value="{{ $data->total_bag_qty }}"  class="form-control text-right" onkeyup="perUnitCost()"></td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
