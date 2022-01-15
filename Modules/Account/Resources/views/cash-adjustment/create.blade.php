@@ -9,15 +9,7 @@
 @section('content')
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
-        <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
-                </div>
-            </div>
-        </div>
-        <!--end::Notice-->
+
         <!--begin::Card-->
         <div class="card card-custom">
             <div class="card-body">
@@ -29,12 +21,16 @@
                             <div class="col-md-12">
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_no">Voucher No</label>
-                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}" readonly />
+                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_no }}" />
+                                    <input type="hidden" class="form-control" name="update_id" id="update_id"   />
                                 </div>
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_date">Date</label>
                                     <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ date('Y-m-d') }}" readonly />
                                 </div>
+                                <x-form.selectbox labelName="Account" name="account_id" required="required"  col="col-md-6" class="selectpicker">
+                                    {!! $account_list !!}
+                                </x-form.selectbox>
                                 <x-form.selectbox labelName="Advance Type" name="type" required="required"  col="col-md-6" class="selectpicker">
                                     <option value="debit">Debit</option>
                                     <option value="credit">Credit</option>
@@ -65,7 +61,7 @@ $('.date').datetimepicker({format: 'YYYY-MM-DD',ignoreReadonly: true});
 function store_data(){
     let form = document.getElementById('cash-adjustment-form');
     let formData = new FormData(form);
-    let url = "{{url('cash-adjustment')}}";
+    let url = "{{url('cash-adjustment/store')}}";
     $.ajax({
         url: url,
         type: "POST",

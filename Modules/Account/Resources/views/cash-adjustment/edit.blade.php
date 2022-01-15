@@ -9,11 +9,13 @@
 @section('content')
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
-        <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
+       <!--begin::Notice-->
+       <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
+                    <!--begin::Button-->
+                    <a href="{{ route('cash.adjustment') }}" class="btn btn-warning btn-sm font-weight-bolder custom-btn">
+                        <i class="fas fa-arrow-left"></i> Back</a>
                 </div>
             </div>
         </div>
@@ -27,21 +29,19 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-12">
-                                <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-6" required="required" class="selectpicker">
-                                    @if (!$warehouses->isEmpty())
-                                    @foreach ($warehouses as $id => $name)
-                                        <option value="{{ $id }}" data-name="{{ $name }}" {{ $voucher_data->warehouse_id == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                    @endforeach
-                                    @endif
-                                </x-form.selectbox>
+                                
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_no">Voucher No</label>
-                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_data->voucher_no }}" readonly />
+                                    <input type="text" class="form-control" name="voucher_no" id="voucher_no" value="{{ $voucher_data->voucher_no }}"  />
+                                    <input type="hidden" class="form-control" name="update_id" id="update_id" value="{{ $voucher_data->id }}"  />
                                 </div>
                                 <div class="form-group col-md-6 required">
                                     <label for="voucher_date">Date</label>
                                     <input type="text" class="form-control date" name="voucher_date" value="{{ $voucher_data->voucher_date }}" id="voucher_date" value="{{ date('Y-m-d') }}" readonly />
                                 </div>
+                                <x-form.selectbox labelName="Account" name="account_id" required="required"  col="col-md-6" class="selectpicker">
+                                    {!! $account_list !!}
+                                </x-form.selectbox>
                                 <x-form.selectbox labelName="Advance Type" name="type" required="required"  col="col-md-6" class="selectpicker">
                                     <option value="debit" {{ !empty($voucher_data->debit) ? 'selected' : '' }}>Debit</option>
                                     <option value="credit" {{ !empty($voucher_data->credit) ? 'selected' : '' }}>Credit</option>

@@ -34,7 +34,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('opening-balance', 'OpeningBalanceController')->only(['index','store']);
 
     //Cash Adjustment Routes
-    Route::get('cash-adjustment', 'CashAdjustmentController@index');
+    Route::get('cash-adjustment', 'CashAdjustmentController@index')->name('cash.adjustment');
     Route::group(['prefix' => 'cash-adjustment', 'as'=>'cash.adjustment.'], function () {
         Route::get('create', 'CashAdjustmentController@create')->name('create');
         Route::post('store', 'CashAdjustmentController@store')->name('store');
@@ -42,7 +42,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('update', 'CashAdjustmentController@update')->name('update');
         Route::post('delete', 'CashAdjustmentController@delete')->name('delete');
         Route::post('datatable-data', 'CashAdjustmentController@get_datatable_data')->name('datatable.data');
-        Route::post('approve', 'VoucherApprovalController@approve')->name('approve');
+        Route::post('approve', 'CashAdjustmentController@approve')->name('approve');
     });
 
     //Vendor Payment Route

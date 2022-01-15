@@ -11,10 +11,15 @@
 <div class="d-flex flex-column-fluid">
     <div class="container-fluid">
         <!--begin::Notice-->
-        <div class="card card-custom gutter-b">
-            <div class="card-header flex-wrap py-5">
-                <div class="card-title">
-                    <h3 class="card-label"><i class="{{ $page_icon }} text-primary"></i> {{ $sub_title }}</h3>
+        <div class="card card-custom custom-card">
+            <div class="card-header flex-wrap p-0">
+                <div class="card-toolbar m-0">
+                    <!--begin::Button-->
+                    @if (permission('cash-adjustment-add'))
+                    <a href="{{ route('cash.adjustment.create') }}"  class="btn btn-primary btn-sm font-weight-bolder custom-btn"> 
+                        <i class="fas fa-plus-circle"></i> Add New</a>
+                    @endif
+                    <!--end::Button-->
                 </div>
             </div>
         </div>
@@ -32,21 +37,17 @@
                                 <input type="hidden" id="end_date" name="end_date" value="">
                             </div>
                         </div>
-                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-3" required="required" class="selectpicker">
-                            @if (!$warehouses->isEmpty())
-                            @foreach ($warehouses as $id => $name)
-                                <option value="{{ $id }}" data-name="{{ $name }}">{{ $name }}</option>
-                            @endforeach
-                            @endif
+                        <x-form.selectbox labelName="Account Head" name="account_id" col="col-md-3"  class="selectpicker">
+                           {!! $account_list !!}
                         </x-form.selectbox>
 
                         <div class="col-md-6">
                             <div style="margin-top:28px;">    
-                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
+                                    <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Reset">
                                     <i class="fas fa-undo-alt"></i></button>
     
-                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
+                                    <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right custom-btn" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Search">
                                     <i class="fas fa-search"></i></button>
                             </div>
@@ -64,9 +65,9 @@
                                     <thead class="bg-primary">
                                         <tr>
                                             <th>Sl</th>
-                                            <th>Warehouse</th>
-                                            <th>Voucher No.</th>
                                             <th>Date</th>
+                                            <th>Voucher No.</th>
+                                            <th>Account Head</th>
                                             <th>Remark</th>
                                             <th>Debit</th>
                                             <th>Credit</th>
@@ -87,6 +88,7 @@
         <!--end::Card-->
     </div>
 </div>
+@include('account::status-modal')
 @endsection
 
 @push('scripts')
@@ -129,10 +131,10 @@ $(document).ready(function(){
             "url": "{{route('cash.adjustment.datatable.data')}}",
             "type": "POST",
             "data": function (data) {
-                data.start_date   = $("#form-filter #start_date").val();
-                data.end_date     = $("#form-filter #end_date").val();
-                data.warehouse_id     = $("#form-filter #warehouse_id").val();
-                data._token            = _token;
+                data.start_date = $("#form-filter #start_date").val();
+                data.end_date   = $("#form-filter #end_date").val();
+                data.account_id = $("#form-filter #account_id").val();
+                data._token     = _token;
             }
         },
         "columnDefs": [
@@ -157,12 +159,12 @@ $(document).ready(function(){
 
         "buttons": [
             {
-                'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
+                'extend':'colvis','className':'btn btn-secondary btn-sm text-white custom-btn','text':'Column','columns': ':gt(0)'
             },
             {
                 "extend": 'print',
                 'text':'Print',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "orientation": "landscape", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
@@ -181,7 +183,7 @@ $(document).ready(function(){
             {
                 "extend": 'csv',
                 'text':'CSV',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
@@ -191,7 +193,7 @@ $(document).ready(function(){
             {
                 "extend": 'excel',
                 'text':'Excel',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
@@ -201,7 +203,7 @@ $(document).ready(function(){
             {
                 "extend": 'pdf',
                 'text':'PDF',
-                'className':'btn btn-secondary btn-sm text-white',
+                'className':'btn btn-secondary btn-sm text-white custom-btn',
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "orientation": "landscape", //portrait
@@ -226,7 +228,7 @@ $(document).ready(function(){
         $('#form-filter')[0].reset();
         $('#form-filter #start_date').val("");
         $('#form-filter #end_date').val("");
-        $('#form-filter #warehouse_id').val("");
+        $('#form-filter #account_id').val("");
         $('#form-filter .selectpicker').selectpicker('refresh');
         table.ajax.reload();
     });
@@ -239,40 +241,52 @@ $(document).ready(function(){
         delete_data(id, url, table, row, name);
     });
 
-    $(document).on('click', '.approve_voucher', function () {
-        let id     = $(this).data('id');
-        let name   = $(this).data('name');
-        let status = $(this).data('status');
-        let row    = table.row($(this).parent('tr'));
-        let url    = "{{ route('cash.adjustment.approve') }}";
-        Swal.fire({
-            title: 'Are you sure to approve voucher ' + name + ' ?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes'
-        }).then((result) => {
-            if (result.value) {
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: { id: id,status:status, _token: _token},
-                    dataType: "JSON",
-                }).done(function (response) {
-                    if (response.status == "success") {
-                        Swal.fire("Changed", response.message, "success").then(function () {
-                            table.ajax.reload(null, false);
-                        });
-                    }
-                    if (response.status == "error") {
-                        Swal.fire('Oops...', response.message, "error");
-                    }
-                }).fail(function () {
-                    Swal.fire('Oops...', "Somthing went wrong with ajax!", "error");
-                });
-            }
+    //Show Approve Status Change Modal
+    $(document).on('click','.change_approve_status',function(){
+        $('#approve_status_form')[0].reset();
+        $('#approve_status_form #voucher_status').val('');
+        $('#approve_status_form #voucher_status.selectpicker').selectpicker('refresh');
+        $('#approve_status_form #voucher_id').val($(this).data('id'));
+        $('#approve_status_modal').modal({
+            keyboard: false,
+            backdrop: 'static',
         });
+        $('#approve_status_modal .modal-title').html('<span>Change Approve Status</span>');
+        $('#approve_status_modal #approve-status-btn').text('Change Approve Status');
+            
+    });
+
+    $(document).on('click','#approve-status-btn',function(){
+        var voucher_id     = $('#approve_status_form #voucher_id').val();
+        var voucher_status =  $('#approve_status_form #voucher_status option:selected').val();
+        console.log(voucher_id,voucher_status);
+        if(voucher_id && voucher_status)
+        {
+            $.ajax({
+                url: "{{route('cash.adjustment.approve')}}",
+                type: "POST",
+                data: {voucher_id:voucher_id,voucher_status:voucher_status,_token:_token},
+                dataType: "JSON",
+                beforeSend: function(){
+                    $('#approve-status-btn').addClass('spinner spinner-white spinner-right');
+                },
+                complete: function(){
+                    $('#approve-status-btn').removeClass('spinner spinner-white spinner-right');
+                },
+                success: function (data) {
+                    notification(data.status, data.message);
+                    if (data.status == 'success') {
+                        $('#approve_status_modal').modal('hide');
+                        table.ajax.reload(null, false);
+                    }
+                },
+                error: function (xhr, ajaxOption, thrownError) {
+                    console.log(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);
+                }
+            });
+        }else{
+            notification('error','Please select status!');
+        }
     });
 
 });

@@ -14,7 +14,7 @@ use Modules\Account\Http\Requests\CashAdjustmentFormRequest;
 
 class CashAdjustmentController extends BaseController
 {
-    protected const VOUCHER_PREFIX = 'CHV';
+    
     public function __construct(CashAdjustment $model)
     {
         $this->model = $model;
@@ -24,19 +24,18 @@ class CashAdjustmentController extends BaseController
     {
         if(permission('cash-adjustment-access')){
             $this->setPageData('Cash Adjustment List','Cash Adjustment List','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Cash Adjustment List']]);
-            return view('account::cash-adjustment.list');
-        }else{
-            return $this->access_blocked();
-        }
-    }
-
-    public function create()
-    {
-        if(permission('cash-adjustment-add')){
-            $this->setPageData('Cash Adjustment','Cash Adjustment','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Cash Adjustment']]);
-            $voucher_no = self::VOUCHER_PREFIX.'-'.date('Ymd').rand(1,999);
-            $accounts = ChartOfAccount::where(['parent_name' =>  'Cash & Cash Equivalent','status'=>1])->get();
-            return view('account::cash-adjustment.create',compact('voucher_no','accounts'));
+            $accounts = ChartOfAccount::where(['parent_name' =>  'Cash & Cash Equivalent','status'=>1])->whereNotIn('code',['1020102','1020103'])->get();
+            $account_list = '';
+            if ($accounts) {
+                foreach ($accounts as $account) {
+                    $balance = DB::table('transactions')
+                    ->select(DB::raw("SUM(debit) - SUM(credit) as balance"))
+                    ->where([['chart_of_account_id',$account->id],['approve',1]])
+                    ->first();
+                    $account_list .= "<option value='$account->id'>".$account->name." [ Balance: ".($balance ? number_format($balance->balance,2,'.',',') : '0.00')."Tk]</option>";
+                }
+            }
+            return view('account::cash-adjustment.list',compact('account_list'));
         }else{
             return $this->access_blocked();
         }
@@ -54,6 +53,10 @@ class CashAdjustmentController extends BaseController
                     $this->model->setEndDate($request->end_date);
                 }
 
+                if (!empty($request->account_id)) {
+                    $this->model->setAccountID($request->account_id);
+                }
+
                 $this->set_datatable_default_properties($request);//set datatable default properties
                 $list = $this->model->getDatatableList();//get table data
                 $data = [];
@@ -61,30 +64,28 @@ class CashAdjustmentController extends BaseController
                 foreach ($list as $value) {
                     $no++;
                     $action = '';
-                    if(permission('cash-adjustment-edit') && $value->approve != 1){
+                    if(permission('cash-adjustment-approve') && $value->approve == 3){
+                        $action .= ' <a class="dropdown-item change_approve_status"  data-id="' . $value->id . '" data-name="' . $value->voucher_no . '"><i class="fas fa-check-square text-info mr-2"></i> Change Status</a>';
+                    }
+
+                    if(permission('cash-adjustment-edit') && $value->approve == 3){
                         $action .= ' <a class="dropdown-item" href="'.route("cash.adjustment.edit",$value->voucher_no).'">'.self::ACTION_BUTTON['Edit'].'</a>';
                     }
 
-                    if(permission('cash-adjustment-delete') && $value->approve != 1){
+                    if(permission('cash-adjustment-delete')){
                         $action .= ' <a class="dropdown-item delete_data"  data-id="' . $value->voucher_no . '" data-name="' . $value->voucher_no . '">'.self::ACTION_BUTTON['Delete'].'</a>';
                     }
-
-                    if($value->approve == 3 && permission('cash-adjustment-approve'))
-                        {
-                        $voucher_approve = '<span class="label label-success label-pill label-inline approve_voucher" data-id="' . $value->voucher_no . '" data-name="' . $value->voucher_no . '" data-status="1" style="min-width:70px !important;cursor:pointer;">Approve It</span>';
-                    }else{
-                        $voucher_approve = VOUCHER_APPROVE_STATUS_LABEL[$value->approve];
-                    }
                     
+
                     $row = [];
                     $row[] = $no;
-                    $row[] = $value->warehouse_name;
+                    $row[] = date('d-M-Y',strtotime($value->voucher_date));
                     $row[] = $value->voucher_no;
-                    $row[] = date('d-M-Y',strtotime($value->voucher_date));;
+                    $row[] = $value->account_name;
                     $row[] = $value->description;
                     $row[] = number_format($value->debit,2);
                     $row[] = number_format($value->credit,2);
-                    $row[] = $voucher_approve;
+                    $row[] = VOUCHER_APPROVE_STATUS_LABEL[$value->approve];
                     $row[] = $value->created_by;
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
@@ -97,26 +98,36 @@ class CashAdjustmentController extends BaseController
         }
     }
 
+    public function create()
+    {
+        if(permission('cash-adjustment-add')){
+            $this->setPageData('Cash Adjustment','Cash Adjustment','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Cash Adjustment']]);
+            $voucher_no = 'CHV-'.date('Ymd').rand(1,999);
+            $accounts = ChartOfAccount::where(['parent_name' =>  'Cash & Cash Equivalent','status'=>1])->whereNotIn('code',['1020102','1020103'])->get();
+            $account_list = '';
+            if ($accounts) {
+                foreach ($accounts as $account) {
+                    $balance = DB::table('transactions')
+                    ->select(DB::raw("SUM(debit) - SUM(credit) as balance"))
+                    ->where([['chart_of_account_id',$account->id],['approve',1]])
+                    ->first();
+                    $account_list .= "<option value='$account->id'>".$account->name." [ Balance: ".($balance ? number_format($balance->balance,2,'.',',') : '0.00')."Tk]</option>";
+                }
+            }
+
+            return view('account::cash-adjustment.create',compact('voucher_no','account_list'));
+        }else{
+            return $this->access_blocked();
+        }
+    }
+
     public function store(CashAdjustmentFormRequest $request)
     {
         if($request->ajax()){
             if(permission('cash-adjustment-add')){
                 DB::beginTransaction();
                 try {
-                    $data = array(
-                        'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', $this->coa_head_code('cash_in_hand'))->value('id'),
-                        'warehouse_id'        => $request->warehouse_id,
-                        'voucher_no'          => $request->voucher_no,
-                        'voucher_type'        => 'ADJUSTMENT',
-                        'voucher_date'        => $request->voucher_date,
-                        'description'         => $request->remarks,
-                        'debit'               => ($request->type == 'debit') ? $request->amount : 0,
-                        'credit'              => ($request->type == 'credit') ? $request->amount : 0,
-                        'posted'              => 1,
-                        'approve'             => 1,
-                        'created_by'          => auth()->user()->name,
-                        'created_at'          => date('Y-m-d H:i:s')
-                    );
+                    $data = CashAdjustment::transaction_data($request);
                     $result = $this->model->create($data);
                     $output = $this->store_message($result, null);
                     DB::commit();
@@ -140,8 +151,38 @@ class CashAdjustmentController extends BaseController
             if($voucher_data)
             {
                 $this->setPageData('Edit Cash Adjustment','Edit Cash Adjustment','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Edit Cash Adjustment']]);
-
-                return view('account::cash-adjustment.edit',compact('voucher_data','warehouses'));
+                $accounts = ChartOfAccount::where(['parent_name' =>  'Cash & Cash Equivalent','status'=>1])->whereNotIn('code',['1020102','1020103'])->get();
+                $account_list = '';
+                if ($accounts) {
+                    foreach ($accounts as $account) {
+                        $balance = DB::table('transactions')
+                        ->select(DB::raw("SUM(debit) - SUM(credit) as balance"))
+                        ->where([['chart_of_account_id',$account->id],['approve',1]])
+                        ->first();
+                        $selected = $voucher_data->chart_of_account_id == $account->id ? 'selected' : '';
+                        $account_balance = 0;
+                        if($voucher_data->chart_of_account_id == $account->id)
+                        {
+                            if($voucher_data->approve == 1){
+                                if(!empty($voucher_data->debit))
+                                {
+                                    $account_balance = $balance ? ($balance->balance - $voucher_data->debit) : 0;
+                                }elseif (!empty($voucher_data->credit)) {
+                                    $account_balance = $balance ? ($balance->balance + $voucher_data->debit) : 0;
+                                }
+                            }else{
+                                $account_balance = $balance ? $balance->balance : 0;
+                            }
+                            $selected = 'selected';
+                        }else{
+                            $account_balance = $balance ? $balance->balance : 0;
+                            $selected = '';
+                        }
+                        
+                        $account_list .= "<option value='$account->id' ".$selected.">".$account->name." [ Balance: ".number_format($account_balance,2,'.',',')."Tk]</option>";
+                    }
+                }
+                return view('account::cash-adjustment.edit',compact('voucher_data','account_list'));
             }else{
                 return redirect()->back();
             }
@@ -156,22 +197,9 @@ class CashAdjustmentController extends BaseController
             if(permission('cash-adjustment-edit')){
                 DB::beginTransaction();
                 try {
-                    $this->model->where('voucher_no',$request->voucher_no)->delete();
-                    $data = array(
-                        'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', $this->coa_head_code('cash_in_hand'))->value('id'),
-                        'warehouse_id'        => $request->warehouse_id,
-                        'voucher_no'          => $request->voucher_no,
-                        'voucher_type'        => self::VOUCHER_PREFIX,
-                        'voucher_date'        => $request->voucher_date,
-                        'description'         => $request->remarks,
-                        'debit'               => ($request->type == 'debit') ? $request->amount : 0,
-                        'credit'              => ($request->type == 'credit') ? $request->amount : 0,
-                        'posted'              => 1,
-                        'approve'             => 3,
-                        'created_by'          => auth()->user()->name,
-                        'created_at'          => date('Y-m-d H:i:s')
-                    );
-                    $result = $this->model->create($data);
+
+                    $data = CashAdjustment::transaction_data($request);
+                    $result = $this->model->find($request->update_id)->update($data);
                     $output = $this->store_message($result, null);
                     DB::commit();
                 } catch (Exception $e) {
@@ -191,9 +219,9 @@ class CashAdjustmentController extends BaseController
     {
         if($request->ajax()){
             if(permission('cash-adjustment-approve')){
-                $result   = $this->model->where('voucher_no',$request->id)->update(['approve' => $request->status]);
-                $output   = $result ? ['status' => 'success','message' => 'Voucher Approved Successfully']
-                : ['status' => 'error','message' => 'Failed To Approve Voucher'];
+                $result   = $this->model->find($request->voucher_id)->update(['approve' => $request->voucher_status]);
+                $output   = $result ? ['status' => 'success','message' => 'Voucher Status Changed Successfully']
+                : ['status' => 'error','message' => 'Failed To Change Voucher Status'];
             }else{
                 $output       = $this->unauthorized();
             }
@@ -207,7 +235,7 @@ class CashAdjustmentController extends BaseController
     {
         if($request->ajax()){
             if(permission('cash-adjustment-delete')){
-                $result  = $this->model->where([['voucher_no',$request->id],['warehouse_id',auth()->user()->warehouse->id]])->delete();
+                $result  = $this->model->where('voucher_no',$request->id)->delete();
                 $output   = $this->delete_message($result);
                 return response()->json($output);
             }else{
