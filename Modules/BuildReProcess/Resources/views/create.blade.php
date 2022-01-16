@@ -56,18 +56,36 @@
                             </x-form.selectbox>
 
                             <x-form.selectbox labelName="From Location" name="from_location_id" required="required" onchange="product_list()" class="selectpicker" col="col-md-3"/>
-   
+                            
+                            <x-form.selectbox labelName="Transfer To" name="to_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
+                                @if(!$sites->isEmpty())  
+                                    @foreach ($sites as $site)
+                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                    @endforeach
+                                @endif
+                            </x-form.selectbox>
+
+                            <x-form.selectbox labelName="To Location (Storage)" name="to_location_id" required="required" class="selectpicker" col="col-md-3"/>
+                            <div class="form-group col-md-3 required">
+                                <label for="product_type" class="form-control-label">Product Type</label>
+                                <select name="product_type" id="product_type" required="required" class="form-control selectpicker" data-live-search="true" 
+                                data-live-search-placeholder="Search">
+                                    <option value="1" selected>Packet Rice</option>
+                                    <option value="2">By Product</option>
+                                           
+                                </select>
+                            </div>
                             <x-form.selectbox labelName="Packet Item" required="required" name="from_product_id" onchange="setMaterialData()" col="col-md-3" class="selectpicker"/>
 
                             <div class="form-group col-md-3">
                                 <label for="memo_no">Availbale Qty <span class="product_unit"></span></label>
                                 <input type="text" class="form-control" name="available_qty" id="available_qty" readonly />
                             </div>
-                            <x-form.selectbox labelName="Converted Item" name="to_product_id" onchange="setCategory()" col="col-md-3" class="selectpicker" required="required">
+                            <x-form.selectbox labelName="Converted Item" name="to_product_id" col="col-md-3" class="selectpicker" required="required">
                                 @if (!$products->isEmpty())
                                     @foreach ($products as $product)
-                                        @if ($product->category_id != 3)
-                                        <option value="{{ $product->id }}" data-category="{{ $product->category_id }}">{{ $product->name }}</option>
+                                        @if ($product->category_id == 4)
+                                        <option value="{{ $product->id }}">{{ $product->name }}</option>
                                         @endif
                                     @endforeach
                                 @endif
@@ -78,13 +96,17 @@
                                 <label for="memo_no">RM Needed <span class="product_unit"></span></label>
                                 <input type="text" class="form-control" name="required_qty" id="required_qty" readonly />
                             </div>
-                            <x-form.selectbox labelName="Class" name="category_id" required="required" class="selectpicker" col="col-md-3">
-                                @if(!$categories->isEmpty())  
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            <x-form.selectbox labelName="Class" name="item_class_id" required="required" class="selectpicker" col="col-md-3">
+                                @if(!$classes->isEmpty())  
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
                                     @endforeach
                                 @endif
                             </x-form.selectbox>
+                            <div class="form-group col-md-3">
+                                <label for="bp_rate">By Product Rate</label>
+                                <input type="text" class="form-control" name="bp_rate" id="bp_rate" readonly />
+                            </div>
                             <div class="col-md-12 pt-5">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -131,7 +153,7 @@
                                                 position: absolute;top:-16px;left:10px;box-shadow: 1px 2px 5px 0px rgba(0,0,0,0.5);"><img src="images/grain-sack.png" style="width: 20px;margin-right: 5px;"/>By Products</div>
                                             <div class="col-md-12 pt-5">
                                                 <div class="row">
-                                                    <x-form.selectbox labelName="By Product Inventory Site" name="bp_site_id" required="required" onchange="getLocations(this.value,2)"  class="selectpicker" col="col-md-3">
+                                                    <x-form.selectbox labelName="By Product Inventory Site" name="bp_site_id" required="required" onchange="getLocations(this.value,3)"  class="selectpicker" col="col-md-3">
                                                         @if(!$sites->isEmpty())  
                                                             @foreach ($sites as $site)
                                                                 <option value="{{ $site->id }}">{{ $site->name }}</option>
@@ -180,10 +202,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                        
-                                        
-                                   
                                 </div>
                             </div>
                         </div>
@@ -252,7 +270,8 @@ function product_list()
 {
     const site_id       = $(`#from_site_id option:selected`).val();
     const location_id   = $(`#from_location_id option:selected`).val();
-    const category_id   = 3;
+    const product_type   = $(`#product_type option:selected`).val();
+    const category_id   = product_type == 1 ? 5 : 3;
     if(site_id && location_id)
     {
         $.ajax({
@@ -296,10 +315,7 @@ function calculateMaterialNeededQty()
     }
     
 }
-function setCategory(){
-    $('#category_id').val($(`#product_id option:selected`).data('category'));
-    $('#category_id.selectpicker').selectpicker('refresh');
-}
+
 function calculateProductQty(type,row)
 {
     const required_qty = $('#required_qty').val() ? parseFloat($('#required_qty').val()) : 0;
@@ -363,6 +379,9 @@ function getLocations(site_id,selector)
             {
                 $(`#from_location_id`).empty().append(html);
                 $(`#from_location_id.selectpicker`).selectpicker('refresh');
+            }else if(selector == 2){
+                $(`#to_location_id`).empty().append(html);
+                $(`#to_location_id.selectpicker`).selectpicker('refresh');
             }else{
                 $(`#bp_location_id`).empty().append(html);
                 $(`#bp_location_id.selectpicker`).selectpicker('refresh');

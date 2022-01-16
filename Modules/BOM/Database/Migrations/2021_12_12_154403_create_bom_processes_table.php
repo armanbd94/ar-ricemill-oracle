@@ -54,6 +54,7 @@ class CreateBomProcessesTable extends Migration
             $table->float('to_product_cost',8,0);
             $table->float('to_product_old_cost',8,0);
             $table->float('bag_cost',8,0);
+            $table->float('per_unit_cost',8,0);
             $table->date('process_date');
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();

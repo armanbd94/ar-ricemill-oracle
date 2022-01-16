@@ -220,7 +220,7 @@ class ProductController extends BaseController
             'sp.location_id' => $request->location_id,
         ])
         ->when( $category_id,function($q) use ($category_id){
-            $q->where('p.category_id','!=',$category_id);
+            $q->where('p.category_id',$category_id);
         })
         ->orderBy('p.category_id','desc')
         ->orderBy('p.id','asc')

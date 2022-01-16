@@ -2,8 +2,8 @@
 
 namespace Modules\BuildReProcess\Entities;
 
-use App\Models\Category;
 use App\Models\BaseModel;
+use App\Models\ItemClass;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
 use Modules\Setting\Entities\Batch;
@@ -15,8 +15,8 @@ class BuildReProcess extends BaseModel
 {
     protected $fillable = [
         'memo_no', 'batch_id', 'from_site_id', 'from_location_id', 'from_product_id','to_product_id', 'build_ratio', 
-        'build_qty', 'required_qty','category_id','build_date','convertion_ratio','converted_qty','total_milling_qty','total_milling_ratio','bp_site_id',
-        'bp_location_id','created_by','modified_by',
+        'build_qty', 'required_qty','item_class_id','build_date','convertion_ratio','converted_qty','total_milling_qty','total_milling_ratio','bp_site_id',
+        'bp_location_id','created_by','modified_by','product_type','bp_rate','from_product_cost','to_product_cost','to_product_old_cost','bag_cost','per_unit_cost'
     ];
     /****************************
     * Start :: Model Relation *
@@ -56,9 +56,9 @@ class BuildReProcess extends BaseModel
         return $this->belongsTo(Product::class,'to_product_id','id');
     }
     
-    public function category()
+    public function item_class()
     {
-        return $this->belongsTo(Category::class,'category_id','id');
+        return $this->belongsTo(ItemClass::class,'item_class_id','id');
     }
 
     public function by_products()

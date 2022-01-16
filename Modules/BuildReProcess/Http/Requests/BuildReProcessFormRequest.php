@@ -26,7 +26,8 @@ class BuildReProcessFormRequest extends FormRequest
         $this->rules['build_ratio']           = ['required'];
         $this->rules['build_qty']             = ['required'];
         $this->rules['required_qty']          = ['required'];
-        $this->rules['category_id']           = ['required'];
+        $this->rules['item_class_id']           = ['required'];
+        $this->rules['product_type']           = ['required'];
         $this->rules['rice_convertion_ratio'] = ['required'];
         $this->rules['fine_rice_qty']         = ['required'];
         $this->rules['milling_qty']           = ['required'];

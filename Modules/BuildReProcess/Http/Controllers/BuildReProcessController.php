@@ -5,6 +5,7 @@ namespace Modules\BuildReProcess\Http\Controllers;
 
 use Exception;
 use App\Models\Category;
+use App\Models\ItemClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Setting\Entities\Site;
@@ -104,8 +105,8 @@ class BuildReProcessController extends BaseController
             $data = [
                 'batches'   => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'     => Site::allSites(),
-                'products'  => Product::where('status',1)->get(),
-                'categories'     => Category::allProductCategories(),
+                'products'  => Product::where('status',1)->whereIn('category_id',[3,4])->get(),//3=By Product,4=Fine Rice
+                'classes'   => ItemClass::allItemClass(),
             ];
             
             return view('buildreprocess::create',$data);
@@ -118,20 +119,34 @@ class BuildReProcessController extends BaseController
     {
         if($request->ajax()){
             if(permission('build-re-process-add')){
-                // dd($request->all());
+                dd($request->all());
                 DB::beginTransaction();
                 try {
+                    $from_product = Product::findOrFail($request->from_product_id);
+                    $to_product  = Product::findOrFail($request->to_product_id);
+                    $to_product_qty             = SiteProduct::where('product_id',$request->to_product_id)->sum('qty');
+                    $product_old_stock_value = ($to_product->cost ? $to_product->cost : 0) * ($to_product_qty ?? 0);
+                    if(!empty($request->bp_rate))
+                    {
+                        $converted_stock_value   = $request->fine_rice_qty * $request->bp_rate;
+                    }else{
+                        $converted_stock_value   = $request->fine_rice_qty * ($from_product->cost ? $from_product->cost : 0);
+                    }
+                    $product_new_cost        = ($product_old_stock_value + $converted_stock_value) / (($to_product_qty ?? 0) + $request->fine_rice_qty);
+
                     $buildReProcessData  = $this->model->create([
                         'memo_no'             => $request->memo_no,
                         'batch_id'            => $request->batch_id,
                         'from_site_id'        => $request->from_site_id,
                         'from_location_id'    => $request->from_location_id,
+                        'to_site_id'          => $request->to_site_id,
+                        'to_location_id'      => $request->to_location_id,
                         'from_product_id'     => $request->from_product_id,
                         'to_product_id'       => $request->to_product_id,
                         'build_ratio'         => $request->build_ratio,
                         'build_qty'           => $request->build_qty,
                         'required_qty'        => $request->required_qty,
-                        'category_id'         => $request->category_id,
+                        'item_class_id'       => $request->item_class_id,
                         'build_date'          => $request->build_date,
                         'convertion_ratio'    => $request->rice_convertion_ratio,
                         'converted_qty'       => $request->fine_rice_qty,
@@ -139,37 +154,42 @@ class BuildReProcessController extends BaseController
                         'total_milling_ratio' => $request->milling_ratio,
                         'bp_site_id'          => $request->bp_site_id,
                         'bp_location_id'      => $request->bp_location_id,
+                        'from_product_cost'   => $from_product->cost ? $from_product->cost : 0,
+                        'to_product_cost'     => $product_new_cost,
+                        'to_product_old_cost' => $to_product->cost ? $to_product->cost : 0,
                         'created_by'          => auth()->user()->name
                     ]);
 
                     if($buildReProcessData){
                         //Subtract Material From Stock $material->update();
-                        
-                        $from_site_material = SiteProduct::where([
+                        $to_product->cost = $product_new_cost;
+                        $to_product->update();
+
+                        $from_site_product = SiteProduct::where([
                             ['site_id',$buildReProcessData->from_site_id],
                             ['location_id',$buildReProcessData->from_location_id],
                             ['product_id',$buildReProcessData->from_product_id],
                         ])->first();
                         
-                        if($from_site_material)
+                        if($from_site_product)
                         {
-                            $from_site_material->qty -= $buildReProcessData->required_qty;
-                            $from_site_material->update();
+                            $from_site_product->qty -= $buildReProcessData->required_qty;
+                            $from_site_product->update();
                         }
 
                         //Add Fine Rice Into Silo
-                        $silo_product = SiloProduct::where('product_id',$buildReProcessData->to_product_id)->first();
+                        $to_site_product = SiteProduct::where([
+                            ['site_id',$buildReProcessData->to_site_id],
+                            ['location_id',$buildReProcessData->to_location_id],
+                            ['product_id',$buildReProcessData->to_product_id],
+                        ])->first();
                         
-                        if($silo_product)
+                        if($to_site_product)
                         {
-                            $silo_product->qty += $buildReProcessData->converted_qty;
-                            $silo_product->update();
-                        }else{
-                            SiloProduct::create([
-                                'product_id' => $buildReProcessData->to_product_id,
-                                'qty'        => $buildReProcessData->converted_qty
-                            ]);
+                            $to_site_product->qty += $buildReProcessData->fine_rice_qty;
+                            $to_site_product->update();
                         }
+
 
                         //Add By Products Into Stock
                         $by_products = [];
@@ -258,8 +278,8 @@ class BuildReProcessController extends BaseController
                                     ])
                                     ->where('p.category_id','!=',3)
                                     ->get(),
-                'products'   => Product::where('status',1)->get(),
-                'categories' => Category::allProductCategories(),
+                'products'   => Product::where([['status',1],['category_id',4]])->get(),
+                'classes'    => ItemClass::allItemClass(),
             ];
             return view('buildreprocess::edit',$data);
         }else{
@@ -426,25 +446,29 @@ class BuildReProcessController extends BaseController
                 try {
                     $buildReProcessData = $this->model->with('by_products')->find($request->id);
                     //Re Addition Material To Old Stock
-                    $from_site_material = SiteProduct::where([
+                    $from_site_product = SiteProduct::where([
                         ['site_id',$buildReProcessData->from_site_id],
                         ['location_id',$buildReProcessData->from_location_id],
                         ['product_id',$buildReProcessData->from_product_id],
                     ])->first();
                     
-                    if($from_site_material)
+                    if($from_site_product)
                     {
-                        $from_site_material->qty += $buildReProcessData->required_qty;
-                        $from_site_material->update();
+                        $from_site_product->qty += $buildReProcessData->required_qty;
+                        $from_site_product->update();
                     }
 
                     //Subtract Product From Silo
-                    $silo_product = SiloProduct::where('product_id',$buildReProcessData->to_product_id)->first();
-                        
-                    if($silo_product)
+                    $to_site_product = SiteProduct::where([
+                        ['site_id',$buildReProcessData->from_site_id],
+                        ['location_id',$buildReProcessData->from_location_id],
+                        ['product_id',$buildReProcessData->from_product_id],
+                    ])->first();
+                    
+                    if($to_site_product)
                     {
-                        $silo_product->qty -= $buildReProcessData->converted_qty;
-                        $silo_product->update();
+                        $to_site_product->qty += $buildReProcessData->fine_rice_qty;
+                        $to_site_product->update();
                     }
 
                     if(!$buildReProcessData->by_products->isEmpty())
@@ -495,25 +519,29 @@ class BuildReProcessController extends BaseController
                     foreach ($request->ids as $id) {
                         $buildReProcessData = $this->model->with('by_products')->find($id);
                         //Re Addition Material To Old Stock
-                        $from_site_material = SiteProduct::where([
+                        $from_site_product = SiteProduct::where([
                             ['site_id',$buildReProcessData->from_site_id],
                             ['location_id',$buildReProcessData->from_location_id],
                             ['product_id',$buildReProcessData->from_product_id],
                         ])->first();
                         
-                        if($from_site_material)
+                        if($from_site_product)
                         {
-                            $from_site_material->qty += $buildReProcessData->required_qty;
-                            $from_site_material->update();
+                            $from_site_product->qty += $buildReProcessData->required_qty;
+                            $from_site_product->update();
                         }
     
                         //Subtract Product From Silo
-                        $silo_product = SiloProduct::where('product_id',$buildReProcessData->to_product_id)->first();
-                            
-                        if($silo_product)
+                        $to_site_product = SiteProduct::where([
+                            ['site_id',$buildReProcessData->from_site_id],
+                            ['location_id',$buildReProcessData->from_location_id],
+                            ['product_id',$buildReProcessData->from_product_id],
+                        ])->first();
+                        
+                        if($to_site_product)
                         {
-                            $silo_product->qty -= $buildReProcessData->converted_qty;
-                            $silo_product->update();
+                            $to_site_product->qty += $buildReProcessData->fine_rice_qty;
+                            $to_site_product->update();
                         }
 
                         if(!$buildReProcessData->by_products->isEmpty())

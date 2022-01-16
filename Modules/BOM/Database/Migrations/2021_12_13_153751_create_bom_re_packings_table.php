@@ -44,6 +44,11 @@ class CreateBomRePackingsTable extends Migration
             $table->foreign('item_class_id')->references('id')->on('item_classes');
             $table->unsignedBigInteger('bag_class_id');
             $table->foreign('bag_class_id')->references('id')->on('item_classes');
+            $table->float('from_product_cost',8,0);
+            $table->float('to_product_cost',8,0);
+            $table->float('to_product_old_cost',8,0);
+            $table->float('bag_cost',8,0);
+            $table->float('per_unit_cost',8,0);
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();
             $table->timestamps();

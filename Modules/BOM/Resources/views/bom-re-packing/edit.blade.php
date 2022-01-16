@@ -208,7 +208,7 @@ function product_list()
 {
     const site_id       = $(`#from_site_id option:selected`).val();
     const location_id   = $(`#from_location_id option:selected`).val();
-    const category_id = 3; //Fetch Product List Except By Products
+    const category_id = 5; //Fetch Product List Except By Products
     if(site_id && location_id)
     {
         $.ajax({
