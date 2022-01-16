@@ -15,7 +15,8 @@ class BomRePacking extends BaseModel
     protected $fillable = [
         'memo_no','packing_number','from_site_id','from_location_id','from_product_id',
         'to_site_id','to_location_id','to_product_id','bag_site_id','bag_location_id','bag_id',
-        'product_description','bag_description','product_qty','bag_qty','packing_date','item_class_id','bag_class_id','created_by','modified_by',
+        'product_description','bag_description','product_qty','bag_qty','packing_date','item_class_id',
+        'bag_class_id','created_by','modified_by','from_product_cost','to_product_cost','to_product_old_cost','bag_cost','per_unit_cost'
     ];
     /****************************
     * Start :: Model Relation *
