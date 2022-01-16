@@ -118,85 +118,26 @@ class BOMReProcessController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $bomProcessData  = $this->model->create([
-                        'process_type'         => 2,
-                        'memo_no'              => $request->memo_no,
-                        'batch_id'             => $request->batch_id,
-                        'process_number'       => $request->process_number,
-                        'to_product_id'        => $request->to_product_id,
-                        'to_site_id'           => $request->to_site_id,
-                        'to_location_id'       => $request->to_location_id,
-                        'from_product_id'      => $request->from_product_id,
-                        'item_class_id'        => $request->item_class_id,
-                        'from_site_id'         => $request->from_site_id,
-                        'from_location_id'     => $request->from_location_id,
-                        'product_particular'   => $request->product_particular,
-                        'product_per_unit_qty' => $request->product_per_unit_qty,
-                        'product_required_qty' => $request->product_required_qty,
-                        'bag_site_id'          => $request->bag_site_id,
-                        'bag_location_id'      => $request->bag_location_id,
-                        'bag_id'               => $request->bag_id,
-                        'bag_class_id'         => $request->bag_class_id,
-                        'bag_particular'       => $request->bag_particular,
-                        'bag_per_unit_qty'     => $request->bag_per_unit_qty,
-                        'bag_required_qty'     => $request->bag_required_qty,
-                        'total_rice_qty'       => $request->total_rice_qty,
-                        'total_bag_qty'        => $request->total_bag_qty,
-                        'process_date'         => $request->process_date,
-                        'created_by'           => auth()->user()->name
-                    ]);
+                    $from_product                     = Product::findOrFail($request->from_product_id);
+                    $bag                              = Material::findOrFail($request->bag_id);
+                    $to_product                       = Product::findOrFail($request->to_product_id);
+                    $to_product_qty                   = SiteProduct::where('product_id',$request->to_product_id)->sum('qty');
+                    $to_product_current_stock_value   = ($to_product->cost ? $to_product->cost : 0) * ($to_product_qty ?? 0);
+                    $to_product_converted_stock_value = (($from_product->cost ? $from_product->cost : 0) * $request->total_rice_qty) + (($bag->cost ? $bag->cost : 0) * $request->total_bag_qty);
+                    $to_product_new_cost              = ($to_product_current_stock_value + $to_product_converted_stock_value) / (($to_product_qty ?? 0) + $request->total_rice_qty);
+                    $bomProcessData                   = $this->model->create(BomProcess::bom_process_data($request,2,$from_product,$to_product,$bag,$to_product_new_cost));
 
                     if($bomProcessData){
-                        //Subtract Bag From Stock
-                        $bag = Material::find($bomProcessData->bag_id);
-                        if($bag)
+                        $to_product->cost = $to_product_new_cost;
+                        $to_product->update();
+                        $process_item = $this->addition_subtraction_process_item_qty($request);
+                        if($process_item == true)
                         {
-                            $bag->qty -= $bomProcessData->bag_required_qty;
-                            $bag->update();
-                        }
-                        $from_site_bag = SiteMaterial::where([
-                            ['site_id',$bomProcessData->bag_site_id],
-                            ['location_id',$bomProcessData->bag_location_id],
-                            ['material_id',$bomProcessData->bag_id],
-                        ])->first();
-                        
-                        if($from_site_bag)
-                        {
-                            $from_site_bag->qty -= $bomProcessData->bag_required_qty;
-                            $from_site_bag->update();
-                        }
-                        //Subtract Product From Silo
-                        $from_site_product = SiteProduct::where([
-                            ['site_id',$bomProcessData->from_site_id],
-                            ['location_id',$bomProcessData->from_location_id],
-                            ['product_id',$bomProcessData->from_product_id],
-                        ])->first();
-                        
-                        if($from_site_product)
-                        {
-                            $from_site_product->qty -= $bomProcessData->total_rice_qty;
-                            $from_site_product->update();
-                        }
-                        //Add Packet Rice Into Stock
-                        $to_site_product = SiteProduct::where([
-                            ['site_id',$bomProcessData->to_site_id],
-                            ['location_id',$bomProcessData->to_location_id],
-                            ['product_id',$bomProcessData->to_product_id],
-                        ])->first();
-                        
-                        if($to_site_product)
-                        {
-                            $to_site_product->qty += $bomProcessData->total_rice_qty;
-                            $to_site_product->update();
+                            $output = ['status'=>'success','message'=>'Data has been saved successfully','process_id'=>$bomProcessData->id];
                         }else{
-                            SiteProduct::create([
-                                'site_id'     => $bomProcessData->to_site_id,
-                                'location_id' => $bomProcessData->to_location_id,
-                                'product_id'  => $bomProcessData->to_product_id,
-                                'qty'         => $bomProcessData->total_rice_qty
-                            ]);
+                            $output = ['status' => 'error','message' => $process_item];
                         }
-                        $output = ['status'=>'success','message'=>'Data has been saved successfully','process_id'=>$bomProcessData->id];
+                        
                     }else{
                         $output = ['status'=>'error','message'=>'Failed to save data','purchase_id'=>''];
                     }
@@ -234,10 +175,7 @@ class BOMReProcessController extends BaseController
                 'data'       => $bom_process,
                 'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
-                'products'   => Product::where('status',1)
-                ->where(function($q){
-                    $q->where('category_id',4)->orWhere('category_id',5);
-                })->get(),
+                'products'   => Product::where('status',1)->whereIn('category_id',[4,5])->get(),
                 'from_product_qty' => DB::table('site_product')->where([
                     'site_id'     => $bom_process->from_site_id,
                     'location_id' => $bom_process->from_location_id,
@@ -245,7 +183,7 @@ class BOMReProcessController extends BaseController
                 ])->value('qty'),
                 'classes'   => ItemClass::allItemClass(),
                 'bags' => DB::table('site_material as sm')
-                ->select('m.id','m.material_name','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
+                ->select('m.id','m.material_name','m.cost','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
                 ->leftJoin('materials as m','sm.material_id','=','m.id')
                 ->leftJoin('categories as c','m.category_id','=','c.id')
                 ->leftJoin('units as u','m.unit_id','=','u.id')
@@ -268,133 +206,38 @@ class BOMReProcessController extends BaseController
                 // dd($request->all());
                 DB::beginTransaction();
                 try {
-                    $bomProcessData = $this->model->find($request->process_id);
-
-                    $bom_process_data = [
-                        'process_type'         => 2,
-                        'memo_no'              => $request->memo_no,
-                        'batch_id'             => $request->batch_id,
-                        'process_number'       => $request->process_number,
-                        'to_product_id'        => $request->to_product_id,
-                        'to_site_id'           => $request->to_site_id,
-                        'to_location_id'       => $request->to_location_id,
-                        'from_product_id'      => $request->from_product_id,
-                        'item_class_id'        => $request->item_class_id,
-                        'from_site_id'         => $request->from_site_id,
-                        'from_location_id'     => $request->from_location_id,
-                        'product_particular'   => $request->product_particular,
-                        'product_per_unit_qty' => $request->product_per_unit_qty,
-                        'product_required_qty' => $request->product_required_qty,
-                        'bag_site_id'          => $request->bag_site_id,
-                        'bag_location_id'      => $request->bag_location_id,
-                        'bag_id'               => $request->bag_id,
-                        'bag_class_id'         => $request->bag_class_id,
-                        'bag_particular'       => $request->bag_particular,
-                        'bag_per_unit_qty'     => $request->bag_per_unit_qty,
-                        'bag_required_qty'     => $request->bag_required_qty,
-                        'total_rice_qty'       => $request->total_rice_qty,
-                        'total_bag_qty'        => $request->total_bag_qty,
-                        'process_date'         => $request->process_date,
-                        'modified_by'         => auth()->user()->name
-                    ];
+                    $bomProcessData            = $this->model->find($request->process_id);
+                    $packet_rice_product       = Product::findOrFail($bomProcessData->to_product_id);
+                    $packet_rice_product->cost = $bomProcessData->to_product_old_cost;
+                    $packet_rice_product->update();
+                    
                     if($bomProcessData)
                     {
-                        $bag = Material::find($bomProcessData->bag_id);
-                        if($bag)
-                        {
-                            $bag->qty += $bomProcessData->bag_required_qty;
-                            $bag->update();
-                        }
-                        $from_site_bag = SiteMaterial::where([
-                            ['site_id',$bomProcessData->bag_site_id],
-                            ['location_id',$bomProcessData->bag_location_id],
-                            ['material_id',$bomProcessData->bag_id],
-                        ])->first();
-                        
-                        if($from_site_bag)
-                        {
-                            $from_site_bag->qty += $bomProcessData->bag_required_qty;
-                            $from_site_bag->update();
-                        }
-                        //Subtract Product From Silo
-                        $from_site_product = SiteProduct::where([
-                            ['site_id',$bomProcessData->from_site_id],
-                            ['location_id',$bomProcessData->from_location_id],
-                            ['product_id',$bomProcessData->from_product_id],
-                        ])->first();
-                        
-                        if($from_site_product)
-                        {
-                            $from_site_product->qty += $bomProcessData->total_rice_qty;
-                            $from_site_product->update();
-                        }
-                        //Add Packet Rice Into Stock
-                        $to_site_product = SiteProduct::where([
-                            ['site_id',$bomProcessData->to_site_id],
-                            ['location_id',$bomProcessData->to_location_id],
-                            ['product_id',$bomProcessData->to_product_id],
-                        ])->first();
-                        
-                        if($to_site_product)
-                        {
-                            $to_site_product->qty -= $bomProcessData->total_rice_qty;
-                            $to_site_product->update();
-                        }
+                        $this->remove_process_item_qty($bomProcessData);
                     }
 
-                    $result = $bomProcessData->update($bom_process_data);
+                    $from_product                     = Product::findOrFail($request->from_product_id);
+                    $bag                              = Material::findOrFail($request->bag_id);
+                    $to_product                       = Product::findOrFail($request->to_product_id);
+                    $to_product_qty                   = SiteProduct::where('product_id',$request->to_product_id)->sum('qty');
+                    $to_product_current_stock_value   = ($to_product->cost ? $to_product->cost : 0) * ($to_product_qty ?? 0);
+                    $to_product_converted_stock_value = (($from_product->cost ? $from_product->cost : 0) * $request->total_rice_qty) + (($bag->cost ? $bag->cost : 0) * $request->total_bag_qty);
+                    $to_product_new_cost              = ($to_product_current_stock_value + $to_product_converted_stock_value) / (($to_product_qty ?? 0) + $request->total_rice_qty);
+                    $result                           = $bomProcessData->update(BomProcess::bom_process_data($request,2,$from_product,$to_product,$bag,$to_product_new_cost));
                     if($result)
                     {
-                        $bag = Material::find($request->bag_id);
-                        if($bag)
+                        $to_product->cost = $to_product_new_cost;
+                        $to_product->update();
+                        $process_item = $this->addition_subtraction_process_item_qty($request);
+                        if($process_item == true)
                         {
-                            $bag->qty -= $request->bag_required_qty;
-                            $bag->update();
-                        }
-                        $from_site_bag = SiteMaterial::where([
-                            ['site_id',$request->bag_site_id],
-                            ['location_id',$request->bag_location_id],
-                            ['material_id',$request->bag_id],
-                        ])->first();
-                        
-                        if($from_site_bag)
-                        {
-                            $from_site_bag->qty -= $request->bag_required_qty;
-                            $from_site_bag->update();
-                        }
-                        //Subtract Product From Silo
-                        $from_site_product = SiteProduct::where([
-                            ['site_id',$request->from_site_id],
-                            ['location_id',$request->from_location_id],
-                            ['product_id',$request->from_product_id],
-                        ])->first();
-                        
-                        if($from_site_product)
-                        {
-                            $from_site_product->qty -= $request->total_rice_qty;
-                            $from_site_product->update();
-                        }
-                        //Add Packet Rice Into Stock
-                        $to_site_product = SiteProduct::where([
-                            ['site_id',$request->to_site_id],
-                            ['location_id',$request->to_location_id],
-                            ['product_id',$request->to_product_id],
-                        ])->first();
-                        
-                        if($to_site_product)
-                        {
-                            $to_site_product->qty += $request->total_rice_qty;
-                            $to_site_product->update();
+                            $output  = $this->store_message($result, $request->process_id);
                         }else{
-                            SiteProduct::create([
-                                'site_id'     => $request->to_site_id,
-                                'location_id' => $request->to_location_id,
-                                'product_id'  => $request->to_product_id,
-                                'qty'         => $request->total_rice_qty
-                            ]);
+                            $output = ['status' => 'error','message' => $process_item];
                         }
+                    }else{
+                        $output = ['status' => 'error','message' => 'Failed to update data!'];
                     }
-                    $output  = $this->store_message($result, $request->process_id);
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollback();
@@ -417,56 +260,24 @@ class BOMReProcessController extends BaseController
                 DB::beginTransaction();
                 try {
                     $bomProcessData = $this->model->find($request->id);
-                    //Subtract Bag From Stock
-                    $bag = Material::find($bomProcessData->bag_id);
-                    if($bag)
+                    $packet_rice_product       = Product::findOrFail($bomProcessData->to_product_id);
+                    $packet_rice_product->cost = $bomProcessData->to_product_old_cost;
+                    $packet_rice_product->update();
+                    $process_item_qty_remove = $this->remove_process_item_qty($bomProcessData);
+                    if($process_item_qty_remove == true)
                     {
-                        $bag->qty += $bomProcessData->bag_required_qty;
-                        $bag->update();
-                    }
-                    $from_site_bag = SiteMaterial::where([
-                        ['site_id',$bomProcessData->bag_site_id],
-                        ['location_id',$bomProcessData->bag_location_id],
-                        ['material_id',$bomProcessData->bag_id],
-                    ])->first();
-                    
-                    if($from_site_bag)
-                    {
-                        $from_site_bag->qty += $bomProcessData->bag_required_qty;
-                        $from_site_bag->update();
-                    }
-                    //Subtract Product From Silo
-                    $from_site_product = SiteProduct::where([
-                        ['site_id',$bomProcessData->from_site_id],
-                        ['location_id',$bomProcessData->from_location_id],
-                        ['product_id',$bomProcessData->from_product_id],
-                    ])->first();
-                    
-                    if($from_site_product)
-                    {
-                        $from_site_product->qty += $bomProcessData->total_rice_qty;
-                        $from_site_product->update();
-                    }
-                    //Add Packet Rice Into Stock
-                    $to_site_product = SiteProduct::where([
-                        ['site_id',$bomProcessData->to_site_id],
-                        ['location_id',$bomProcessData->to_location_id],
-                        ['product_id',$bomProcessData->to_product_id],
-                    ])->first();
-                    
-                    if($to_site_product)
-                    {
-                        $to_site_product->qty -= $bomProcessData->total_rice_qty;
-                        $to_site_product->update();
-                    }
-                    $result = $bomProcessData->delete();
-                    if($result)
-                    {
-                        $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
-                        
+                        $result = $bomProcessData->delete();
+                        if($result)
+                        {
+                            $output = ['status' => 'success','message' => 'Data has been deleted successfully'];
+                            
+                        }else{
+                            $output = ['status' => 'error','message' => 'Failed to delete data'];
+                        }
                     }else{
-                        $output = ['status' => 'error','message' => 'Failed to delete data'];
+                        $output = ['status'=>'error','message'=> $process_item_qty_remove];
                     }
+                    
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollBack();
@@ -490,48 +301,10 @@ class BOMReProcessController extends BaseController
                 try {
                     foreach ($request->ids as $id) {
                         $bomProcessData = $this->model->find($id);
-                        //Subtract Bag From Stock
-                        $bag = Material::find($bomProcessData->bag_id);
-                        if($bag)
-                        {
-                            $bag->qty += $bomProcessData->bag_required_qty;
-                            $bag->update();
-                        }
-                        $from_site_bag = SiteMaterial::where([
-                            ['site_id',$bomProcessData->bag_site_id],
-                            ['location_id',$bomProcessData->bag_location_id],
-                            ['material_id',$bomProcessData->bag_id],
-                        ])->first();
-                        
-                        if($from_site_bag)
-                        {
-                            $from_site_bag->qty += $bomProcessData->bag_required_qty;
-                            $from_site_bag->update();
-                        }
-                        //Subtract Product From Silo
-                        $from_site_product = SiteProduct::where([
-                            ['site_id',$bomProcessData->from_site_id],
-                            ['location_id',$bomProcessData->from_location_id],
-                            ['product_id',$bomProcessData->from_product_id],
-                        ])->first();
-                        
-                        if($from_site_product)
-                        {
-                            $from_site_product->qty += $bomProcessData->total_rice_qty;
-                            $from_site_product->update();
-                        }
-                        //Add Packet Rice Into Stock
-                        $to_site_product = SiteProduct::where([
-                            ['site_id',$bomProcessData->to_site_id],
-                            ['location_id',$bomProcessData->to_location_id],
-                            ['product_id',$bomProcessData->to_product_id],
-                        ])->first();
-                        
-                        if($to_site_product)
-                        {
-                            $to_site_product->qty -= $bomProcessData->total_rice_qty;
-                            $to_site_product->update();
-                        }
+                        $packet_rice_product       = Product::findOrFail($bomProcessData->to_product_id);
+                        $packet_rice_product->cost = $bomProcessData->to_product_old_cost;
+                        $packet_rice_product->update();
+                        $this->remove_process_item_qty($bomProcessData);
                     }
                     $result = $this->model->destroy($request->ids);
                     if($result)
@@ -551,6 +324,114 @@ class BOMReProcessController extends BaseController
             return response()->json($output);
         }else{
             return response()->json($this->access_blocked());
+        }
+    }
+
+    protected function addition_subtraction_process_item_qty($data)
+    {
+        try {
+            $bag = Material::find($data->bag_id);
+            if($bag)
+            {
+                $bag->qty -= $data->bag_required_qty;
+                $bag->update();
+            }
+            $from_site_bag = SiteMaterial::where([
+                ['site_id',$data->bag_site_id],
+                ['location_id',$data->bag_location_id],
+                ['material_id',$data->bag_id],
+            ])->first();
+            
+            if($from_site_bag)
+            {
+                $from_site_bag->qty -= $data->bag_required_qty;
+                $from_site_bag->update();
+            }
+            //Subtract Product From Silo
+            $from_site_product = SiteProduct::where([
+                ['site_id',$data->from_site_id],
+                ['location_id',$data->from_location_id],
+                ['product_id',$data->from_product_id],
+            ])->first();
+            
+            if($from_site_product)
+            {
+                $from_site_product->qty -= $data->total_rice_qty;
+                $from_site_product->update();
+            }
+            //Add Packet Rice Into Stock
+            $to_site_product = SiteProduct::where([
+                ['site_id',$data->to_site_id],
+                ['location_id',$data->to_location_id],
+                ['product_id',$data->to_product_id],
+            ])->first();
+            
+            if($to_site_product)
+            {
+                $to_site_product->qty += $data->total_rice_qty;
+                $to_site_product->update();
+            }else{
+                SiteProduct::create([
+                    'site_id'     => $data->to_site_id,
+                    'location_id' => $data->to_location_id,
+                    'product_id'  => $data->to_product_id,
+                    'qty'         => $data->total_rice_qty
+                ]);
+            }
+            return true;
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
+        
+    }
+
+    protected function remove_process_item_qty($data)
+    {
+        try {
+            $bag = Material::find($data->bag_id);
+            if($bag)
+            {
+                $bag->qty += $data->bag_required_qty;
+                $bag->update();
+            }
+            $from_site_bag = SiteMaterial::where([
+                ['site_id',$data->bag_site_id],
+                ['location_id',$data->bag_location_id],
+                ['material_id',$data->bag_id],
+            ])->first();
+            
+            if($from_site_bag)
+            {
+                $from_site_bag->qty += $data->bag_required_qty;
+                $from_site_bag->update();
+            }
+            //Subtract Product From Silo
+            $from_site_product = SiteProduct::where([
+                ['site_id',$data->from_site_id],
+                ['location_id',$data->from_location_id],
+                ['product_id',$data->from_product_id],
+            ])->first();
+            
+            if($from_site_product)
+            {
+                $from_site_product->qty += $data->total_rice_qty;
+                $from_site_product->update();
+            }
+            //Add Packet Rice Into Stock
+            $to_site_product = SiteProduct::where([
+                ['site_id',$data->to_site_id],
+                ['location_id',$data->to_location_id],
+                ['product_id',$data->to_product_id],
+            ])->first();
+            
+            if($to_site_product)
+            {
+                $to_site_product->qty -= $data->total_rice_qty;
+                $to_site_product->update();
+            }
+            return true;
+        } catch (\Throwable $th) {
+            return $th->getMessage();
         }
     }
 }

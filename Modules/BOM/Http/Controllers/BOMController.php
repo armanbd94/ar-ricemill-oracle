@@ -260,10 +260,7 @@ class BOMController extends BaseController
                 'data'       => $bom_process,
                 'batches'    => Batch::whereBetween('batch_start_date',[date('Y-01-01'),date('Y-12-31')])->get(),
                 'sites'      => Site::allSites(),
-                'products'   => Product::where('status',1)
-                ->where(function($q){
-                    $q->where('category_id',4)->orWhere('category_id',5);
-                })->get(),
+                'products'   => Product::where('status',1)->whereIn('category_id',[4,5])->get(),
                 'from_product_qty' => DB::table('site_product')->where([
                     'site_id'     => $bom_process->from_site_id,
                     'location_id' => $bom_process->from_location_id,
@@ -271,7 +268,7 @@ class BOMController extends BaseController
                 ])->value('qty'),
                 'classes'   => ItemClass::allItemClass(),
                 'bags' => DB::table('site_material as sm')
-                ->select('m.id','m.material_name','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
+                ->select('m.id','m.material_name','m.cost','c.name as category_name','u.unit_name','u.unit_code','sm.qty')
                 ->leftJoin('materials as m','sm.material_id','=','m.id')
                 ->leftJoin('categories as c','m.category_id','=','c.id')
                 ->leftJoin('units as u','m.unit_id','=','u.id')

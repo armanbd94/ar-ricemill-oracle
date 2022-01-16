@@ -179,4 +179,47 @@ class BomProcess extends BaseModel
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
+
+    protected static function bom_process_data(object $data,int $process_type, object $from_product, object $to_product, object $bag, $to_product_new_cost) : array
+    {
+        $bom_process_data = [
+            'process_type'         => $process_type,
+            'memo_no'              => $data->memo_no,
+            'batch_id'             => $data->batch_id,
+            'process_number'       => $data->process_number,
+            'to_product_id'        => $data->to_product_id,
+            'to_site_id'           => $data->to_site_id,
+            'to_location_id'       => $data->to_location_id,
+            'from_product_id'      => $data->from_product_id,
+            'item_class_id'        => $data->item_class_id,
+            'from_site_id'         => $data->from_site_id,
+            'from_location_id'     => $data->from_location_id,
+            'product_particular'   => $data->product_particular,
+            'product_per_unit_qty' => $data->product_per_unit_qty,
+            'product_required_qty' => $data->product_required_qty,
+            'bag_site_id'          => $data->bag_site_id,
+            'bag_location_id'      => $data->bag_location_id,
+            'bag_id'               => $data->bag_id,
+            'bag_class_id'         => $data->bag_class_id,
+            'bag_particular'       => $data->bag_particular,
+            'bag_per_unit_qty'     => $data->bag_per_unit_qty,
+            'bag_required_qty'     => $data->bag_required_qty,
+            'total_rice_qty'       => $data->total_rice_qty,
+            'total_bag_qty'        => $data->total_bag_qty,
+            'process_date'         => $data->process_date,
+            'from_product_cost'    => $from_product->cost ? $from_product->cost : 0,
+            'to_product_cost'      => $to_product_new_cost,
+            'to_product_old_cost'  => $to_product->cost ? $to_product->cost : 0,
+            'bag_cost'             => $bag->cost ? $bag->cost : 0,
+            'per_unit_cost'        => $data->per_unit_cost,
+            
+        ];
+        if(empty($data->process_id))
+        {
+            $bom_process_data['created_by'] = auth()->user()->name;
+        }else{
+            $bom_process_data['modified_by'] = auth()->user()->name;
+        }
+        return $bom_process_data;
+    }
 }

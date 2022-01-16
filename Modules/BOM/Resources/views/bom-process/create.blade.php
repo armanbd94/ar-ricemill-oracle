@@ -170,7 +170,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Total Bag Used Quantity</td>
-                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty"  class="form-control text-right" onkeyup="perUnitCost()"></td>
+                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty"  class="form-control text-right" onkeyup="perUnitCostCalculation()"></td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
@@ -290,7 +290,7 @@ function packetRiceCalculation()
     }
 }
 
-function perUnitCost()
+function perUnitCostCalculation()
 {
     const total_rice_qty = $('#total_rice_qty').val() ? parseFloat($('#total_rice_qty').val()) : 0;
     if(total_rice_qty > 0)

@@ -170,7 +170,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4" class="text-right font-weight-bolder">Total Bag Used Quantity</td>
-                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty"  class="form-control text-right" onchange="perUnitCost()"></td>
+                                                    <td><input type="text" name="total_bag_qty" id="total_bag_qty"  class="form-control text-right" onkeyup="perUnitCostCalculation()"></td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
@@ -290,18 +290,18 @@ function packetRiceCalculation()
     }
 }
 
-function perUnitCost()
+function perUnitCostCalculation()
 {
     console.log('ok');
     const total_rice_qty = $('#total_rice_qty').val() ? parseFloat($('#total_rice_qty').val()) : 0;
     if(total_rice_qty > 0)
     {
+        
         const rice_cost = $('#from_product_id option:selected').data('cost') ? parseFloat($('#from_product_id option:selected').data('cost')) : 0;
         const bag_cost = $('#bag_id option:selected').data('cost') ? parseFloat($('#bag_id option:selected').data('cost')) : 0;
         const total_bag_qty = $('#total_bag_qty').val() ? parseFloat($('#total_bag_qty').val()) : 0;
         const per_unit_cost = ((total_rice_qty * rice_cost) + (total_bag_qty * bag_cost)) / total_rice_qty;
         $('#per_unit_cost').val(parseFloat(per_unit_cost).toFixed(2));
-        console.log(per_unit_cost);
     }else{
         notification('error','Please insert fine rice qunatity!');
     }
