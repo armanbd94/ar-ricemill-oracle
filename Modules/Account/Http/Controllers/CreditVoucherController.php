@@ -5,7 +5,6 @@ namespace Modules\Account\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Setting\Entities\Warehouse;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\ChartOfAccount;
 use Modules\Account\Entities\CreditVoucher;
@@ -23,7 +22,6 @@ class CreditVoucherController extends BaseController
     {
         if(permission('credit-voucher-access')){
             $this->setPageData('Credit Voucher List','Credit Voucher List','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Credit Voucher List']]);
-            $warehouses = Warehouse::where('status',1)->pluck('name','id');
             return view('account::credit-voucher.list',compact('warehouses'));
         }else{
             return $this->access_blocked();
@@ -44,9 +42,6 @@ class CreditVoucherController extends BaseController
                 if (!empty($request->voucher_no)) {
                     $this->model->setVoucherNo($request->voucher_no);
                 }
-                if (!empty($request->warehouse_id)) {
-                    $this->model->setWarehouseID($request->warehouse_id);
-                }
 
                 $this->set_datatable_default_properties($request);//set datatable default properties
                 $list = $this->model->getDatatableList();//get table data
@@ -65,9 +60,9 @@ class CreditVoucherController extends BaseController
                     
                     $row = [];
                     $row[] = $no;
-                    $row[] = $value->warehouse_name;
+                    $row[] = date('d-M-Y',strtotime($value->voucher_date));
                     $row[] = $value->voucher_no;
-                    $row[] = date('d-M-Y',strtotime($value->voucher_date));;
+                    
                     $row[] = $value->description;
                     $row[] = number_format($value->credit,2);
                     $row[] = VOUCHER_APPROVE_STATUS_LABEL[$value->approve];
@@ -89,15 +84,15 @@ class CreditVoucherController extends BaseController
         if(permission('credit-voucher-access')){
             $this->setPageData('Credit Voucher','Credit Voucher','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Credit Voucher']]);
             $data = [
-            'warehouses'             => Warehouse::where('status',1)->pluck('name','id'),
             'voucher_no'             => self::VOUCHER_PREFIX.'-'.date('Ymd').rand(1,999),
-            'transactional_accounts' => ChartOfAccount::where(['status'=>1,'transaction'=>1])->orderBy('id','asc')->get(),
-            'debit_accounts'         => ChartOfAccount::where(['status'=>1,'transaction'=>1])
-                                        ->where('code','like','1020101')
-                                        ->orWhere('code','like','10201020%')
-                                        ->orWhere('code','like','10201030%')
-                                        ->orderBy('id','asc')
-                                        ->get()
+            'coas' => ChartOfAccount::accounts(),
+            // 'transactional_accounts' => ChartOfAccount::where(['status'=>1,'transaction'=>1])->orderBy('id','asc')->get(),
+            // 'debit_accounts'         => ChartOfAccount::where(['status'=>1,'transaction'=>1])
+            //                             ->where('code','like','1020101')
+            //                             ->orWhere('code','like','10201020%')
+            //                             ->orWhere('code','like','10201030%')
+            //                             ->orderBy('id','asc')
+            //                             ->get()
             ];
             return view('account::credit-voucher.create',$data);
         }else{
@@ -118,7 +113,6 @@ class CreditVoucherController extends BaseController
                             //Credit Insert
                             $credit_voucher_transaction[] = array(
                                 'chart_of_account_id' => $value['id'],
-                                'warehouse_id'        => $request->warehouse_id,
                                 'voucher_no'          => $request->voucher_no,
                                 'voucher_type'        => self::VOUCHER_PREFIX,
                                 'voucher_date'        => $request->voucher_date,
@@ -135,7 +129,6 @@ class CreditVoucherController extends BaseController
                             $debit_account = ChartOfAccount::find($request->debit_account_id);
                             $credit_voucher_transaction[] = array(
                                 'chart_of_account_id' => $request->debit_account_id,
-                                'warehouse_id'        => $request->warehouse_id,
                                 'voucher_no'          => $request->voucher_no,
                                 'voucher_type'        => self::VOUCHER_PREFIX,
                                 'voucher_date'        => $request->voucher_date,

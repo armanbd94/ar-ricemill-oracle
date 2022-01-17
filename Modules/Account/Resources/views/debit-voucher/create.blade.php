@@ -34,19 +34,8 @@
                                     <label for="voucher_date">Date</label>
                                     <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ date('Y-m-d') }}" readonly />
                                 </div>
-                                <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required"  col="col-md-3" class="selectpicker">
-                                    @if (!$warehouses->isEmpty())
-                                    @foreach ($warehouses as $id => $name)
-                                        <option value="{{ $id }}">{{ $name }}</option>
-                                    @endforeach
-                                    @endif
-                                </x-form.selectbox>
-                                <x-form.selectbox labelName="Credit Account Head" name="credit_account_id" required="required"  col="col-md-3" class="selectpicker">
-                                    @if (!$credit_accounts->isEmpty())
-                                    @foreach ($credit_accounts as $coa)
-                                        <option value="{{ $coa->id }}">{{ $coa->name }}</option>
-                                    @endforeach
-                                    @endif
+                                <x-form.selectbox labelName="Payee" name="credit_account_id" required="required"  col="col-md-3" class="selectpicker">
+                                    {!! $coas !!}
                                 </x-form.selectbox>
                                 
                                 <div class="col-md-12">
@@ -61,11 +50,7 @@
                                                 <td>
                                                     <select name="debit_account[1][id]" id="debit_account_1_id" class="form-control selectpicker">
                                                         <option value="">Select Please</option>
-                                                        @if (!$transactional_accounts->isEmpty())
-                                                        @foreach ($transactional_accounts as $coa)
-                                                            <option value="{{ $coa->id }}">{{ $coa->name }} @if($coa->supplier_id) {{ '(Supplier)' }}  @endif @if($coa->customer_id) {{ '(Customer)' }}  @endif</option>
-                                                        @endforeach
-                                                        @endif
+                                                        {!! $coas !!}
                                                     </select>
                                                 </td>
                                                 <td>
@@ -114,11 +99,7 @@ function add_more_account_field(row){
                 <td>
                     <select name="debit_account[`+row+`][id]" id="debit_account_`+row+`_id" class="form-control selectpicker">
                         <option value="">Select Please</option>
-                        @if (!$transactional_accounts->isEmpty())
-                        @foreach ($transactional_accounts as $coa)
-                            <option value="{{ $coa->id }}">{{ $coa->name }} @if($coa->supplier_id) {{ '(Supplier)' }}  @endif @if($coa->customer_id) {{ '(Customer)' }}  @endif</option>
-                        @endforeach
-                        @endif
+                        {!! $coas !!}
                     </select>
                 </td>
                 <td>

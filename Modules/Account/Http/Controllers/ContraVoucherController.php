@@ -5,7 +5,6 @@ namespace Modules\Account\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Setting\Entities\Warehouse;
 use App\Http\Controllers\BaseController;
 use Modules\Account\Entities\Transaction;
 use Modules\Account\Entities\ContraVoucher;
@@ -25,7 +24,6 @@ class ContraVoucherController extends BaseController
     {
         if(permission('contra-voucher-access')){
             $this->setPageData('Contra Voucher List','Contra Voucher List','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Contra Voucher List']]);
-            $warehouses = Warehouse::where('status',1)->pluck('name','id');
             return view('account::contra-voucher.list',compact('warehouses'));
         }else{
             return $this->access_blocked();
@@ -46,9 +44,7 @@ class ContraVoucherController extends BaseController
                 if (!empty($request->voucher_no)) {
                     $this->model->setVoucherNo($request->voucher_no);
                 }
-                if (!empty($request->warehouse_id)) {
-                    $this->model->setWarehouseID($request->warehouse_id);
-                }
+
 
                 $this->set_datatable_default_properties($request);//set datatable default properties
                 $list = $this->model->getDatatableList();//get table data
@@ -67,9 +63,9 @@ class ContraVoucherController extends BaseController
                     
                     $row = [];
                     $row[] = $no;
-                    $row[] = $value->warehouse_name;
+                    $row[] = date(config('settings.date_format'),strtotime($value->voucher_date));
                     $row[] = $value->voucher_no;
-                    $row[] = date(config('settings.date_format'),strtotime($value->voucher_date));;
+                    
                     $row[] = $value->description;
                     $row[] = number_format($value->debit,2);
                     $row[] = number_format($value->credit,2);
@@ -92,8 +88,8 @@ class ContraVoucherController extends BaseController
             $this->setPageData('Contra Voucher','Contra Voucher','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Contra Voucher']]);
             $data = [
                 'voucher_no'             => self::VOUCHER_PREFIX.'-'.date('ymd').rand(1,999),
-                'warehouses'             => Warehouse::where('status',1)->pluck('name','id'),
-                'transactional_accounts' => ChartOfAccount::where(['status'=>1,'transaction'=>1])->orderBy('id','asc')->get(),
+                'coas' => ChartOfAccount::accounts(),
+                // 'transactional_accounts' => ChartOfAccount::where(['status'=>1,'transaction'=>1])->orderBy('id','asc')->get(),
             ];
             return view('account::contra-voucher.create',$data);
         }else{
@@ -114,8 +110,7 @@ class ContraVoucherController extends BaseController
                             if(!empty($value['debit_amount']) || !empty($value['credit_amount'] ))
                             {
                                 $contra_voucher_transaction[] = array(
-                                    'chart_of_account_id' => $value['id'],
-                                    'warehouse_id'        => $request->warehouse_id,
+                                    'chart_of_account_id' => $value['id'],   
                                     'voucher_no'          => $request->voucher_no,
                                     'voucher_type'        => self::VOUCHER_PREFIX,
                                     'voucher_date'        => $request->voucher_date,

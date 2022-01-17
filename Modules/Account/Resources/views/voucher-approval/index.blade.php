@@ -38,14 +38,6 @@
                             <input type="text" class="form-control" name="voucher_no" id="voucher_no"/>
                         </div>
 
-                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-3" class="selectpicker">
-                            @if (!$warehouses->isEmpty())
-                            @foreach ($warehouses as $id => $name)
-                                <option value="{{ $id }}">{{ $name }}</option>
-                            @endforeach
-                            @endif
-                        </x-form.selectbox>
-
                         <div class="col-md-3">
                             <div style="margin-top:28px;">      
                                 <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
@@ -70,7 +62,6 @@
                                     <thead class="bg-primary">
                                         <tr>
                                             <th>Sl</th>
-                                            <th>Warehouse</th>
                                             <th>Voucher No.</th>
                                             <th>Date</th>
                                             <th>Remark</th>
@@ -138,7 +129,6 @@ $(document).ready(function(){
                 data.start_date   = $("#form-filter #start_date").val();
                 data.end_date     = $("#form-filter #end_date").val();
                 data.voucher_no     = $("#form-filter #voucher_no").val();
-                data.warehouse_id     = $("#form-filter #warehouse_id").val();
                 data._token            = _token;
             }
         },

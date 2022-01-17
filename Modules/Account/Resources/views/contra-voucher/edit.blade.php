@@ -34,13 +34,7 @@
                                     <label for="voucher_date">Date</label>
                                     <input type="text" class="form-control date" name="voucher_date" id="voucher_date" value="{{ $voucher[0]->voucher_date }}" readonly />
                                 </div>
-                                <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required"  col="col-md-4" class="selectpicker">
-                                    @if (!$warehouses->isEmpty())
-                                    @foreach ($warehouses as $id => $name)
-                                        <option value="{{ $id }}" {{ $voucher[0]->warehouse_id == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                    @endforeach
-                                    @endif
-                                </x-form.selectbox>
+
                                 <div class="col-md-12">
                                     <table class="table table-bordered" id="debit-voucher-table">
                                         <thead class="bg-primary">

@@ -11,7 +11,7 @@ use Modules\Account\Entities\ChartOfAccount;
 class VoucherApproval extends BaseModel
 {
     protected $table = 'transactions';
-    protected $fillable = ['chart_of_account_id', 'warehouse_id','voucher_no', 'voucher_type', 'voucher_date', 'description', 'debit', 
+    protected $fillable = ['chart_of_account_id', 'voucher_no', 'voucher_type', 'voucher_date', 'description', 'debit', 
     'credit', 'posted', 'approve', 'created_by', 'modified_by'];
 
     public function coa()
@@ -19,10 +19,6 @@ class VoucherApproval extends BaseModel
         return $this->belongsTo(ChartOfAccount::class,'chart_of_account_id','id');
     }
 
-    public function warehouse()
-    {
-        return $this->belongsTo(Warehouse::class,'warehouse_id','id');
-    }
 
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
@@ -46,21 +42,16 @@ class VoucherApproval extends BaseModel
     {
         $this->_voucher_no = $voucher_no;
     }
-    public function setWarehouseID($warehouse_id)
-    {
-        $this->_warehouse_id = $warehouse_id;
-    }
 
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
 
-        $this->column_order = ['t.id', 't.warehouse_id','t.voucher_no','t.voucher_date','t.descritpion','t.debit','t.credit','t.approve', 't.created_by',null];
+        $this->column_order = ['t.id', 't.voucher_no','t.voucher_date','t.descritpion','t.debit','t.credit','t.approve', 't.created_by',null];
         
         
         $query = DB::table('transactions as t')
-        ->leftjoin('warehouses as w','t.warehouse_id','=','w.id')
-        ->selectRaw("t.*,sum(t.credit) as credit,sum(t.debit) as debit,w.name as warehouse_name")
+        ->selectRaw("t.*,sum(t.credit) as credit,sum(t.debit) as debit")
         ->whereIn('t.voucher_type',['DV','CV','CONTRAV','JOURNALV'])
         ->where('t.approve',3)
         ->groupBy('t.voucher_no');
@@ -74,9 +65,7 @@ class VoucherApproval extends BaseModel
         if (!empty($this->_voucher_no)) {
             $query->where('t.voucher_no', $this->_voucher_no);
         }
-        if (!empty($this->_warehouse_id)) {
-            $query->where('t.warehouse_id', $this->_warehouse_id);
-        }
+
 
         //order by data fetching code
         if (isset($this->orderValue) && isset($this->dirValue)) { //orderValue is the index number of table header and dirValue is asc or desc
@@ -115,9 +104,7 @@ class VoucherApproval extends BaseModel
         if (!empty($this->_end_date)) {
             $query->where('t.voucher_date', '<=',$this->_end_date);
         }
-        if (!empty($this->_warehouse_id)) {
-            $query->where('t.warehouse_id', $this->_warehouse_id);
-        }
+
 
         return $query->get()->count();
     }

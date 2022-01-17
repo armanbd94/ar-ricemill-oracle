@@ -21,7 +21,6 @@ class VoucherApprovalController extends BaseController
     {
         if(permission('voucher-access')){
             $this->setPageData('Voucher Approval','Voucher Approval','far fa-money-bill-alt',[['name'=>'Accounts'],['name'=>'Voucher Approval']]);
-            $warehouses = Warehouse::where('status',1)->pluck('name','id');
             return view('account::voucher-approval.index',compact('warehouses'));
         }else{
             return $this->access_blocked();
@@ -42,9 +41,7 @@ class VoucherApprovalController extends BaseController
                 if (!empty($request->voucher_no)) {
                     $this->model->setVoucherNo($request->voucher_no);
                 }
-                if (!empty($request->warehouse_id)) {
-                    $this->model->setWarehouseID($request->warehouse_id);
-                }
+
 
                 $this->set_datatable_default_properties($request);//set datatable default properties
                 $list = $this->model->getDatatableList();//get table data
@@ -69,7 +66,6 @@ class VoucherApprovalController extends BaseController
                     
                     $row = [];
                     $row[] = $no;
-                    $row[] = $value->warehouse_name;
                     $row[] = $value->voucher_no;
                     $row[] = date(config('settings.date_format'),strtotime($value->voucher_date));;
                     $row[] = $value->description;
