@@ -1,6 +1,6 @@
 <div class="modal fade" id="store_or_update_modal" tabindex="-1" role="dialog" aria-labelledby="model-1"
     aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-md" role="document">
 
         <!-- Modal Content -->
         <div class="modal-content">
@@ -19,49 +19,33 @@
                 <div class="modal-body">
                     <div class="row">
                         <input type="hidden" name="update_id" id="update_id" />
-                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-4" required="required" class="selectpicker">
-                            @if (!$warehouses->isEmpty())
-                            @foreach ($warehouses as $id => $name)
-                                <option value="{{ $id }}" data-name="{{ $name }}">{{ $name }}</option>
+
+                        <x-form.selectbox labelName="Customer" name="customer_coa_id" required="required" col="col-md-12" class="selectpicker" >
+                            @if (!$customers->isEmpty())
+                            @foreach ($customers as $customer)
+                            <option value="{{ $customer->coa->id }}"> {{ $customer->trade_name.' ('.$customer->name.')' }}</option>
                             @endforeach
                             @endif
                         </x-form.selectbox>
-                        <x-form.selectbox labelName="District" name="district_id" col="col-md-4" class="selectpicker"
-                            onchange="getUpazilaList(this.value,2)">
-                            @if (!$districts->isEmpty())
-                            @foreach ($districts as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
-                            @endforeach
-                            @endif
-                        </x-form.selectbox>
-                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-4" class="selectpicker"
-                            onchange="getRouteList(this.value,2)"/>
 
-                        <x-form.selectbox labelName="Route" name="route_id" col="col-md-4" class="selectpicker"
-                            onchange="getAreaList(this.value,2)"/>
-
-                        <x-form.selectbox labelName="Area" name="area_id" col="col-md-4" class="selectpicker"
-                            onchange="customer_list(this.value,2)"/>
-                        <x-form.selectbox labelName="Customer" name="customer" col="col-md-4" class="selectpicker" />
-
-                        <x-form.selectbox labelName="Advance Type" name="type" required="required" col="col-md-4"
+                        <x-form.selectbox labelName="Advance Type" name="type" required="required" col="col-md-12"
                             class="selectpicker">
                             <option value="debit">Payment</option>
                             <option value="credit">Receive</option>
                         </x-form.selectbox>
-                        <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-4"
+                        <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-12"
                             placeholder="Enter amount" />
-                        <x-form.selectbox labelName="Payment Method" name="payment_method" required="required"
-                            col="col-md-4" class="selectpicker">
+                        <x-form.selectbox labelName="Payment Method" name="payment_method"  required="required"
+                            col="col-md-12" class="selectpicker">
                             @foreach (PAYMENT_METHOD as $key => $value)
                             <option value="{{ $key }}">{{ $value }}</option>
                             @endforeach
                         </x-form.selectbox>
-                        <x-form.selectbox labelName="Account" name="account_id" required="required" col="col-md-4"
+                        <x-form.selectbox labelName="Account" name="account_id" required="required" col="col-md-12"
                             class="selectpicker" />
-                        <div class="form-group col-md-4 d-none cheque_number required">
-                            <label for="cheque_number">Cheque No.</label>
-                            <input type="text" class="form-control" name="cheque_number" id="cheque_number">
+                        <div class="form-group col-md-12">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" name="description" id="description"></textarea>
                         </div>
                     </div>
                 </div>
@@ -69,8 +53,8 @@
 
                 <!-- Modal Footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary btn-sm" id="save-btn"></button>
+                    <button type="button" class="btn btn-danger btn-sm custom-btn" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary btn-sm custom-btn" id="save-btn"></button>
                 </div>
                 <!-- /modal footer -->
             </form>

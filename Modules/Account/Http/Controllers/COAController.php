@@ -22,7 +22,8 @@ class COAController extends BaseController
         if(permission('coa-access')){
             $this->setPageData('Chart of Account','Chart of Account','far fa-money-bill-alt',[['name' => 'Chart of Account']]);
             $data = [
-                'accounts'      => $this->model->where('status',1)->orderBy('id','asc')->get(),
+                // 'accounts'      => $this->model->where('status',1)->orderBy('id','asc')->get(),
+                'coas' => ChartOfAccount::accounts(),
             ];
             return view('account::coa.index',$data);
         }else{

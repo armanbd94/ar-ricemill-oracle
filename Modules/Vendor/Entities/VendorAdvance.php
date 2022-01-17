@@ -51,7 +51,7 @@ class VendorAdvance extends BaseModel
             $this->column_order = ['transactions.id','s.name', null,null,'transactions.created_at',null];
         }
         
-        $query = self::select('transactions.*','coa.id as coa_id','coa.code','coa.name as account_name','coa.parent_name','s.id as vendor_id','s.name','s.mobile')
+        $query = self::select('transactions.*','coa.id as coa_id','coa.code','coa.name as account_name','coa.parent_name','s.id as vendor_id','s.name','s.trade_name','s.mobile')
         ->join('chart_of_accounts as coa','transactions.chart_of_account_id','=','coa.id')
         ->join('vendors as s','coa.vendor_id','s.id')
         ->where('transactions.voucher_type',self::TYPE);

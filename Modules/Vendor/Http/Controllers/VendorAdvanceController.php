@@ -72,7 +72,7 @@ class VendorAdvanceController extends BaseController
                         $row[] = row_checkbox($value->voucher_no);
                     }
                     $row[] = $no;
-                    $row[] = $value->name.' - '.$value->mobile;
+                    $row[] = $value->trade_name.' - '.$value->mobile;
                     $row[] = ($value->debit != 0) ? 'Payment' : 'Receive' ;
                     $row[] = ($value->debit != 0) ? $value->debit : $value->credit;
                     $row[] = APPROVE_STATUS_LABEL[$value->approve];

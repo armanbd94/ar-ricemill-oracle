@@ -14,20 +14,19 @@ class CustomerAdvanceFormRequest extends FormRequest
      */
     public function rules()
     {
-        $this->rules['warehouse_id'] = ['required'];
-        $this->rules['district_id'] = ['required'];
-        $this->rules['upazila_id'] = ['required'];
-        $this->rules['route_id'] = ['required'];
-        $this->rules['area_id'] = ['required'];
-        $this->rules['customer'] = ['required'];
+        $this->rules['customer_coa_id'] = ['required'];
         $this->rules['type'] = ['required'];
         $this->rules['amount'] = ['required','numeric','gt:0'];
         $this->rules['payment_method'] = ['required'];
         $this->rules['account_id'] = ['required'];
-        if(request()->payment_method == 2){
-            $this->rules['cheque_number'] = ['required'];
-        }
         return $this->rules;
+    }
+
+    public function messages()
+    {
+        return [
+            'customer_coa_id.required' => 'The customer field is required'
+        ];
     }
 
     /**

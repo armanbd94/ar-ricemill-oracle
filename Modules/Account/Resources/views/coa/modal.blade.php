@@ -20,11 +20,12 @@
                     <input type="hidden" name="update_id" id="update_id"/>
   
                     <x-form.selectbox labelName="Parent Head" name="parent_name" onchange="fetch_parent_data(this.value)" required="required" col="col-md-12" class="selectpicker">
-                        @if (!$accounts->isEmpty())
+                        {{-- @if (!$accounts->isEmpty())
                             @foreach ($accounts as $value)
                                 <option value="{{ $value->id }}">{{ $value->name }}</option>
                             @endforeach
-                        @endif
+                        @endif --}}
+                        {!! $coas !!}
                     </x-form.selectbox>
                     <x-form.textbox labelName="Head Code" name="code" required="required" col="col-md-12"/>
                     <x-form.textbox labelName="Head Name" name="name" required="required" col="col-md-12"/>
