@@ -30,17 +30,26 @@
                     <div class="row">
                         <x-form.textbox labelName="Name" name="name" col="col-md-3" />
                         <x-form.textbox labelName="Code" name="code" col="col-md-3" />
+                        <x-form.selectbox labelName="Group" name="item_group_id" col="col-md-3" class="selectpicker">
+                            @if (!$groups->isEmpty())
+                                @foreach ($groups as $group)
+                                    <option value="{{ $group->id }}">{{ $group->name }}</option>
+                                @endforeach
+                            @endif
+                        </x-form.selectbox>
                         <x-form.selectbox labelName="Category" name="category_id" col="col-md-3" class="selectpicker">
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
+                           @if (!$categories->isEmpty())
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
+                           @endif
                         </x-form.selectbox>
                         <x-form.selectbox labelName="Status" name="status" col="col-md-3" class="selectpicker">
                             @foreach (STATUS as $key => $value)
                                 <option value="{{ $key }}">{{ $value }}</option>
                             @endforeach
                         </x-form.selectbox>
-                        <div class="col-md-12">      
+                        <div class="col-md-9">      
                             <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                             data-toggle="tooltip" data-theme="dark" title="Reset">
                             <i class="fas fa-undo-alt"></i></button>
@@ -71,7 +80,9 @@
                                         <th>Sl</th>
                                         <th>Name</th>
                                         <th>Code</th>
+                                        <th>Group</th>
                                         <th>Category</th>
+                                        <th>Cost</th>
                                         <th>Price</th>
                                         <th>Stock Unit</th>
                                         <th>Alert Qty</th>
@@ -122,35 +133,36 @@
                 "url": "{{route('product.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
-                    data.name = $("#form-filter #name").val();
-                    data.code = $("#form-filter #code").val();
+                    data.name          = $("#form-filter #name").val();
+                    data.code          = $("#form-filter #code").val();
                     data.status        = $("#form-filter #status").val();
                     data.category_id   = $("#form-filter #category_id").val();
+                    data.item_group_id = $("#form-filter #item_group_id").val();
                     data._token        = _token;
                 }
             },
             "columnDefs": [{
                     @if (permission('product-bulk-delete'))
-                    "targets": [0,9],
+                    "targets": [0,11],
                     @else 
-                    "targets": [8],
+                    "targets": [10],
                     @endif
                     "orderable": false,
                     "className": "text-center"
                 },
                 {
                     @if (permission('product-bulk-delete'))
-                    "targets": [1,3,4,6,7,8],
+                    "targets": [1,3,4,5,8,9,10],
                     @else 
-                    "targets": [0,2,3,5,6,7]
+                    "targets": [0,2,3,4,7,8,9]
                     @endif
                     "className": "text-center"
                 },
                 {
                     @if (permission('product-bulk-delete'))
-                    "targets": [5],
+                    "targets": [6,7],
                     @else 
-                    "targets": [4],
+                    "targets": [5,6],
                     @endif
                     "className": "text-right"
                 }
@@ -172,9 +184,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     },
                     customize: function (win) {
@@ -194,9 +206,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                          @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     }
                 },
@@ -208,9 +220,9 @@
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                          @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     }
                 },
@@ -224,9 +236,9 @@
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                          @if (permission('product-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else 
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -343,6 +355,7 @@
                             $('#store_or_update_form #update_id').val(data.id);
                             $('#store_or_update_form #name').val(data.name);
                             $('#store_or_update_form #code').val(data.code);
+                            $('#store_or_update_form #item_group_id').val(data.item_group_id);
                             $('#store_or_update_form #category_id').val(data.category_id);
                             $('#store_or_update_form #unit_id').val(data.unit_id);
                             $('#store_or_update_form #alert_qty').val(data.alert_qty);

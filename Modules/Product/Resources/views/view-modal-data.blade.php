@@ -11,6 +11,15 @@
                 <td>{{ $product->code }}</td>
             </tr>
             <tr>
+                <td><b>Group</b></td>
+                <td><b>:</b></td>
+                <td>{{ $product->item_group->name }}</td>
+
+                <td><b>Category</b></td>
+                <td><b>:</b></td>
+                <td>{{ $product->category->name }}</td>
+            </tr>
+            <tr>
                 <td><b>Price</b></td>
                 <td><b>:</b></td>
                 <td>{{ $product->price ? number_format($product->price,2) : 0 }}</td>

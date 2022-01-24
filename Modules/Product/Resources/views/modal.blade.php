@@ -32,10 +32,19 @@
                             </div>
                         </div>
                         
+                        <x-form.selectbox labelName="Group" name="item_group_id" required="required" col="col-md-6" class="selectpicker">
+                            @if (!$groups->isEmpty())
+                                @foreach ($groups as $group)
+                                    <option value="{{ $group->id }}">{{ $group->name }}</option>
+                                @endforeach
+                            @endif
+                        </x-form.selectbox>
                         <x-form.selectbox labelName="Category" name="category_id" required="required" col="col-md-6" class="selectpicker">
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
+                            @if (!$categories->isEmpty())
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
+                            @endif
                         </x-form.selectbox>
                         <x-form.selectbox labelName="Unit" name="unit_id" required="required"  col="col-md-6" class="selectpicker">
                             @if (!$units->isEmpty())

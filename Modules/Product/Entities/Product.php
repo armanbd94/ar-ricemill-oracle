@@ -136,5 +136,5 @@ class Product extends BaseModel
      * * * End :: Model Relationship * * *
     ****************************************/
     
-
+    
 }

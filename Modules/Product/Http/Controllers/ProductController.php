@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Product\Entities\Product;
 use App\Http\Controllers\BaseController;
+use Modules\Product\Entities\ItemGroup;
 use Modules\Product\Entities\SiteProduct;
 use Modules\Product\Http\Requests\ProductFormRequest;
 
@@ -29,6 +30,7 @@ class ProductController extends BaseController
                 'units'      => Unit::where('status',1)->get(),
                 'taxes'      => Tax::activeTaxes(),
                 'categories' => Category::allProductCategories(),
+                'groups'     => ItemGroup::allItemGroup(),
             ];
             return view('product::index',$data);
         }else{
@@ -52,6 +54,9 @@ class ProductController extends BaseController
                 }
                 if (!empty($request->category_id)) {
                     $this->model->setCategoryID($request->category_id);
+                }
+                if (!empty($request->item_group_id)) {
+                    $this->model->setGroupID($request->item_group_id);
                 }
 
                 $this->set_datatable_default_properties($request);//set datatable default properties
@@ -78,7 +83,9 @@ class ProductController extends BaseController
                     $row[] = $no;
                     $row[] = $value->name;
                     $row[] = $value->code;
+                    $row[] = $value->item_group->name;
                     $row[] = $value->category->name;
+                    $row[] = $value->cost ? number_format($value->cost,2,'.',',') : 0;
                     $row[] = $value->price ? number_format($value->price,2,'.',',') : 0;
                     $row[] = $value->unit->unit_name;
                     $row[] = $value->alert_qty ? $value->alert_qty : 0;
@@ -125,7 +132,7 @@ class ProductController extends BaseController
     {
         if($request->ajax()){
             if(permission('product-view')){
-                $product = $this->model->with('unit')->findOrFail($request->id);
+                $product = $this->model->with('unit:id,unit_name,unit_code','category:id,name','item_group:id,name')->findOrFail($request->id);
                 return view('product::view-modal-data',compact('product'))->render();
             }
         }
