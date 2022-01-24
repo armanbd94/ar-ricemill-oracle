@@ -241,6 +241,12 @@ if(!function_exists('generator'))
         return $con;
     }
 }
+
+function dateFormat($date)
+{
+    return date('Y-m-d',strtotime($date));
+}
+
 if (!function_exists('numberTowords')) {
     function numberTowords($num)
     {

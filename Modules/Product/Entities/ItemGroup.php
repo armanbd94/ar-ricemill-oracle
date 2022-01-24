@@ -1,14 +1,21 @@
 <?php
 
-namespace App\Models;
+namespace Modules\Product\Entities;
 
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\Cache;
+use Modules\Product\Entities\Product;
 
-class ItemClass extends BaseModel
+
+class ItemGroup extends BaseModel
 {
     protected $fillable = ['name','status','created_by','modified_by'];
-    /******************************************
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'item_group_id','id');
+    }
+     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     //custom search column property
@@ -31,7 +38,7 @@ class ItemClass extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
 
-        if (permission('class-bulk-delete')){
+        if (permission('group-bulk-delete')){
             $this->column_order = [null,'id','name','status','created_by','modified_by','created_at','updated_at',null];
         }else{
             $this->column_order = ['id','name','status','created_by','modified_by','created_at','updated_at',null];
@@ -97,17 +104,17 @@ class ItemClass extends BaseModel
     /*************************************
     * * *  Begin :: Cache Data * * *
     **************************************/
-    protected const ITEM_CLASS  = '_item_class';
+    protected const ITEM_GROUP  = '_item_group';
 
-    public static function allItemClass(){
-        return Cache::rememberForever(self::ITEM_CLASS, function () {
+    public static function allItemGroup(){
+        return Cache::rememberForever(self::ITEM_GROUP, function () {
             return self::status()->orderBy('id','asc')->get();
         });
     }
 
 
     public static function flushItemClassCache(){
-        Cache::forget(self::ITEM_CLASS);
+        Cache::forget(self::ITEM_GROUP);
     }
 
     public static function boot(){

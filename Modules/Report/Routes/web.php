@@ -19,6 +19,15 @@ Route::group(['middleware' => ['auth']], function () {
     //Inventory Valuation Summary Report Route
     Route::get('inventory-valuation-summary', 'InventoryValuationSummaryController@index');
 
+    /*** Start : Sales Report ***/
+
+    //Sales By Item Summary Report
+    //Sales Order Report Route
+    Route::get('sales-by-item-summary', 'SalesReport\ItemSummaryReportController@index')->name('sales.item.summary');
+    Route::post('sales-by-item-summary-data', 'SalesReport\ItemSummaryReportController@report_data')->name('sales.item.summary.data');
+
+    /*** End : Sales Report ***/
+
     //Todays Purchase Order Report Route
     Route::get('todays-purchase-order-report', 'TodaysPurchaseOrderReportController@index')->name('todays.purchase.order.report');
     Route::post('todays-purchase-order-report-data', 'TodaysPurchaseOrderReportController@report_data')->name('todays.purchase.order.report.data');

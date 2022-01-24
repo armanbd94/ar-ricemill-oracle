@@ -18,7 +18,7 @@
             <div class="modal-body">
                 <div class="row">
                     <input type="hidden" name="update_id" id="update_id"/>
-                    <x-form.textbox labelName="Class Name" name="name" required="required" col="col-md-12" placeholder="Enter class name"/>
+                    <x-form.textbox labelName="Group Name" name="name" required="required" col="col-md-12" placeholder="Enter group name"/>
                 </div>
             </div>
             <!-- /modal body -->

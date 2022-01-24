@@ -28,5 +28,14 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('list', 'ProductController@product_list')->name('list');
         Route::post('stock-qty', 'ProductController@stock_qty')->name('stock.qty');
     });
-
+    //Group
+    Route::get('group', 'ItemGroupController@index')->name('group');
+    Route::group(['prefix' => 'group', 'as'=>'group.'], function () {
+        Route::post('datatable-data', 'ItemGroupController@get_datatable_data')->name('datatable.data');
+        Route::post('store-or-update', 'ItemGroupController@store_or_update_data')->name('store.or.update');
+        Route::post('edit', 'ItemGroupController@edit')->name('edit');
+        Route::post('delete', 'ItemGroupController@delete')->name('delete');
+        Route::post('bulk-delete', 'ItemGroupController@bulk_delete')->name('bulk.delete');
+        Route::post('change-status', 'ItemGroupController@change_status')->name('change.status');
+    });
 });
