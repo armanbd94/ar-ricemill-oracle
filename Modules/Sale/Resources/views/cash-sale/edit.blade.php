@@ -116,7 +116,7 @@
                                                              $stock_qty += ($product->qty ? $product->qty : 0); 
                                                              @endphp
                                                             @endif
-                                                                <option value="{{ $product->id }}" {{ $value->id == $product->id ? 'selected' : '' }} data-stokcqty={{ $value->id == $product->id ? $stock_qty : ($product->qty ? $product->qty : 0) }}>{{ $product->name }}</option>
+                                                                <option value="{{ $product->id }}" {{ $value->id == $product->id ? 'selected' : '' }} data-rate="{{ $product->price }}" data-stokcqty={{ $value->id == $product->id ? $stock_qty : ($product->qty ? $product->qty : 0) }}>{{ $product->name }}</option>
                                                             @endforeach
                                                         @endif                                    
                                                     </select>
@@ -232,8 +232,11 @@ $(document).ready(function () {
     }
 });
 function setProductDetails(row){
-    const stock_qty = $(`#products_${row}_id option:selected`).data('stockqty') ? parseFloat($(`#products_${row}_id option:selected`).data('stockqty')) : 0;
-    $(`#products_${row}_stock_qty`).val(stock_qty);
+    $(`#products_${row}_stock_qty`).val('');
+    const qty = $(`#products_${row}_id option:selected`).data('stockqty') ? parseFloat($(`#products_${row}_id option:selected`).data('stockqty')) : 0;
+    const price = $(`#products_${row}_id option:selected`).data('rate') ? parseFloat($(`#products_${row}_id option:selected`).data('rate')) : 0;
+    $(`#products_${row}_stock_qty`).val(qty);
+    $(`#products_${row}_net_unit_price`).val(price);
 } 
 function calculateRowTotal(row)
 {

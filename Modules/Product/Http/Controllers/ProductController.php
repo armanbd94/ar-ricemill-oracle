@@ -218,7 +218,7 @@ class ProductController extends BaseController
     {
         $category_id = $request->category_id;
         $products = DB::table('site_product as sp')
-        ->select('p.id','p.name as product_name','c.name as category_name','u.unit_name','u.unit_code','sp.qty')
+        ->select('p.id','p.name as product_name','p.price','c.name as category_name','u.unit_name','u.unit_code','sp.qty')
         ->leftJoin('products as p','sp.product_id','=','p.id')
         ->leftJoin('categories as c','p.category_id','=','c.id')
         ->leftJoin('units as u','p.unit_id','=','u.id')
@@ -237,7 +237,7 @@ class ProductController extends BaseController
         if(!$products->isEmpty())
         {
             foreach ($products as $value) {
-                $output .= '<option value="'.$value->id.'" data-stockqty="'.$value->qty.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'" data-unitcode="'.$value->unit_code.'">'.$value->product_name.'</option>';
+                $output .= '<option value="'.$value->id.'" data-stockqty="'.$value->qty.'" data-rate="'.$value->price.'" data-category="'.$value->category_name.'" data-unitname="'.$value->unit_name.'" data-unitcode="'.$value->unit_code.'">'.$value->product_name.'</option>';
             }
         }
         return $output;

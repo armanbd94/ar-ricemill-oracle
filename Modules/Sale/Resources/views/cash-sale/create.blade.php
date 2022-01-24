@@ -206,6 +206,14 @@ $(document).ready(function () {
     }
 });
 
+function setProductDetails(row){
+    $(`#products_${row}_stock_qty`).val('');
+    const qty = $(`#products_${row}_id option:selected`).data('stockqty') ? parseFloat($(`#products_${row}_id option:selected`).data('stockqty')) : 0;
+    const price = $(`#products_${row}_id option:selected`).data('rate') ? parseFloat($(`#products_${row}_id option:selected`).data('rate')) : 0;
+    $(`#products_${row}_stock_qty`).val(qty);
+    $(`#products_${row}_net_unit_price`).val(price);
+} 
+
 function calculateRowTotal(row)
 {
     let price = $(`#products_${row}_net_unit_price`).val() ? parseFloat($(`#products_${row}_net_unit_price`).val()) : 0;
