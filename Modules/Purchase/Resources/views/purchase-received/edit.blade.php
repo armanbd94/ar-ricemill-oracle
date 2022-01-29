@@ -55,7 +55,7 @@
                             <x-form.textbox labelName="Challan No." name="challan_no" value="{{ $receive->challan_no }}"  required="required"  col="col-md-4"/>
                             <x-form.textbox labelName="Receive Date" name="received_date" value="{{ $receive->received_date }}" required="required" class="date" col="col-md-4"/>
                             <x-form.textbox labelName="Transport No." name="transport_no" value="{{ $receive->transport_no }}" col="col-md-4"/>
-                            <div class="col-md-12 table-responsive" style="min-height: 500px;">
+                            <div class="col-md-12 table-responsive">
 
                                 <table class="table table-bordered" id="material_table">
                                     <thead class="bg-primary">
@@ -64,7 +64,7 @@
                                         <th class="text-center">Class</th>
                                         <th class="text-center">Site</th>
                                         <th class="text-center">Location</th>
-                                        <th class="text-center">Unit</th>
+                                        {{-- <th class="text-center">Unit</th> --}}
                                         <th class="text-center">Quantity</th>
                                         <th class="text-right">Rate</th>
                                         <th class="text-right">Subtotal</th>
@@ -79,7 +79,7 @@
                                             @endphp
                                             <tr>
                                                 <td>                     
-                                                    <select name="materials[{{ $key + 1 }}][id]" id="materials_{{ $key + 1 }}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails({{ $key + 1 }})"  data-live-search="true" data-row="{{ $key + 1 }}">    
+                                                    <select style="width:150px;" name="materials[{{ $key + 1 }}][id]" id="materials_{{ $key + 1 }}_id" class="fcs col-md-12 form-control" onchange="setMaterialDetails({{ $key + 1 }})"  data-live-search="true" data-row="{{ $key + 1 }}">    
                                                         <option value="">Select Please</option>   
                                                         @if(!$purchase->materials->isEmpty())  
                                                             @foreach ($purchase->materials as $material)
@@ -93,7 +93,7 @@
                                                 </td>    
                                                 <td><input type="text" class="form-control" value="{{ $item->pivot->description }}" style="width: 150px;" name="materials[{{ $key + 1 }}][description]" id="materials_{{ $key + 1 }}_description" data-row="{{ $key + 1 }}"></td>                                    
                                                 <td>
-                                                    <select name="materials[{{ $key+1 }}][item_class_id]" id="materials_{{ $key+1 }}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="{{ $key+1 }}">    
+                                                    <select name="materials[{{ $key+1 }}][item_class_id]" id="materials_{{ $key+1 }}_item_class_id" class="fcs col-md-12 form-control " data-live-search="true" data-row="{{ $key+1 }}">    
                                                         <option value="">Select Please</option>                                        
                                                         @if (!$classes->isEmpty())
                                                             @foreach ($classes as $class)
@@ -103,7 +103,7 @@
                                                     </select>
                                                 </td>
                                                 <td>                                                  
-                                                    <select name="materials[{{ $key + 1 }}][site_id]" id="materials_{{ $key + 1 }}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,{{ $key + 1 }})"  data-live-search="true" data-row="{{ $key + 1 }}">                                            
+                                                    <select name="materials[{{ $key + 1 }}][site_id]" id="materials_{{ $key + 1 }}_site_id" class="fcs col-md-12 site_id form-control" onchange="getLocations(this.value,{{ $key + 1 }})"  data-live-search="true" data-row="{{ $key + 1 }}">                                            
                                                         <option value="">Select Please</option>  
                                                         @if(!$sites->isEmpty())  
                                                             @foreach ($sites as $site)
@@ -114,7 +114,7 @@
                                                 </td>  
                                                 <td>                                    
 
-                                                    <select name="materials[{{ $key + 1 }}][location_id]" id="materials_{{ $key + 1 }}_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="{{ $key + 1 }}">                                            
+                                                    <select name="materials[{{ $key + 1 }}][location_id]" id="materials_{{ $key + 1 }}_location_id" class="fcs col-md-12 location_id form-control"  data-live-search="true" data-row="{{ $key + 1 }}">                                            
                                                         <option value="">Select Please</option>  
                                                         @if(!$locations->isEmpty())  
                                                             @foreach ($locations as $location)
@@ -123,7 +123,7 @@
                                                         @endif
                                                     </select>
                                                 </td>  
-                                                <td class="unit_name_{{ $key + 1 }} text-center" style="min-width: 80px;" id="unit_name_{{ $key + 1 }}"  data-row="{{ $key + 1 }}">{{ $received_unit }}</td>
+                                                {{-- <td class="unit_name_{{ $key + 1 }} text-center" style="min-width: 80px;" id="unit_name_{{ $key + 1 }}"  data-row="{{ $key + 1 }}">{{ $received_unit }}</td> --}}
                                                 <td><input type="text" class="form-control qty text-center" value="{{ $item->pivot->received_qty }}" style="width: 120px;" onkeyup="calculateRowTotal({{ $key + 1 }})" name="materials[{{ $key + 1 }}][qty]" id="materials_{{ $key + 1 }}_qty"  data-row="{{ $key + 1 }}"></td>
                                                 <td><input type="text" style="width: 120px;" value="{{ $item->pivot->net_unit_cost }}" class="text-right form-control net_unit_cost" name="materials[{{ $key + 1 }}][net_unit_cost]" id="materials_{{ $key + 1 }}_net_unit_cost" data-row="{{ $key + 1 }}" readonly></td>
                                                 <td class="subtotal_{{ $key + 1 }} text-right" id="sub_total_{{ $key + 1 }}" data-row="{{ $key + 1 }}">{{ number_format($item->pivot->total,2,'.',',') }}</td>
@@ -136,7 +136,7 @@
                                         
                                     </tbody>
                                     <tfoot class="bg-primary">
-                                        <th colspan="6" class="font-weight-bolder">Total</th>
+                                        <th colspan="5" class="font-weight-bolder">Total</th>
                                         <th id="total-qty" class="text-center font-weight-bolder">{{ $receive->total_qty }}</th>
                                         <th></th>
                                         <th id="total" class="text-right font-weight-bolder">{{ number_format($receive->grand_total,2,'.',',') }}</th>
@@ -169,6 +169,7 @@
 <script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
 $(document).ready(function () {
+    $("#kt_body").addClass("aside-minimize");
     $('.date').datetimepicker({format: 'YYYY-MM-DD'});
 
     $('#material_table').on('click','.remove-material',function(){
@@ -188,7 +189,7 @@ $(document).ready(function () {
     function material_row_add(count){
         var html = `<tr>
                         <td>                     
-                            <select name="materials[${count}][id]" id="materials_${count}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(${count})"  data-live-search="true" data-row="${count}">    
+                            <select  style="width:150px;" name="materials[${count}][id]" id="materials_${count}_id" class="fcs col-md-12 form-control selectpicker" onchange="setMaterialDetails(${count})"  data-live-search="true" data-row="${count}">    
                                 <option value="">Select Please</option>   
                                 @if(!$purchase->materials->isEmpty())  
                                     @foreach ($purchase->materials as $material)
@@ -203,7 +204,7 @@ $(document).ready(function () {
                         <td><input type="text" class="form-control" style="width: 150px;" name="materials[${count}][description]" id="materials_${count}_description" data-row="${count}"></td>                                    
                         <td>
                             <td>
-                                <select name="materials[${count}][item_class_id]" id="materials_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                                <select name="materials[${count}][item_class_id]" id="materials_${count}_item_class_id" class="fcs col-md-12 form-control" data-live-search="true" data-row="${count}">    
                                     <option value="">Select Please</option>                                        
                                     @if (!$classes->isEmpty())
                                         @foreach ($classes as $class)
@@ -214,7 +215,7 @@ $(document).ready(function () {
                             </td>
                         </td>
                         <td>                                                  
-                            <select name="materials[${count}][site_id]" id="materials_${count}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
+                            <select name="materials[${count}][site_id]" id="materials_${count}_site_id" class="fcs col-md-12 site_id form-control" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
@@ -224,7 +225,7 @@ $(document).ready(function () {
                             </select>
                         </td>  
                         <td>                                                  
-                            <select name="materials[${count}][location_id]" id="materials_${count}_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="${count}">                                            
+                            <select name="materials[${count}][location_id]" id="materials_${count}_location_id" class="fcs col-md-12 location_id form-control"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
                             </select>
                         </td>  
@@ -243,11 +244,15 @@ $(document).ready(function () {
 function setMaterialDetails(row){
     let unit_id       = $(`#materials_${row}_id option:selected`).data('unitid');
     let unit_name     = $(`#materials_${row}_id option:selected`).data('unitname');
+    let classid       = $(`#materials_${row}_id option:selected`).data('classid');
     let net_unit_cost = $(`#materials_${row}_id option:selected`).data('rate');
 
-    $(`.unit_name_${row}`).text(unit_name);
+    // $(`.unit_name_${row}`).text(unit_name);
     $(`#materials_${row}_received_unit_id`).val(unit_id);
     $(`#materials_${row}_net_unit_cost`).val(parseFloat(net_unit_cost));
+    $(`#materials_${row}_item_class_id`).val(classid);
+    $(`#materials_${row}_item_class_id.selectpicker`).selectpicker('refresh');
+    
 } 
 function calculateRowTotal(row)
 {
@@ -285,7 +290,11 @@ function calculateTotal()
     //sum of subtotal
     var total = 0;
     $('.subtotal').each(function() {
-        total += parseFloat($(this).val());
+        if($(this).val() == ''){
+            total += 0;
+        }else{
+            total += parseFloat($(this).val());
+        }
     });
     $('#total').text(total);
     $('input[name="grand_total"]').val(total);

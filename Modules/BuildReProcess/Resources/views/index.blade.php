@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-@extends('buildreprocess::layouts.master')
-
-@section('content')
-    <h1>Hello World</h1>
-
-    <p>
-        This view is loaded from module: {!! config('buildreprocess.name') !!}
-    </p>
-@endsection
-=======
 
 
 @extends('layouts.app')
@@ -317,4 +306,3 @@ $(document).ready(function(){
 });
 </script>
 @endpush
->>>>>>> 21f3983e888b56601e339fadd0d8362bb84631aa

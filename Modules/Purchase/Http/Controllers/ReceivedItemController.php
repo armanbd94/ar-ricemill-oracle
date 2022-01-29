@@ -111,7 +111,7 @@ class ReceivedItemController extends BaseController
             if($request->memo_no){
                 $purchase = PurchaseOrder::with('materials','vendor','via_vendor')->where([['memo_no',$request->memo_no],['purchase_status','!=',1]])->first();
                 if($purchase){
-                    $this->setPageData('Purchase Order Form','Purchase Order Form','fas fa-truck-loading',[['name' => 'Purchase Order Form']]);
+                    $this->setPageData('Purchase Received Form','Purchase Received Form','fas fa-truck-loading',[['name' => 'Purchase Received Form']]);
                     $data = [
                         'purchase' => $purchase,
                         'sites' => Site::allSites(),
