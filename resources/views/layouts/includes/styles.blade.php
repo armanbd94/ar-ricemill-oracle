@@ -13,6 +13,7 @@
       z-index: 100000000;
       background-color: #fff;
       display: table;
+      opacity: 100%;
     }
 
     #preloader #loading {

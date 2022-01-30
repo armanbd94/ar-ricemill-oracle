@@ -35,10 +35,10 @@
                             </div>
                         </div>
 
-                        <x-form.selectbox labelName="Product" name="product_id" col="col-md-4" class="selectpicker">
-                            @if (!$products->isEmpty())
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                        <x-form.selectbox labelName="Customer" name="customer_id" col="col-md-4" class="selectpicker">
+                            @if (!$customers->isEmpty())
+                                @foreach ($customers as $customer)
+                                    <option value="{{ $customer->id }}">{{ $customer->code.' '.$customer->trade_name }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
@@ -111,13 +111,10 @@ $(document).ready(function () {
     });
 
     $('#btn-reset').click(function () {
-        $('#form-filter')[0].reset();
-        $('.daterangepicker-filed').val('');
-        $('input[name="start_date"]').val('');
-        $('input[name="end_date"]').val('');
-        $('#product_id').val('');
-        $('#product_id.selectpicker').selectpicker('refresh');
+        $('#customer_id').val('');
+        $('#customer_id.selectpicker').selectpicker('refresh');
         $('#report_data').empty();
+        report_data();
     });
 });
 report_data();
@@ -125,13 +122,13 @@ function report_data()
 {
     let start_date = document.getElementById('start_date').value;
     let end_date   = document.getElementById('end_date').value;
-    let product_id = document.getElementById('product_id').value;
+    let customer_id = document.getElementById('customer_id').value;
     if (start_date && end_date) {
 
         $.ajax({
-            url:"{{ route('sales.item.summary.data') }}",
+            url:"{{ route('sales.customer.summary.data') }}",
             type:"POST",
-            data:{start_date:start_date,end_date:end_date,product_id:product_id,_token:_token},
+            data:{start_date:start_date,end_date:end_date,customer_id:customer_id,_token:_token},
             beforeSend: function(){
                 $('#table-loader').removeClass('d-none');
             },

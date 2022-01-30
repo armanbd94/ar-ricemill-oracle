@@ -73,7 +73,7 @@ class ItemSummaryReportController extends BaseController
         $table = '<table style="margin-bottom:10px !important;">
                     <tr>
                         <td class="text-center">
-                            <h2 class="name m-0" style="text-transform: uppercase;"><b>'.(config('settings.title') ? config('settings.title') : env('APP_NAME')).'</b></h2>
+                            <h3 class="name m-0" style="text-transform: uppercase;"><b>'.(config('settings.title') ? config('settings.title') : env('APP_NAME')).'</b></h3>
                             <p style="font-weight: normal;font-weight:bold;    margin: 10px auto 5px auto;
                             font-weight: bold;background: black;border-radius: 10px;width: 250px;color: white;text-align: center;padding:5px 0;}">Sales By Item Summary</p>
                             <p style="font-weight: normal;margin:0;font-weight:bold;">Date: '.$request->start_date.' to '.$request->end_date.'</p>
