@@ -87,8 +87,8 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td style="width:250px;">                     
-                                                <select name="products[1][id]" id="products_1_id"  style="width:250px;" class="fcs col-md-12 form-control selectpicker" onchange="setProductDetails(1)"  data-live-search="true" data-row="1">    
+                                            <td >                     
+                                                <select name="products[1][id]" id="products_1_id"   class="fcs col-md-12 form-control " onchange="setProductDetails(1)"  data-live-search="true" data-row="1">    
                                                     <option value="">Select Please</option>     
                                                     @if(!$sale->products->isEmpty())  
                                                         @foreach ($sale->products as $product)
@@ -109,8 +109,8 @@
                                                     @endif                                   
                                                 </select>
                                             </td>  
-                                            <td style="width:250px;">                                                  
-                                                <select name="products[1][site_id]"  style="width:250px;" id="products_1_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
+                                            <td >                                                  
+                                                <select name="products[1][site_id]"   id="products_1_site_id" class="fcs col-md-12 site_id form-control " onchange="getLocations(this.value,1)"  data-live-search="true" data-row="1">                                            
                                                     <option value="">Select Please</option>  
                                                     @if(!$sites->isEmpty())  
                                                         @foreach ($sites as $site)
@@ -119,8 +119,8 @@
                                                     @endif
                                                 </select>
                                             </td>  
-                                            <td style="width:250px;">                                                  
-                                                <select name="products[1][location_id]"  style="width:250px;" onchange="product_stock_qty(1)" id="products_1_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="1">                                            
+                                            <td >                                                  
+                                                <select name="products[1][location_id]"   onchange="product_stock_qty(1)" id="products_1_location_id" class="fcs col-md-12 location_id form-control "  data-live-search="true" data-row="1">                                            
                                                     <option value="">Select Please</option>  
                                                 </select>
                                             </td> 
@@ -180,7 +180,7 @@
 <script>
 $(document).ready(function () {
     $('.date').datetimepicker({format: 'YYYY-MM-DD'});
-
+    $("#kt_body").addClass("aside-minimize");
     $('#product_table').on('click','.remove-product',function(){
         $(this).closest('tr').remove();
         calculateTotal();
@@ -194,8 +194,8 @@ $(document).ready(function () {
 
     function product_row_add(count){
         var html = `<tr>
-                        <td style="width:250px;">                     
-                            <select name="products[${count}][id]" style="width:250px;" id="products_${count}_id" class="fcs col-md-12 form-control selectpicker" onchange="setProductDetails(${count})"  data-live-search="true" data-row="${count}">    
+                        <td >                     
+                            <select name="products[${count}][id]"  id="products_${count}_id" class="fcs col-md-12 form-control " onchange="setProductDetails(${count})"  data-live-search="true" data-row="${count}">    
                                 <option value="">Select Please</option>  
                                 @if(!$sale->products->isEmpty())  
                                     @foreach ($sale->products as $product)
@@ -216,8 +216,8 @@ $(document).ready(function () {
                                 @endif                                             
                             </select>
                         </td>    
-                        <td style="width:250px;">                                                  
-                            <select name="products[${count}][site_id]"  style="width:250px;" id="products_${count}_site_id" class="fcs col-md-12 site_id form-control selectpicker" onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
+                        <td >                                                  
+                            <select name="products[${count}][site_id]"   id="products_${count}_site_id" class="fcs col-md-12 site_id form-control " onchange="getLocations(this.value,${count})"  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
                                 @if(!$sites->isEmpty())  
                                     @foreach ($sites as $site)
@@ -226,8 +226,8 @@ $(document).ready(function () {
                                 @endif
                             </select>
                         </td>  
-                        <td style="width:250px;">                                                  
-                            <select name="products[${count}][location_id]" style="width:250px;" onchange="product_stock_qty(${count})" id="products_${count}_location_id" class="fcs col-md-12 location_id form-control selectpicker"  data-live-search="true" data-row="${count}">                                            
+                        <td >                                                  
+                            <select name="products[${count}][location_id]"  onchange="product_stock_qty(${count})" id="products_${count}_location_id" class="fcs col-md-12 location_id form-control "  data-live-search="true" data-row="${count}">                                            
                                 <option value="">Select Please</option>  
                             </select>
                         </td>  
@@ -238,7 +238,7 @@ $(document).ready(function () {
                         <td><input type="text" style="width: 120px;margin: 0 auto;" class="text-right form-control net_unit_price" onkeyup="calculateRowTotal(${count})" name="products[${count}][net_unit_price]" id="products_${count}_net_unit_price" data-row="${count}"></td>
                         <td class="subtotal_${count} text-right" id="sub_total_${count}" data-row="${count}"></td>
                         <td>
-                            <select name="products[${count}][item_class_id]" id="products_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                            <select name="products[${count}][item_class_id]" id="products_${count}_item_class_id" class="fcs col-md-12 form-control " data-live-search="true" data-row="${count}">    
                                 <option value="">Select Please</option>                                        
                                 @if (!$classes->isEmpty())
                                     @foreach ($classes as $class)

@@ -57,8 +57,8 @@
                                 <input type="text" class="form-control" name="so_no" id="so_no" />
                             </div>
                             
-                            <x-form.textbox labelName="Target Delivery Date" name="delivery_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-4"/>
-                            <x-form.textbox labelName="Shipping Address" name="shipping_address" required="required" col="col-md-8"/>
+                            <x-form.textbox labelName="Target Delivery Date" name="delivery_date" value="{{ date('Y-m-d') }}" required="required" class="date" col="col-md-4" />
+                            <x-form.textbox labelName="Shipping Address" name="shipping_address" required="required" col="col-md-8" />
 
                             
                             
@@ -76,8 +76,8 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td style="width:300px;">                     
-                                                <select name="products[1][id]" id="products_1_id"  style="width:300px;" class="fcs col-md-12 form-control selectpicker"  data-live-search="true" data-row="1">    
+                                            <td >                     
+                                                <select name="products[1][id]" id="products_1_id"  class="fcs col-md-12 form-control "  data-live-search="true" data-row="1">    
                                                     <option value="">Select Please</option>    
                                                     @if(!$categories->isEmpty())  
                                                         @foreach ($categories as $category)
@@ -96,8 +96,8 @@
                                             <td style="width: 200px;"><input type="text" class="form-control qty text-center" style="width: 200px;margin: 0 auto;" onkeyup="calculateRowTotal(1)" name="products[1][qty]" id="products_1_qty"  data-row="1"></td>
                                             <td style="width: 200px;"><input type="text" style="width: 200px;margin: 0 auto;" class="text-right form-control net_unit_price" onkeyup="calculateRowTotal(1)" name="products[1][net_unit_price]" id="products_1_net_unit_price" data-row="1"></td>
                                             <td class="subtotal_1 text-right" id="sub_total_1" data-row="1"></td>
-                                            <td style="width:250px;">
-                                                <select name="products[1][item_class_id]" style="width:250px;" id="products_1_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="1">    
+                                            <td>
+                                                <select name="products[1][item_class_id]" id="products_1_item_class_id" class="fcs col-md-12 form-control" data-live-search="true" data-row="1">    
                                                     <option value="">Select Please</option>                                        
                                                     @if (!$classes->isEmpty())
                                                         @foreach ($classes as $class)
@@ -146,7 +146,7 @@
 <script>
 $(document).ready(function () {
     $('.date').datetimepicker({format: 'YYYY-MM-DD'});
-
+    $("#kt_body").addClass("aside-minimize");
     $('#product_table').on('click','.remove-product',function(){
         $(this).closest('tr').remove();
         calculateTotal();
@@ -160,8 +160,8 @@ $(document).ready(function () {
 
     function product_row_add(count){
         var html = `<tr>
-                        <td style="width: 300px;">                     
-                            <select name="products[${count}][id]" style="width:300px;" id="products_${count}_id" class="fcs col-md-12 form-control selectpicker"  data-live-search="true" data-row="${count}">    
+                        <td>                     
+                            <select name="products[${count}][id]" id="products_${count}_id" class="fcs col-md-12 form-control"  data-live-search="true" data-row="${count}">    
                                 <option value="">Select Please</option> 
                                 @if(!$categories->isEmpty())  
                                     @foreach ($categories as $category)
@@ -181,7 +181,7 @@ $(document).ready(function () {
                         <td style="width: 200px;"><input type="text" style="width:200px;margin: 0 auto;" class="text-right form-control net_unit_price" onkeyup="calculateRowTotal(${count})" name="products[${count}][net_unit_price]" id="products_${count}_net_unit_price" data-row="${count}"></td>
                         <td class="subtotal_${count} text-right" id="sub_total_${count}" data-row="${count}"></td>
                         <td>
-                            <select name="products[${count}][item_class_id]" id="products_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                            <select name="products[${count}][item_class_id]" id="products_${count}_item_class_id" class="fcs col-md-12 form-control" data-live-search="true" data-row="${count}">    
                                 <option value="">Select Please</option>                                        
                                 @if (!$classes->isEmpty())
                                     @foreach ($classes as $class)

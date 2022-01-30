@@ -271,7 +271,7 @@ class SaleInvoiceController extends BaseController
         if(permission('sale-invoice-edit')){
             $this->setPageData('Edit Sale Invoice','Edit Sale Invoice','fas fa-edit',[['name'=>'Sale','link' => 'javascript::void();'],['name' => 'Edit Sale Invoice']]);
             $invoice = $this->model->with('products','order')->find($id);
-            $sale = SaleOrder::with('products')->where([['memo_no',$invoice->order->memo_no],['order_status','!=',1]])->first();
+            $sale = SaleOrder::with('products')->where('memo_no',$invoice->order->memo_no)->first();
             $data = [
                 'sale'    => $sale,
                 'sites'   => Site::allSites(),

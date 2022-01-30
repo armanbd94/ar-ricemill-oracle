@@ -22,9 +22,11 @@ Route::group(['middleware' => ['auth']], function () {
     /*** Start : Sales Report ***/
 
     //Sales By Item Summary Report
-    //Sales Order Report Route
     Route::get('sales-by-item-summary', 'SalesReport\ItemSummaryReportController@index')->name('sales.item.summary');
     Route::post('sales-by-item-summary-data', 'SalesReport\ItemSummaryReportController@report_data')->name('sales.item.summary.data');
+    //Sales By Item Details Report
+    Route::get('sales-by-item-details', 'SalesReport\ItemDetailsReportController@index')->name('sales.item.details');
+    Route::post('sales-by-item-details-data', 'SalesReport\ItemDetailsReportController@report_data')->name('sales.item.details.data');
 
     /*** End : Sales Report ***/
 

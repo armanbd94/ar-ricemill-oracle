@@ -135,6 +135,31 @@ class Product extends BaseModel
     /***************************************
      * * * End :: Model Relationship * * *
     ****************************************/
-    
+    protected static function group_wise_product_list()
+    {
+        $products = self::where('category_id',3)->orderBy('id','asc')->get();//3=By Product,
+        $item_groups = ItemGroup::with('products')->whereHas('products')->get();
+        $product_list = '';
+        if(!$item_groups->isEmpty())
+        {
+            $product_list .= "<optgroup label='Packet Rice'>";
+            foreach ($item_groups as $group) {
+                if(!$group->products->isEmpty())
+                {
+                    $product_list .= "<option value='$group->id' data-group='yes'>$group->name</option>";
+                }
+            }
+            $product_list .= "</optgroup>";
+            if(!$products->isEMpty())
+            {
+                $product_list .= "<optgroup label='By Product'>";
+                foreach ($products as $product) {
+                    $product_list .= "<option value='$product->id' data-group='no'>$product->name</option>";
+                }
+                $product_list .= "</optgroup>";
+            }
+        }
+        return $product_list;
+    }
     
 }

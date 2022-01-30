@@ -92,8 +92,8 @@
                                         @if(!$sale->products->isEmpty())
                                             @foreach($sale->products as $key => $value)
                                             <tr>
-                                                <td style="width:300px;">                     
-                                                    <select name="products[{{ $key+1 }}][id]" id="products_{{ $key+1 }}_id"  style="width:300px;" class="fcs col-md-12 form-control selectpicker"  data-live-search="true" data-row="{{ $key+1 }}">    
+                                                <td >                     
+                                                    <select name="products[{{ $key+1 }}][id]" id="products_{{ $key+1 }}_id"   class="fcs col-md-12 form-control "  data-live-search="true" data-row="{{ $key+1 }}">    
                                                         <option value="">Select Please</option>    
                                                         @if(!$categories->isEmpty())  
                                                             @foreach ($categories as $category)
@@ -112,8 +112,8 @@
                                                 <td style="width: 200px;"><input type="text" class="form-control qty text-center" style="width: 200px;margin: 0 auto;" onkeyup="calculateRowTotal({{ $key+1 }})" name="products[{{ $key+1 }}][qty]"  value="{{ $value->pivot->qty }}" id="products_{{ $key+1 }}_qty"  data-row="{{ $key+1 }}"></td>
                                                 <td style="width: 200px;"><input type="text" style="width: 200px;margin: 0 auto;" class="text-right form-control net_unit_price" value="{{ $value->pivot->net_unit_price }}" onkeyup="calculateRowTotal({{ $key+1 }})" name="products[{{ $key+1 }}][net_unit_price]" id="products_{{ $key+1 }}_net_unit_price" data-row="{{ $key+1 }}"></td>
                                                 <td class="subtotal_{{ $key+1 }} text-right" id="sub_total_{{ $key+1 }}" data-row="{{ $key+1 }}">{{ $value->pivot->total }}</td>
-                                                <td style="width:250px;">
-                                                    <select name="products[{{ $key + 1 }}][item_class_id]" style="width:250px;" id="products_{{ $key + 1 }}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="{{ $key + 1 }}">    
+                                                <td >
+                                                    <select name="products[{{ $key + 1 }}][item_class_id]"  id="products_{{ $key + 1 }}_item_class_id" class="fcs col-md-12 form-control " data-live-search="true" data-row="{{ $key + 1 }}">    
                                                         <option value="">Select Please</option>                                        
                                                         @if (!$classes->isEmpty())
                                                             @foreach ($classes as $class)
@@ -168,7 +168,7 @@
 <script>
 $(document).ready(function () {
     $('.date').datetimepicker({format: 'YYYY-MM-DD'});
-
+    $("#kt_body").addClass("aside-minimize");
     $('#product_table').on('click','.remove-product',function(){
         $(this).closest('tr').remove();
         calculateTotal();
@@ -185,8 +185,8 @@ $(document).ready(function () {
 
     function product_row_add(count){
         var html = `<tr>
-                        <td style="width: 300px;">                     
-                            <select name="products[${count}][id]" style="width:300px;" id="products_${count}_id" class="fcs col-md-12 form-control selectpicker"  data-live-search="true" data-row="${count}">    
+                        <td>                     
+                            <select name="products[${count}][id]" id="products_${count}_id" class="fcs col-md-12 form-control"  data-live-search="true" data-row="${count}">    
                                 <option value="">Select Please</option> 
                                 @if(!$categories->isEmpty())  
                                     @foreach ($categories as $category)
@@ -206,7 +206,7 @@ $(document).ready(function () {
                         <td style="width: 200px;"><input type="text" style="width:200px;margin: 0 auto;" class="text-right form-control net_unit_price" onkeyup="calculateRowTotal(${count})" name="products[${count}][net_unit_price]" id="products_${count}_net_unit_price" data-row="${count}"></td>
                         <td class="subtotal_${count} text-right" id="sub_total_${count}" data-row="${count}"></td>
                         <td>
-                            <select name="products[${count}][item_class_id]" id="products_${count}_item_class_id" class="fcs col-md-12 form-control selectpicker" data-live-search="true" data-row="${count}">    
+                            <select name="products[${count}][item_class_id]" id="products_${count}_item_class_id" class="fcs col-md-12 form-control" data-live-search="true" data-row="${count}">    
                                 <option value="">Select Please</option>                                        
                                 @if (!$classes->isEmpty())
                                     @foreach ($classes as $class)
