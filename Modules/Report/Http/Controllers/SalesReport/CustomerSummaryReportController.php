@@ -29,7 +29,7 @@ class CustomerSummaryReportController extends BaseController
         $customer_id = $request->customer_id;
 
         $table = '';
-        $table = '<table style="margin-bottom:10px !important;">
+        $table .= '<table style="margin-bottom:10px !important;">
                     <tr>
                         <td class="text-center">
                             <h3 class="name m-0" style="text-transform: uppercase;"><b>'.(config('settings.title') ? config('settings.title') : env('APP_NAME')).'</b></h3>

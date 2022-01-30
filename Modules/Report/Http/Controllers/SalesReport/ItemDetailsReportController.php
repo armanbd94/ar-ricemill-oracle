@@ -40,7 +40,7 @@ class ItemDetailsReportController extends BaseController
         $byproduct_cash_sale_count   = $this->cash_sales_count($start_date,$end_date,3,$request->group == 'no' ? $product_id : null,null);
         // dd($group_wise_credit_product_sale_count,$group_wise_product_cash_sale_count,$byproduct_cash_sale_count);
         $table = '';
-        $table = '<table style="margin-bottom:10px !important;">
+        $table .= '<table style="margin-bottom:10px !important;">
                     <tr>
                         <td class="text-center">
                             <h3 class="name m-0" style="text-transform: uppercase;"><b>'.(config('settings.title') ? config('settings.title') : env('APP_NAME')).'</b></h2>

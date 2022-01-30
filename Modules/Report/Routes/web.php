@@ -32,6 +32,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('sales-by-customer-summary-data', 'SalesReport\CustomerSummaryReportController@report_data')->name('sales.customer.summary.data');
     Route::get('sales-by-customer-summary-details/{customer_id}', 'SalesReport\CustomerSummaryReportController@customer_summary_details')->name('sales.customer.summary.details');
     Route::post('sales-by-customer-summary-details-data', 'SalesReport\CustomerSummaryReportController@customer_summary_details_data')->name('sales.customer.summary.details.data');
+     //Daily Sale Status One
+     Route::get('daily-sales-status', 'SalesReport\DailySalesStatusController@index')->name('daily.sales.status');
+     Route::post('daily-sales-status-data', 'SalesReport\DailySalesStatusController@report_data')->name('daily.sales.status.data');
+     
     /*** End : Sales Report ***/
 
     //Todays Purchase Order Report Route

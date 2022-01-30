@@ -219,7 +219,7 @@ class SaleInvoiceController extends BaseController
                             'customer_name' => $request->customer_trade_name,
                             'invoice_date'  => $request->invoice_date,
                         ]));
-                        if(!empty($request->truck_fare) && $request->truck_fare > 0 && $request->terms == 1)
+                        if(!empty($request->truck_fare) && $request->truck_fare > 0 && $request->terms == 2)
                         {
                             Transaction::create([
                                 'chart_of_account_id' => $request->customer_coa_id,
@@ -368,7 +368,7 @@ class SaleInvoiceController extends BaseController
                         'customer_name' => $request->customer_trade_name,
                         'invoice_date'  => $request->invoice_date,
                     ]));
-                    if(!empty($request->truck_fare) && $request->truck_fare > 0 && $request->terms == 1)
+                    if(!empty($request->truck_fare) && $request->truck_fare > 0 && $request->terms == 2)
                     {
                         Transaction::create([
                             'chart_of_account_id' => $request->customer_coa_id,
