@@ -20,7 +20,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('inventory-valuation-summary', 'InventoryValuationSummaryController@index');
 
     /*** Start : Sales Report ***/
-
     //Sales By Item Summary Report
     Route::get('sales-by-item-summary', 'SalesReport\ItemSummaryReportController@index')->name('sales.item.summary');
     Route::post('sales-by-item-summary-data', 'SalesReport\ItemSummaryReportController@report_data')->name('sales.item.summary.data');
@@ -32,11 +31,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('sales-by-customer-summary-data', 'SalesReport\CustomerSummaryReportController@report_data')->name('sales.customer.summary.data');
     Route::get('sales-by-customer-summary-details/{customer_id}', 'SalesReport\CustomerSummaryReportController@customer_summary_details')->name('sales.customer.summary.details');
     Route::post('sales-by-customer-summary-details-data', 'SalesReport\CustomerSummaryReportController@customer_summary_details_data')->name('sales.customer.summary.details.data');
-     //Daily Sale Status One
-     Route::get('daily-sales-status', 'SalesReport\DailySalesStatusController@index')->name('daily.sales.status');
-     Route::post('daily-sales-status-data', 'SalesReport\DailySalesStatusController@report_data')->name('daily.sales.status.data');
+    //Daily Sale Status One
+    Route::get('daily-sales-status', 'SalesReport\DailySalesStatusController@index')->name('daily.sales.status');
+    Route::post('daily-sales-status-data', 'SalesReport\DailySalesStatusController@report_data')->name('daily.sales.status.data');
      
     /*** End : Sales Report ***/
+
+    /*** Start : Purchase Report ***/
+    //Purchase By Item Summary
+    Route::get('purchase-by-item-summary', 'PurchaseReport\ItemSummaryReportController@index')->name('purchase.item.summary');
+    Route::post('purchase-by-item-summary-data', 'PurchaseReport\ItemSummaryReportController@report_data')->name('purchase.item.summary.data');
+    /*** End : Purchase Report ***/
 
     //Todays Purchase Order Report Route
     Route::get('todays-purchase-order-report', 'TodaysPurchaseOrderReportController@index')->name('todays.purchase.order.report');

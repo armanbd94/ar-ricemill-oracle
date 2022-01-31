@@ -35,21 +35,7 @@
                             </div>
                         </div>
 
-                        <x-form.selectbox labelName="Sales Type" name="type" onchange="showHideCustomerList(this.value)" col="col-md-4" class="selectpicker">
-                                @foreach ($sales_type as $key => $value)
-                                    <option value="{{ $key }}" {{ $key == 0 ? 'selected' : '' }}>{{ $value }}</option>
-                                @endforeach
-                        </x-form.selectbox>
-
-                        <x-form.selectbox labelName="Customer" name="customer_id" col="col-md-4 d-none customer" class="selectpicker">
-                            @if (!$customers->isEmpty())
-                                @foreach ($customers as $customer)
-                                    <option value="{{ $customer->id }}">{{ $customer->code.' '.$customer->trade_name }}</option>
-                                @endforeach
-                            @endif
-                        </x-form.selectbox>
-
-                        <div class="col-md-4 search-section">
+                        <div class="col-md-8">
                             <div style="margin-top:28px;">     
                                     <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right custom-btn" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -117,37 +103,20 @@ $(document).ready(function () {
     });
 
     $('#btn-reset').click(function () {
-        $('#type').val(0);
-        $('#customer_id').val('');
-        $('#type.selectpicker,#customer_id.selectpicker').selectpicker('refresh');
-        showHideCustomerList(0)
-        $('#report_data').empty();
         report_data();
     });
 });
-function showHideCustomerList(type)
-{
-    if(type == 1){
-        $('.customer').removeClass('d-none');
-        $('.search-section').removeClass('col-md-4').addClass('col-md-12');
-    }else{
-        $('.customer').addClass('d-none');
-        $('.search-section').removeClass('col-md-12').addClass('col-md-4');
-    }  
-}
 report_data();
 function report_data()
 {
     let start_date = document.getElementById('start_date').value;
     let end_date   = document.getElementById('end_date').value;
-    let type = document.getElementById('type').value;
-    let customer_id = type == 1 ? document.getElementById('customer_id').value : '';
     if (start_date && end_date) {
 
         $.ajax({
-            url:"{{ route('daily.sales.status.data') }}",
+            url:"{{ route('purchase.item.summary.data') }}",
             type:"POST",
-            data:{start_date:start_date,end_date:end_date,type:type,customer_id:customer_id,_token:_token},
+            data:{start_date:start_date,end_date:end_date,_token:_token},
             beforeSend: function(){
                 $('#table-loader').removeClass('d-none');
             },

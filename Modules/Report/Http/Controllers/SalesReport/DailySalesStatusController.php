@@ -47,8 +47,6 @@ class DailySalesStatusController extends BaseController
                     </tr>
                 </table>';
         
-        
-
         if($type == 0 || $type == 1)
         {
             $total_credit_amount = $total_credit_qty = 0;
@@ -60,13 +58,13 @@ class DailySalesStatusController extends BaseController
                         <td><b>SL.</b></td>
                         <td><b>Name</b></td>
                         <td><b>Address</b></td>
-                        <td><b>Date</b></td>
-                        <td><b>DC. No.</b></td>
+                        <td class='text-center'><b>Date</b></td>
+                        <td class='text-center'><b>DC. No.</b></td>
                         <td><b>Memo</b></td>
-                        <td><b>Qty</b></td>
-                        <td><b>Amount</b></td>
-                        <td><b>Carrier No.</b></td>
-                        <td><b>Rent</b></td>
+                        <td class='text-right'><b>Qty</b></td>
+                        <td class='text-right'><b>Amount</b></td>
+                        <td class='text-center'><b>Carrier No.</b></td>
+                        <td class='text-center'><b>Rent</b></td>
                         </tr>";
             $invoices =  DB::table('sale_invoices as si')
             ->selectRaw('si.*,so.memo_no,so.shipping_address,c.trade_name')
@@ -100,6 +98,62 @@ class DailySalesStatusController extends BaseController
                     <td colspan='6'><b>Total</b></td>
                     <td style='text-align:right;border-top:3px solid black !important;'><b>".number_format($total_credit_qty,2,'.',',')."</b></td>
                     <td style='text-align:right;border-top:3px solid black !important;'><b>".number_format($total_credit_amount,2,'.',',')."</b></td>
+                    <td colspan='2'></td>
+                    </tr>";
+            }else{
+                $table .= "<tr>
+                    <td colspan='10' style='border:0 !important;color:red;text-align:center;'>No Data Found</td>
+                    </tr>";
+            }
+            $table .= "</table>";
+
+        }
+
+        if($type == 0 || $type == 2)
+        {
+            $total_cash_amount = $total_cash_qty = 0;
+            $table .= "<table  id='product_table'>
+                        <tr  style='background: black;color: white;'>
+                            <td colspan='10' style='text-align:center;'><b>Cash Sales</b></td>
+                        </tr>
+                        <tr>
+                        <td><b>SL.</b></td>
+                        <td><b>Name</b></td>
+                        <td><b>Address</b></td>
+                        <td class='text-center'><b>Date</b></td>
+                        <td class='text-center'><b>DC. No.</b></td>
+                        <td><b>Memo</b></td>
+                        <td class='text-right'><b>Qty</b></td>
+                        <td class='text-right'><b>Amount</b></td>
+                        <td class='text-center'><b>Carrier No.</b></td>
+                        <td class='text-center'><b>Rent</b></td>
+                        </tr>";
+            $invoices =  DB::table('cash_sales')
+            ->whereBetween('sale_date',[$start_date,$end_date])
+            ->orderBy('sale_date','asc')
+            ->get();
+            if(!$invoices->isEmpty())
+            {
+                foreach ($invoices as $key =>  $invoice) {
+                    $total_cash_amount += $invoice->grand_total;
+                    $total_cash_qty += $invoice->total_qty;
+                    $table .= "<tr>
+                    <td><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>".($key+1)."</a></td>
+                    <td><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>$invoice->customer_name</a></td>
+                    <td><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'></a></td>
+                    <td style='text-align:center;'><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>".date('d-m-Y',strtotime($invoice->sale_date))."</a></td>
+                    <td><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>$invoice->do_number</a></td>
+                    <td><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>$invoice->memo_no</a></td>
+                    <td style='text-align:right;'><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>".number_format($invoice->total_qty,2,'.',',')."</a></td>
+                    <td style='text-align:right;'><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>".number_format($invoice->grand_total,2,'.',',')."</a></td>
+                    <td><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>Own</a></td>
+                    <td><a href='".url('sale/invoice/view',$invoice->id)."' style='text-decoration:none;color:black;cursor:pointer;'>0/</a></td>
+                </tr>";
+                }
+                $table .= "<tr>
+                    <td colspan='6'><b>Total</b></td>
+                    <td style='text-align:right;border-top:3px solid black !important;'><b>".number_format($total_cash_qty,2,'.',',')."</b></td>
+                    <td style='text-align:right;border-top:3px solid black !important;'><b>".number_format($total_cash_amount,2,'.',',')."</b></td>
                     <td colspan='2'></td>
                     </tr>";
             }else{
