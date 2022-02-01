@@ -46,6 +46,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('purchase-by-vendor-summary-data', 'PurchaseReport\VendorSummaryReportController@report_data')->name('purchase.vendor.summary.data');
     Route::get('purchase-by-vendor-summary-details/{vendor_id}', 'PurchaseReport\VendorSummaryReportController@vendor_summary_details')->name('purchase.vendor.summary.details');
     Route::post('purchase-by-vendor-summary-details-data', 'PurchaseReport\VendorSummaryReportController@vendor_summary_details_data')->name('purchase.vendor.summary.details.data');
+    //Daily Purchase Status
+    Route::get('daily-purchase-status', 'PurchaseReport\DailyPurchaseStatusController@index')->name('daily.purchase.status');
+    Route::post('daily-purchase-status-data', 'PurchaseReport\DailyPurchaseStatusController@report_data')->name('daily.purchase.status.data');
     /*** End : Purchase Report ***/
 
     //Todays Purchase Order Report Route

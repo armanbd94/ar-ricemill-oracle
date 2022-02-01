@@ -55,6 +55,7 @@
                             <x-form.textbox labelName="Challan No." name="challan_no" value="{{ $receive->challan_no }}"  required="required"  col="col-md-4"/>
                             <x-form.textbox labelName="Receive Date" name="received_date" value="{{ $receive->received_date }}" required="required" class="date" col="col-md-4"/>
                             <x-form.textbox labelName="Transport No." name="transport_no" value="{{ $receive->transport_no }}" col="col-md-4"/>
+                            <x-form.textbox labelName="Truck Fare" name="truck_fare" value="{{ $receive->truck_fare }}" col="col-md-4"/>
                             <div class="col-md-12 table-responsive">
 
                                 <table class="table table-bordered" id="material_table">

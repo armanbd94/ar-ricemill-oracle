@@ -10,7 +10,7 @@ use Modules\Purchase\Entities\PurchaseOrder;
 class OrderReceived extends BaseModel
 {
     protected $table = 'order_received';
-    protected $fillable = ['order_id', 'challan_no', 'transport_no', 'item', 'total_qty', 'grand_total', 'received_date', 'created_by', 'modified_by'];
+    protected $fillable = ['order_id', 'challan_no', 'transport_no','truck_fare', 'item', 'total_qty', 'grand_total', 'received_date', 'created_by', 'modified_by'];
     
     public function order()
     {
@@ -66,9 +66,9 @@ class OrderReceived extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('purchase-received-bulk-delete')){
-            $this->column_order = ['orcv.id', 'orcv.id', 'orcv.challan_no', 'po.memo_no','po.vendor_id','po.via_vendor_id',  'orcv.transport_no', 'orcv.item', 'orcv.total_qty', 'orcv.grand_total', 'orcv.received_date', 'orcv.created_by', null];
+            $this->column_order = ['orcv.id', 'orcv.id', 'orcv.challan_no', 'po.memo_no','po.vendor_id','po.via_vendor_id',  'orcv.transport_no', 'orcv.item', 'orcv.total_qty', 'orcv.grand_total','orcv.truck_fare', 'orcv.received_date', 'orcv.created_by', null];
         }else{
-            $this->column_order = ['orcv.id', 'orcv.challan_no', 'po.memo_no','po.vendor_id','po.via_vendor_id',  'orcv.transport_no', 'orcv.item', 'orcv.total_qty', 'orcv.grand_total', 'orcv.received_date', 'orcv.created_by', null];
+            $this->column_order = ['orcv.id', 'orcv.challan_no', 'po.memo_no','po.vendor_id','po.via_vendor_id',  'orcv.transport_no', 'orcv.item', 'orcv.total_qty', 'orcv.grand_total','orcv.truck_fare', 'orcv.received_date', 'orcv.created_by', null];
         }
         
         $query = DB::table('order_received as orcv')
@@ -76,7 +76,7 @@ class OrderReceived extends BaseModel
         ->join('vendors as v','po.vendor_id','=','v.id')
         ->leftJoin('via_vendors as vv','po.via_vendor_id','=','vv.id')
         ->selectRaw('orcv.id, orcv.challan_no,po.memo_no, po.vendor_id,v.name as vendor_name, po.via_vendor_id,vv.name as via_vendor_name,
-        orcv.transport_no, orcv.item, orcv.total_qty,orcv.grand_total, orcv.received_date, orcv.created_by');
+        orcv.transport_no, orcv.item, orcv.total_qty,orcv.grand_total,orcv.truck_fare, orcv.received_date, orcv.created_by');
 
         //search query
         if (!empty($this->_memo_no)) {

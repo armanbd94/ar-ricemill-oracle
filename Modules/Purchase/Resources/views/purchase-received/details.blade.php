@@ -476,6 +476,14 @@
                                                     <td><b>: #{{ $received->order->memo_no }}</b></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><b>Transport No.</b></td>
+                                                    <td><b>: {{ $received->transport_no }}</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Truck Fare</b></td>
+                                                    <td><b>: {{ $received->truck_fare }}</b></td>
+                                                </tr>
+                                                <tr>
                                                     <td><b>Receive Date</b></td>
                                                     <td><b>: </b>
                                                         {{ date('d-M-Y',strtotime($received->order->received_date)) }}

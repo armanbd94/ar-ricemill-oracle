@@ -92,6 +92,7 @@ class ReceivedItemController extends BaseController
                     $row[] = $value->item;
                     $row[] = $value->total_qty;
                     $row[] = number_format($value->grand_total,2);
+                    $row[] = number_format($value->truck_fare,2);
                     $row[] = date(config('settings.date_format'),strtotime($value->received_date));
                     $row[] = $value->created_by;
                     $row[] = action_button($action);//custom helper function for action button
@@ -145,6 +146,7 @@ class ReceivedItemController extends BaseController
                         'item'          => $request->item,
                         'total_qty'     => $request->total_qty,
                         'grand_total'   => $request->grand_total,
+                        'truck_fare'    => $request->truck_fare,
                         'received_date' => $request->received_date,
                         'created_by'    => auth()->user()->name
                     ]);
@@ -289,6 +291,7 @@ class ReceivedItemController extends BaseController
                         'item'          => $request->item,
                         'total_qty'     => $request->total_qty,
                         'grand_total'   => $request->grand_total,
+                        'truck_fare'    => $request->truck_fare,
                         'received_date' => $request->received_date,
                         'modified_by'     => auth()->user()->name
                     ];
