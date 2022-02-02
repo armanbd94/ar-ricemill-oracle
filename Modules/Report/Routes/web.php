@@ -51,6 +51,24 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('daily-purchase-status-data', 'PurchaseReport\DailyPurchaseStatusController@report_data')->name('daily.purchase.status.data');
     /*** End : Purchase Report ***/
 
+    /*** Start :: Vendors & Payables Report ***/
+    //Vendor Balance Summary
+    Route::get('vendor-balance-summary', 'Vendors\VendorBalanceSummaryController@index')->name('vendor.balance.summary');
+    Route::post('vendor-balance-summary-data', 'Vendors\VendorBalanceSummaryController@report_data')->name('vendor.balance.summary.data');
+    //Daily Payment Report
+    Route::get('daily-payment-report', 'Vendors\DailyPaymentReportController@index')->name('daily.payment.report');
+    Route::post('daily-payment-report-data', 'Vendors\DailyPaymentReportController@report_data')->name('daily.payment.report.data');
+    /*** End :: Vendors & Payables Report ***/
+
+    /*** Start :: Customers & Receivables Report ***/
+    //Customer Balance Summary
+    Route::get('customer-balance-summary', 'Customers\CustomerBalanceSummaryController@index')->name('customer.balance.summary');
+    Route::post('customer-balance-summary-data', 'Customers\CustomerBalanceSummaryController@report_data')->name('customer.balance.summary.data');
+    //Daily Collection Report
+    Route::get('daily-collection-report', 'Customers\DailyCollectionReportController@index')->name('daily.collection.report');
+    Route::post('daily-collection-report-data', 'Customers\DailyCollectionReportController@report_data')->name('daily.collection.report.data');
+    /*** End :: Customers & Receivables Report ***/
+
     //Todays Purchase Order Report Route
     Route::get('todays-purchase-order-report', 'TodaysPurchaseOrderReportController@index')->name('todays.purchase.order.report');
     Route::post('todays-purchase-order-report-data', 'TodaysPurchaseOrderReportController@report_data')->name('todays.purchase.order.report.data');
