@@ -41,6 +41,9 @@ Route::group(['middleware' => ['auth']], function () {
     //Purchase By Item Summary
     Route::get('purchase-by-item-summary', 'PurchaseReport\ItemSummaryReportController@index')->name('purchase.item.summary');
     Route::post('purchase-by-item-summary-data', 'PurchaseReport\ItemSummaryReportController@report_data')->name('purchase.item.summary.data');
+    //Purchase By Item Details Report
+    Route::get('purchase-by-item-details', 'PurchaseReport\ItemDetailsReportController@index')->name('purchase.item.details');
+    Route::post('purchase-by-item-details-data', 'PurchaseReport\ItemDetailsReportController@report_data')->name('purchase.item.details.data');
     //Sales By Customer Summary Report
     Route::get('purchase-by-vendor-summary', 'PurchaseReport\VendorSummaryReportController@index')->name('purchase.vendor.summary');
     Route::post('purchase-by-vendor-summary-data', 'PurchaseReport\VendorSummaryReportController@report_data')->name('purchase.vendor.summary.data');
