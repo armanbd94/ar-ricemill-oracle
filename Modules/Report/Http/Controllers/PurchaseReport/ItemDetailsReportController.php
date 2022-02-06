@@ -17,13 +17,13 @@ class ItemDetailsReportController extends BaseController
     use PurchaseReport;
     public function index()
     {
-        // if(permission('purchase-by-item-details-access')){
+        if(permission('purchase-by-item-details-access')){
             $this->setPageData('Purchase By Item Details','Purchase By Item Details','fas fa-file',[['name' => 'Purchase By Item Details']]);
             $categories = Category::with('materials')->whereHas('materials')->whereIn('id',[1,2])->get();
             return view('report::purchase-report.item-summary-details',compact('categories'));
-        // }else{
-        //     return $this->access_blocked();
-        // }
+        }else{
+            return $this->access_blocked();
+        }
 
     }
 

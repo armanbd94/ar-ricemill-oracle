@@ -6,11 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateOrderReceivedTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+
     public function up()
     {
         Schema::create('order_received', function (Blueprint $table) {
@@ -30,11 +26,7 @@ class CreateOrderReceivedTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
+
     public function down()
     {
         Schema::dropIfExists('order_receiveds');

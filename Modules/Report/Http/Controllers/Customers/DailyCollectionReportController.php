@@ -11,13 +11,13 @@ class DailyCollectionReportController extends BaseController
 {
     public function index()
     {
-        // if(permission('daily-collection-report-access')){
+        if(permission('daily-collection-report-access')){
             $this->setPageData('Daily Collection Report','Daily Collection Report','fas fa-file',[['name' => 'Daily Collection Report']]);
             $customers = Customer::allCustomers();
             return view('report::customers-receivables.daily-collection-report',compact('customers'));
-        // }else{
-        //     return $this->access_blocked();
-        // }
+        }else{
+            return $this->access_blocked();
+        }
     }
 
     public function report_data(Request $request)

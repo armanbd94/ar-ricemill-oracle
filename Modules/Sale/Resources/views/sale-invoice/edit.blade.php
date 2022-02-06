@@ -69,7 +69,7 @@
                                 <option value="1" {{ $invoice->terms == 1 ? 'selected' : '' }} >Office Payable</option>
                                 <option value="2" {{ $invoice->terms == 2 ? 'selected' : '' }} >Customer Payable</option>
                             </x-form.selectbox>
-                            <x-form.textbox labelName="Driver's Mobile No." name="transport_no"  value="{{ $invoice->transport_no }}"  col="col-md-3"/>
+                            <x-form.textbox labelName="Driver's Mobile No." name="driver_mobile_no"  value="{{ $invoice->driver_mobile_no }}"  col="col-md-3"/>
                             
                             <div class="col-md-12 table-responsive" style="min-height: 500px;">
 

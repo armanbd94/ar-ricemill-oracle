@@ -80,7 +80,7 @@
                                             $stock_qty = $value->pivot->qty;
                                             $locations = DB::table('locations')->where('site_id',$value->pivot->site_id)->get();
                                             $products = DB::table('site_product as sp')
-                                            ->select('p.id','p.name','sp.qty')
+                                            ->select('p.id','p.name','sp.qty','p.price')
                                             ->leftJoin('products as p','sp.product_id','=','p.id')
                                             ->where([['sp.site_id',$value->pivot->site_id],['sp.location_id',$value->pivot->location_id]])
                                             ->get();
